@@ -1,0 +1,119 @@
+﻿@model IEnumerable<DAL.Models.User>
+
+@{
+    ViewData["Title"] = "Index";
+}
+
+<h1>Index</h1>
+
+<p>
+    <a asp-action="Create">Create New</a>
+</p>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.IsUserEnabled)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.UserGoogleId)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.UserUsername)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.UserPassword)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.UserFullname)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.UserEmail)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.UserPhone)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.UserBirthdate)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.UserAddress)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.UserImage)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.UserCurrentPaymentMethod)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.UserCreatedAt)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.UserUpdatedAt)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Gender)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Role)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model) {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.IsUserEnabled)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.UserGoogleId)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.UserUsername)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.UserPassword)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.UserFullname)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.UserEmail)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.UserPhone)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.UserBirthdate)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.UserAddress)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.UserImage)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.UserCurrentPaymentMethod)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.UserCreatedAt)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.UserUpdatedAt)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Gender)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Role.RoleId)
+            </td>
+            <td>
+                <a asp-action="Edit" asp-route-id="@item.UserId">Edit</a> |
+                <a asp-action="Details" asp-route-id="@item.UserId">Details</a> |
+                <a asp-action="Delete" asp-route-id="@item.UserId">Delete</a>
+            </td>
+        </tr>
+}
+    </tbody>
+</table>
