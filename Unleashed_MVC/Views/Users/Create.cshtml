@@ -1,0 +1,107 @@
+﻿@model DAL.Models.User
+
+@{
+    ViewData["Title"] = "Create";
+}
+
+<h1>Create</h1>
+
+<h4>User</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="Create">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-group">
+                <label asp-for="UserId" class="control-label"></label>
+                <input asp-for="UserId" class="form-control" />
+                <span asp-validation-for="UserId" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="RoleId" class="control-label"></label>
+                <select asp-for="RoleId" class ="form-control" asp-items="ViewBag.RoleId"></select>
+            </div>
+            <div class="form-group">
+                <label asp-for="IsUserEnabled" class="control-label"></label>
+                <input asp-for="IsUserEnabled" class="form-control" />
+                <span asp-validation-for="IsUserEnabled" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="UserGoogleId" class="control-label"></label>
+                <input asp-for="UserGoogleId" class="form-control" />
+                <span asp-validation-for="UserGoogleId" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="UserUsername" class="control-label"></label>
+                <input asp-for="UserUsername" class="form-control" />
+                <span asp-validation-for="UserUsername" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="UserPassword" class="control-label"></label>
+                <input asp-for="UserPassword" class="form-control" />
+                <span asp-validation-for="UserPassword" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="UserFullname" class="control-label"></label>
+                <input asp-for="UserFullname" class="form-control" />
+                <span asp-validation-for="UserFullname" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="UserEmail" class="control-label"></label>
+                <input asp-for="UserEmail" class="form-control" />
+                <span asp-validation-for="UserEmail" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="UserPhone" class="control-label"></label>
+                <input asp-for="UserPhone" class="form-control" />
+                <span asp-validation-for="UserPhone" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="UserBirthdate" class="control-label"></label>
+                <input asp-for="UserBirthdate" class="form-control" />
+                <span asp-validation-for="UserBirthdate" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="UserAddress" class="control-label"></label>
+                <input asp-for="UserAddress" class="form-control" />
+                <span asp-validation-for="UserAddress" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="UserImage" class="control-label"></label>
+                <input asp-for="UserImage" class="form-control" />
+                <span asp-validation-for="UserImage" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="UserCurrentPaymentMethod" class="control-label"></label>
+                <input asp-for="UserCurrentPaymentMethod" class="form-control" />
+                <span asp-validation-for="UserCurrentPaymentMethod" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="UserCreatedAt" class="control-label"></label>
+                <input asp-for="UserCreatedAt" class="form-control" />
+                <span asp-validation-for="UserCreatedAt" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="UserUpdatedAt" class="control-label"></label>
+                <input asp-for="UserUpdatedAt" class="form-control" />
+                <span asp-validation-for="UserUpdatedAt" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Gender" class="control-label"></label>
+                <input asp-for="Gender" class="form-control" />
+                <span asp-validation-for="Gender" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Create" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

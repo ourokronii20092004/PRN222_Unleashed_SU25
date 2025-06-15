@@ -1,3 +1,5 @@
+using DAL.DAO;
+
 namespace Unleashed_MVC
 {
     public class Program
@@ -6,6 +8,7 @@ namespace Unleashed_MVC
         {
             var builder = WebApplication.CreateBuilder(args);
 
+            builder.Services.ConnectUnleashedDatabase(builder.Configuration);
             // Add services to the container.
             builder.Services.AddControllersWithViews();
 
