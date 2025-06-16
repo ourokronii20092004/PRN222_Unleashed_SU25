@@ -1,8 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using DAL.Models;
 using Microsoft.EntityFrameworkCore;
 
-namespace DAL.Models;
+namespace DAL.Data;
 
 public partial class UnleashedContext : DbContext
 {

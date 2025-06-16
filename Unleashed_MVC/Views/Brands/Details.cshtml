@@ -1,0 +1,66 @@
+﻿@model DAL.Models.Brand
+
+@{
+    ViewData["Title"] = "Brand Details";
+}
+
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-7">
+            <div class="card shadow-sm">
+                <div class="card-header bg-info text-white">
+                    <h4 class="mb-0"><i class="bi bi-eye-fill"></i> @ViewData["Title"]: @Model.BrandName</h4>
+                </div>
+                <div class="card-body">
+                    @if (!string.IsNullOrEmpty(Model.BrandImageUrl))
+                    {
+                        <div class="text-center mb-3">
+                            <img src="@Model.BrandImageUrl" alt="@Model.BrandName" class="img-fluid rounded shadow-sm" style="max-height: 200px;"
+                                 onerror="this.onerror=null;this.src='/images/placeholder-image.png';" />
+                        </div>
+                    }
+
+                    <dl class="row">
+                        <dt class="col-sm-4 fw-bold">@Html.DisplayNameFor(model => model.BrandName)</dt>
+                        <dd class="col-sm-8">@Html.DisplayFor(model => model.BrandName)</dd>
+
+                        <dt class="col-sm-4 fw-bold">@Html.DisplayNameFor(model => model.BrandDescription)</dt>
+                        <dd class="col-sm-8">@Html.DisplayFor(model => model.BrandDescription)</dd>
+
+                        <dt class="col-sm-4 fw-bold">@Html.DisplayNameFor(model => model.BrandWebsiteUrl)</dt>
+                        <dd class="col-sm-8">
+                            @if (!string.IsNullOrEmpty(Model.BrandWebsiteUrl))
+                            {
+                                <a href="@Model.BrandWebsiteUrl" target="_blank" rel="noopener noreferrer">
+                                    @Model.BrandWebsiteUrl <i class="bi bi-box-arrow-up-right ms-1"></i>
+                                </a>
+                            }
+                            else
+                            {
+                                <span class="text-muted">N/A</span>
+                            }
+                        </dd>
+
+                        <dt class="col-sm-4 fw-bold">@Html.DisplayNameFor(model => model.BrandCreatedAt)</dt>
+                        <dd class="col-sm-8">
+                            @(Model.BrandCreatedAt.HasValue ? Model.BrandCreatedAt.Value.ToString("F") : "N/A")
+                        </dd>
+
+                        <dt class="col-sm-4 fw-bold">@Html.DisplayNameFor(model => model.BrandUpdatedAt)</dt>
+                        <dd class="col-sm-8">
+                            @(Model.BrandUpdatedAt.HasValue ? Model.BrandUpdatedAt.Value.ToString("F") : "N/A")
+                        </dd>
+                    </dl>
+                </div>
+                <div class="card-footer bg-light text-end">
+                    <a asp-action="Edit" asp-route-id="@Model?.BrandId" class="btn btn-primary me-2">
+                        <i class="bi bi-pencil-square"></i> Edit
+                    </a>
+                    <a asp-action="Index" class="btn btn-outline-secondary">
+                        <i class="bi bi-arrow-left-circle"></i> Back to List
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
