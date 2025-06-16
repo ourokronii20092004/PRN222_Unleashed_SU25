@@ -1,0 +1,67 @@
+﻿@model DAL.Models.Brand
+
+@{
+    ViewData["Title"] = "Create New Brand";
+}
+
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+            <div class="card shadow-sm">
+                <div class="card-header bg-success text-white">
+                    <h4 class="mb-0"><i class="bi bi-plus-circle-fill"></i> @ViewData["Title"]</h4>
+                </div>
+                <div class="card-body">
+                    <form asp-action="Create">
+                        <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
+
+                        <div class="mb-3">
+                            <label asp-for="BrandName" class="form-label fw-bold"></label>
+                            <input asp-for="BrandName" class="form-control" placeholder="Enter brand name" />
+                            <span asp-validation-for="BrandName" class="text-danger small"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="BrandDescription" class="form-label fw-bold"></label>
+                            <textarea asp-for="BrandDescription" class="form-control" rows="3" placeholder="Enter brand description"></textarea>
+                            <span asp-validation-for="BrandDescription" class="text-danger small"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="BrandImageUrl" class="form-label fw-bold"></label>
+                            <input asp-for="BrandImageUrl" class="form-control" type="url" placeholder="https://example.com/image.png" />
+                            <span asp-validation-for="BrandImageUrl" class="text-danger small"></span>
+                            <small class="form-text text-muted">Enter a valid URL for the brand image.</small>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="BrandWebsiteUrl" class="form-label fw-bold"></label>
+                            <input asp-for="BrandWebsiteUrl" class="form-control" type="url" placeholder="https://example.com" />
+                            <span asp-validation-for="BrandWebsiteUrl" class="text-danger small"></span>
+                            <small class="form-text text-muted">Enter the official website URL.</small>
+                        </div>
+
+                        @* BrandCreatedAt and BrandUpdatedAt are handled by the service/database *@
+                        @* They should not be part of the create form *@
+
+                        <hr />
+                        <div class="d-flex justify-content-end">
+                            <a asp-action="Index" class="btn btn-outline-secondary me-2">
+                                <i class="bi bi-arrow-left-circle"></i> Back to List
+                            </a>
+                            <button type="submit" class="btn btn-success">
+                                <i class="bi bi-check-circle-fill"></i> Create Brand
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

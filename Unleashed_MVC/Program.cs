@@ -1,3 +1,5 @@
+using BLL.Interfaces;
+using BLL.Service;
 using DAL.DAO;
 
 namespace Unleashed_MVC
@@ -11,6 +13,13 @@ namespace Unleashed_MVC
             builder.Services.ConnectUnleashedDatabase(builder.Configuration);
             // Add services to the container.
             builder.Services.AddControllersWithViews();
+
+            // khai bao services o day
+            builder.Services.AddScoped<IBrandService, BrandService>();
+
+
+
+            //
 
             var app = builder.Build();
 

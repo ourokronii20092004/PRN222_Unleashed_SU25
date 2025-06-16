@@ -1,4 +1,4 @@
-﻿using DAL.Models;
+﻿using DAL.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
