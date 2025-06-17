@@ -1,5 +1,5 @@
-using BLL.Interfaces;
-using BLL.Service;
+﻿using BLL.Interfaces;
+using BLL.Services;
 using DAL.DAO;
 
 namespace Unleashed_MVC
@@ -17,6 +17,7 @@ namespace Unleashed_MVC
             // khai bao services o day
             builder.Services.AddScoped<IBrandService, BrandService>();
 
+            builder.Services.AddScoped<IAccountService, AccountService>();
 
 
             //

@@ -1,14 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using BLL.Interfaces;
+﻿using BLL.Interfaces;
 using DAL.Data;
 using DAL.Models;
 using Microsoft.EntityFrameworkCore;
 
-namespace BLL.Service
+namespace BLL.Services
 {
     public class BrandService : IBrandService
     {

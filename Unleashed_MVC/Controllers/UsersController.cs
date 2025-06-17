@@ -1,42 +1,34 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Mvc;
 using DAL.Models;
-using DAL.Data;
+using BLL.Interfaces;
 
 namespace Unleashed_MVC.Controllers
 {
     public class UsersController : Controller
     {
-        private readonly UnleashedContext _context;
+        private readonly IAccountService _service;
 
-        public UsersController(UnleashedContext context)
+        public UsersController(IAccountService service)
         {
-            _context = context;
+            _service = service;
         }
 
         // GET: Users
         public async Task<IActionResult> Index()
         {
-            var unleashedContext = _context.Users.Include(u => u.Role);
-            return View(await unleashedContext.ToListAsync());
+            var accountList = await _service.GetAccountsAsync();
+            return View(accountList);
         }
 
         // GET: Users/Details/5
-        public async Task<IActionResult> Details(string id)
+        public async Task<IActionResult> Details(string username)
         {
-            if (id == null)
+            if (username == null)
             {
                 return NotFound();
             }
 
-            var user = await _context.Users
-                .Include(u => u.Role)
-                .FirstOrDefaultAsync(m => m.UserId == id);
+            var user = await _service.GetUserByUsername(username);
             if (user == null)
             {
                 return NotFound();
@@ -47,8 +39,7 @@ namespace Unleashed_MVC.Controllers
 
         // GET: Users/Create
         public IActionResult Create()
-        {
-            ViewData["RoleId"] = new SelectList(_context.Roles, "RoleId", "RoleId");
+        {         
             return View();
         }
 
@@ -61,28 +52,28 @@ namespace Unleashed_MVC.Controllers
         {
             if (ModelState.IsValid)
             {
-                _context.Add(user);
-                await _context.SaveChangesAsync();
+
+                await _service.AddUser(user);
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["RoleId"] = new SelectList(_context.Roles, "RoleId", "RoleId", user.RoleId);
+            //ViewData["RoleId"] = new SelectList(_context.Roles, "RoleId", "RoleId", user.RoleId);
             return View(user);
         }
 
         // GET: Users/Edit/5
-        public async Task<IActionResult> Edit(string id)
+        public async Task<IActionResult> Edit(string username)
         {
-            if (id == null)
+            if (username == null)
             {
                 return NotFound();
             }
 
-            var user = await _context.Users.FindAsync(id);
+            var user = await _service.GetUserByUsername(username);
             if (user == null)
             {
                 return NotFound();
             }
-            ViewData["RoleId"] = new SelectList(_context.Roles, "RoleId", "RoleId", user.RoleId);
+            //ViewData["RoleId"] = new SelectList(_context.Roles, "RoleId", "RoleId", user.RoleId);
             return View(user);
         }
 
@@ -91,48 +82,33 @@ namespace Unleashed_MVC.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(string id, [Bind("UserId,RoleId,IsUserEnabled,UserGoogleId,UserUsername,UserPassword,UserFullname,UserEmail,UserPhone,UserBirthdate,UserAddress,UserImage,UserCurrentPaymentMethod,UserCreatedAt,UserUpdatedAt,Gender")] User user)
+        public async Task<IActionResult> Edit(string username, [Bind("UserId,RoleId,IsUserEnabled,UserGoogleId,UserUsername,UserPassword,UserFullname,UserEmail,UserPhone,UserBirthdate,UserAddress,UserImage,UserCurrentPaymentMethod,UserCreatedAt,UserUpdatedAt,Gender")] User user)
         {
-            if (id != user.UserId)
+            if (username != user.UserUsername)
             {
                 return NotFound();
             }
 
             if (ModelState.IsValid)
-            {
-                try
-                {
-                    _context.Update(user);
-                    await _context.SaveChangesAsync();
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!UserExists(user.UserId))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
-                }
+            {                
+                if(await _service.EditUser(user)) 
+                    return NotFound();      
+                
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["RoleId"] = new SelectList(_context.Roles, "RoleId", "RoleId", user.RoleId);
+            //ViewData["RoleId"] = new SelectList(_context.Roles, "RoleId", "RoleId", user.RoleId);
             return View(user);
         }
 
         // GET: Users/Delete/5
-        public async Task<IActionResult> Delete(string id)
+        public async Task<IActionResult> Delete(string username)
         {
-            if (id == null)
+            if (username == null)
             {
                 return NotFound();
             }
 
-            var user = await _context.Users
-                .Include(u => u.Role)
-                .FirstOrDefaultAsync(m => m.UserId == id);
+            var user = await _service.GetUserByUsername(username);
             if (user == null)
             {
                 return NotFound();
@@ -144,21 +120,14 @@ namespace Unleashed_MVC.Controllers
         // POST: Users/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(string id)
+        public async Task<IActionResult> DeleteConfirmed(string username)
         {
-            var user = await _context.Users.FindAsync(id);
+            var user = await _service.GetUserByUsername(username);
             if (user != null)
             {
-                _context.Users.Remove(user);
+               await _service.DeleteUser(user);
             }
-
-            await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
-        }
-
-        private bool UserExists(string id)
-        {
-            return _context.Users.Any(e => e.UserId == id);
         }
     }
 }
