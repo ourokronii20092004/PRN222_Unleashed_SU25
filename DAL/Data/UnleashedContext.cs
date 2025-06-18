@@ -113,8 +113,6 @@ public partial class UnleashedContext : DbContext
             entity.ToTable("cart");
 
             entity.Property(e => e.UserId)
-                .HasMaxLength(255)
-                .IsUnicode(false)
                 .HasColumnName("user_id");
             entity.Property(e => e.VariationId).HasColumnName("variation_id");
             entity.Property(e => e.CartQuantity).HasColumnName("cart_quantity");
@@ -299,8 +297,6 @@ public partial class UnleashedContext : DbContext
                 .HasColumnName("notification_title");
             entity.Property(e => e.NotificationUpdatedAt).HasColumnName("notification_updated_at");
             entity.Property(e => e.UserIdSender)
-                .HasMaxLength(255)
-                .IsUnicode(false)
                 .HasColumnName("user_id_sender");
 
             entity.HasOne(d => d.UserIdSenderNavigation).WithMany(p => p.Notifications)
@@ -316,8 +312,6 @@ public partial class UnleashedContext : DbContext
 
             entity.Property(e => e.NotificationId).HasColumnName("notification_id");
             entity.Property(e => e.UserId)
-                .HasMaxLength(255)
-                .IsUnicode(false)
                 .HasColumnName("user_id");
             entity.Property(e => e.IsNotificationDeleted).HasColumnName("is_notification_deleted");
             entity.Property(e => e.IsNotificationViewed).HasColumnName("is_notification_viewed");
@@ -372,8 +366,6 @@ public partial class UnleashedContext : DbContext
             entity.Property(e => e.PaymentMethodId).HasColumnName("payment_method_id");
             entity.Property(e => e.ShippingMethodId).HasColumnName("shipping_method_id");
             entity.Property(e => e.UserId)
-                .HasMaxLength(255)
-                .IsUnicode(false)
                 .HasColumnName("user_id");
 
             entity.HasOne(d => d.Discount).WithMany(p => p.Orders)
@@ -494,7 +486,7 @@ public partial class UnleashedContext : DbContext
                     {
                         j.HasKey("ProductId", "CategoryId");
                         j.ToTable("product_category");
-                        j.IndexerProperty<string>("ProductId")
+                        j.IndexerProperty<Guid>("ProductId")
                             .HasMaxLength(255)
                             .IsUnicode(false)
                             .HasColumnName("product_id");
@@ -557,8 +549,6 @@ public partial class UnleashedContext : DbContext
                 .HasColumnName("product_id");
             entity.Property(e => e.ReviewRating).HasColumnName("review_rating");
             entity.Property(e => e.UserId)
-                .HasMaxLength(255)
-                .IsUnicode(false)
                 .HasColumnName("user_id");
 
             entity.HasOne(d => d.Order).WithMany(p => p.Reviews)
@@ -624,7 +614,7 @@ public partial class UnleashedContext : DbContext
                         j.HasKey("SaleId", "ProductId");
                         j.ToTable("sale_product");
                         j.IndexerProperty<int>("SaleId").HasColumnName("sale_id");
-                        j.IndexerProperty<string>("ProductId")
+                        j.IndexerProperty<Guid>("ProductId")
                             .HasMaxLength(255)
                             .IsUnicode(false)
                             .HasColumnName("product_id");
@@ -766,9 +756,7 @@ public partial class UnleashedContext : DbContext
         {
             entity.ToTable("user");
 
-            entity.Property(e => e.UserId)
-                .HasMaxLength(255)
-                .IsUnicode(false)
+            entity.Property(e => e.UserId)                
                 .HasColumnName("user_id");
             entity.Property(e => e.Gender).HasColumnName("gender");
             entity.Property(e => e.IsUserEnabled).HasColumnName("is_user_enabled");
@@ -821,9 +809,7 @@ public partial class UnleashedContext : DbContext
 
             entity.ToTable("user_discount");
 
-            entity.Property(e => e.UserId)
-                .HasMaxLength(255)
-                .IsUnicode(false)
+            entity.Property(e => e.UserId)            
                 .HasColumnName("user_id");
             entity.Property(e => e.DiscountId).HasColumnName("discount_id");
             entity.Property(e => e.DiscountUsedAt).HasColumnName("discount_used_at");

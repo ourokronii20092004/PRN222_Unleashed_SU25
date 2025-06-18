@@ -10,11 +10,12 @@ namespace BLL.Interfaces
     public interface IAccountService
     {
         Task<List<User>> GetAccountsAsync();
-        Task<bool> AddUser(User user);
-        Task<bool> EditUser(User user);
-        Task<bool> DeleteUser(User user);
-        Task<User?> GetUserByUsername(string username);
-        Task<bool> ValidationUser(string username);
+        Task<bool> AddEmployeeAsync(User user);
+        Task<bool> AddCustomerAsync(User user);
+        Task<bool> EditUserAsync(User user);
+        Task<bool> DeleteUserAsync(User user);
+        Task<User?> GetUserByUsernameAsync(string username);
+        Task<bool> ValidationUserAsync(string username);
 
     }
 }

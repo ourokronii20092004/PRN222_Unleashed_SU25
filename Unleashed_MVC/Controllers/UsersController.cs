@@ -28,7 +28,7 @@ namespace Unleashed_MVC.Controllers
                 return NotFound();
             }
 
-            var user = await _service.GetUserByUsername(username);
+            var user = await _service.GetUserByUsernameAsync(username);
             if (user == null)
             {
                 return NotFound();
@@ -48,14 +48,11 @@ namespace Unleashed_MVC.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("UserId,RoleId,IsUserEnabled,UserGoogleId,UserUsername,UserPassword,UserFullname,UserEmail,UserPhone,UserBirthdate,UserAddress,UserImage,UserCurrentPaymentMethod,UserCreatedAt,UserUpdatedAt,Gender")] User user)
+        public async Task<IActionResult> Create([Bind("UserUsername,UserPassword,UserFullname,UserEmail,UserPhone,UserBirthdate,UserAddress,UserImage,Gender")] User user)
         {
-            if (ModelState.IsValid)
-            {
-
-                await _service.AddUser(user);
+             if (await _service.AddEmployeeAsync(user))
                 return RedirectToAction(nameof(Index));
-            }
+            
             //ViewData["RoleId"] = new SelectList(_context.Roles, "RoleId", "RoleId", user.RoleId);
             return View(user);
         }
@@ -68,7 +65,7 @@ namespace Unleashed_MVC.Controllers
                 return NotFound();
             }
 
-            var user = await _service.GetUserByUsername(username);
+            var user = await _service.GetUserByUsernameAsync(username);
             if (user == null)
             {
                 return NotFound();
@@ -84,14 +81,14 @@ namespace Unleashed_MVC.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(string username, [Bind("UserId,RoleId,IsUserEnabled,UserGoogleId,UserUsername,UserPassword,UserFullname,UserEmail,UserPhone,UserBirthdate,UserAddress,UserImage,UserCurrentPaymentMethod,UserCreatedAt,UserUpdatedAt,Gender")] User user)
         {
-            if (username != user.UserUsername)
+            if (!username.Equals(user.UserUsername))
             {
                 return NotFound();
             }
 
             if (ModelState.IsValid)
             {                
-                if(await _service.EditUser(user)) 
+                if(!await _service.EditUserAsync(user)) 
                     return NotFound();      
                 
                 return RedirectToAction(nameof(Index));
@@ -108,7 +105,7 @@ namespace Unleashed_MVC.Controllers
                 return NotFound();
             }
 
-            var user = await _service.GetUserByUsername(username);
+            var user = await _service.GetUserByUsernameAsync(username);
             if (user == null)
             {
                 return NotFound();
@@ -122,10 +119,10 @@ namespace Unleashed_MVC.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(string username)
         {
-            var user = await _service.GetUserByUsername(username);
+            var user = await _service.GetUserByUsernameAsync(username);
             if (user != null)
             {
-               await _service.DeleteUser(user);
+               await _service.DeleteUserAsync(user);
             }
             return RedirectToAction(nameof(Index));
         }

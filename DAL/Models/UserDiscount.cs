@@ -5,7 +5,7 @@ namespace DAL.Models;
 
 public partial class UserDiscount
 {
-    public string UserId { get; set; } = null!;
+    public Guid UserId { get; set; }
 
     public int DiscountId { get; set; }
 

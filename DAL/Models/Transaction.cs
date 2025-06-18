@@ -13,7 +13,7 @@ public partial class Transaction
 
     public int? ProviderId { get; set; }
 
-    public string? InchargeEmployeeId { get; set; }
+    public Guid InchargeEmployeeId { get; set; }
 
     public int? TransactionTypeId { get; set; }
 
