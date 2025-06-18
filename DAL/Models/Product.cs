@@ -5,7 +5,7 @@ namespace DAL.Models;
 
 public partial class Product
 {
-    public string ProductId { get; set; } = null!;
+    public Guid ProductId { get; set; }
 
     public int? BrandId { get; set; }
 

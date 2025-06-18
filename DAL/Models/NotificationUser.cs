@@ -7,7 +7,7 @@ public partial class NotificationUser
 {
     public int NotificationId { get; set; }
 
-    public string UserId { get; set; } = null!;
+    public Guid UserId { get; set; }
 
     public bool? IsNotificationViewed { get; set; }
 

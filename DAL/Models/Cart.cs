@@ -5,7 +5,7 @@ namespace DAL.Models;
 
 public partial class Cart
 {
-    public string UserId { get; set; } = null!;
+    public Guid UserId { get; set; }
 
     public int VariationId { get; set; }
 

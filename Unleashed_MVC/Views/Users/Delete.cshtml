@@ -98,11 +98,13 @@
         <dt class = "col-sm-2">
             @Html.DisplayNameFor(model => model.Role)
         </dt>
-    
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.Role.RoleName)
+        </dd>
     </dl>
     
     <form asp-action="Delete">
-        <input type="hidden" asp-for="UserId" />
+        <input type="hidden" name="username" value="@Model.UserUsername" />
         <input type="submit" value="Delete" class="btn btn-danger" /> |
         <a asp-action="Index">Back to List</a>
     </form>

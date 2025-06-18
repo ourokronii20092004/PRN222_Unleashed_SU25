@@ -11,31 +11,25 @@
 <div class="row">
     <div class="col-md-4">
         <form asp-action="Edit">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <input type="hidden" asp-for="UserId" />
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>     
             <div class="form-group">
-                <label asp-for="RoleId" class="control-label"></label>
-                <select asp-for="RoleId" class="form-control" asp-items="ViewBag.RoleId"></select>
-                <span asp-validation-for="RoleId" class="text-danger"></span>
-            </div>
-            <div class="form-group">
+                <input type="hidden" name="username" value="@Model.UserUsername" />
                 <label asp-for="IsUserEnabled" class="control-label"></label>
-                <input asp-for="IsUserEnabled" class="form-control" />
+                <select asp-for="IsUserEnabled" class="form-control">
+                    <option value="true">True</option>
+                    <option value="false">False</option>
+                </select>
                 <span asp-validation-for="IsUserEnabled" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <label asp-for="UserGoogleId" class="control-label"></label>
-                <input asp-for="UserGoogleId" class="form-control" />
-                <span asp-validation-for="UserGoogleId" class="text-danger"></span>
-            </div>
-            <div class="form-group">
                 <label asp-for="UserUsername" class="control-label"></label>
-                <input asp-for="UserUsername" class="form-control" />
+                <input readonly asp-for="UserUsername" class="form-control" />
                 <span asp-validation-for="UserUsername" class="text-danger"></span>
+
             </div>
             <div class="form-group">
                 <label asp-for="UserPassword" class="control-label"></label>
-                <input asp-for="UserPassword" class="form-control" />
+                <input readonly type="password" asp-for="UserPassword" class="form-control" />
                 <span asp-validation-for="UserPassword" class="text-danger"></span>
             </div>
             <div class="form-group">
@@ -69,23 +63,15 @@
                 <span asp-validation-for="UserImage" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <label asp-for="UserCurrentPaymentMethod" class="control-label"></label>
-                <input asp-for="UserCurrentPaymentMethod" class="form-control" />
-                <span asp-validation-for="UserCurrentPaymentMethod" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="UserCreatedAt" class="control-label"></label>
-                <input asp-for="UserCreatedAt" class="form-control" />
-                <span asp-validation-for="UserCreatedAt" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="UserUpdatedAt" class="control-label"></label>
-                <input asp-for="UserUpdatedAt" class="form-control" />
-                <span asp-validation-for="UserUpdatedAt" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Gender" class="control-label"></label>
-                <input asp-for="Gender" class="form-control" />
+                <label class="control-label">Gender</label>
+                <div>
+                    <input type="radio" value="false" asp-for="Gender" id="genderMale" />
+                    <label for="genderMale">Male</label>
+                </div>
+                <div>
+                    <input type="radio" value="true" asp-for="Gender" id="genderFemale" />
+                    <label for="genderFemale">Female</label>
+                </div>
                 <span asp-validation-for="Gender" class="text-danger"></span>
             </div>
             <div class="form-group">

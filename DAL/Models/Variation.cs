@@ -7,7 +7,7 @@ public partial class Variation
 {
     public int VariationId { get; set; }
 
-    public string? ProductId { get; set; }
+    public Guid ProductId { get; set; }
 
     public int? SizeId { get; set; }
 

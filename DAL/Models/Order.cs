@@ -7,7 +7,7 @@ public partial class Order
 {
     public string OrderId { get; set; } = null!;
 
-    public string? UserId { get; set; }
+    public Guid UserId { get; set; }
 
     public int? OrderStatusId { get; set; }
 
@@ -17,7 +17,7 @@ public partial class Order
 
     public int? DiscountId { get; set; }
 
-    public string? InchargeEmployeeId { get; set; }
+    public Guid? InchargeEmployeeId { get; set; }
 
     public DateTimeOffset? OrderDate { get; set; }
 
