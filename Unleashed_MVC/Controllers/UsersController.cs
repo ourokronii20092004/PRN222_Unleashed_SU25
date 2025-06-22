@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using DAL.Models;
 using BLL.Interfaces;
+using DAL.DTOs.AccountDTOs;
 
 namespace Unleashed_MVC.Controllers
 {
@@ -34,7 +35,7 @@ namespace Unleashed_MVC.Controllers
                 return NotFound();
             }
 
-            return View(user);
+            return View(AccountDetailDTO.FromUser(user));
         }
 
         // GET: Users/Create
@@ -50,7 +51,7 @@ namespace Unleashed_MVC.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("UserUsername,UserPassword,UserFullname,UserEmail,UserPhone,UserBirthdate,UserAddress,UserImage,Gender")] User user)
         {
-             if (await _service.AddEmployeeAsync(user))
+             if (await _service.AddUserAsync(user,2))
                 return RedirectToAction(nameof(Index));
             
             //ViewData["RoleId"] = new SelectList(_context.Roles, "RoleId", "RoleId", user.RoleId);
