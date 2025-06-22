@@ -49,16 +49,27 @@ namespace Unleashed_MVC.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("UserUsername,UserPassword,UserFullname,UserEmail,UserPhone,UserBirthdate,UserAddress,UserImage,Gender")] User user)
+        public async Task<IActionResult> Create([Bind("Username,Password,Fullname,Email,Phone,Birthdate,Address,Image,Gender")] RegisterAccountDTO account)
         {
-             if (await _service.AddUserAsync(user,2))
-                return RedirectToAction(nameof(Index));
+            if (!ModelState.IsValid)
+            {
+                return View(account);
+            }     
             
-            //ViewData["RoleId"] = new SelectList(_context.Roles, "RoleId", "RoleId", user.RoleId);
-            return View(user);
+            var user = account.ToUser(); 
+
+            if (await _service.AddUserAsync(user, 2))
+            {            
+                return RedirectToAction(nameof(Index));
+            }
+            else
+            {  
+                ModelState.AddModelError(string.Empty, "Could not create account. Please check the information provided.");
+                return View(user);
+            }
+
         }
 
-        // GET: Users/Edit/5
         public async Task<IActionResult> Edit(string username)
         {
             if (username == null)
@@ -72,7 +83,7 @@ namespace Unleashed_MVC.Controllers
                 return NotFound();
             }
             //ViewData["RoleId"] = new SelectList(_context.Roles, "RoleId", "RoleId", user.RoleId);
-            return View(user);
+            return View(AccountDetailDTO.FromUser(user));
         }
 
         // POST: Users/Edit/5
@@ -80,22 +91,18 @@ namespace Unleashed_MVC.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(string username, [Bind("UserId,RoleId,IsUserEnabled,UserGoogleId,UserUsername,UserPassword,UserFullname,UserEmail,UserPhone,UserBirthdate,UserAddress,UserImage,UserCurrentPaymentMethod,UserCreatedAt,UserUpdatedAt,Gender")] User user)
+        public async Task<IActionResult> Edit ([Bind("Username,Fullname,Email,Phone,BirthDate,Address,Image,Gender,IsEnabled")] AccountDetailDTO account)
         {
-            if (!username.Equals(user.UserUsername))
-            {
-                return NotFound();
-            }
-
+   
             if (ModelState.IsValid)
-            {                
-                if(!await _service.EditUserAsync(user)) 
+            {
+                if (!await _service.EditUserAsync(account.ToUser())) 
                     return NotFound();      
                 
                 return RedirectToAction(nameof(Index));
             }
-            //ViewData["RoleId"] = new SelectList(_context.Roles, "RoleId", "RoleId", user.RoleId);
-            return View(user);
+ 
+            return View(account);
         }
 
         // GET: Users/Delete/5

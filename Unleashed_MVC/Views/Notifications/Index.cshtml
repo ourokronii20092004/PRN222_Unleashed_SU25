@@ -1,4 +1,4 @@
-﻿@model IEnumerable<DAL.Models.Notification>
+﻿@model IEnumerable<DAL.DTOs.NotificationDTOs.NotificationDetailDTO>
 
 @{
     ViewData["Title"] = "Index";
@@ -13,22 +13,19 @@
     <thead>
         <tr>
             <th>
-                @Html.DisplayNameFor(model => model.NotificationTitle)
+                @Html.DisplayNameFor(model => model.Title)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.NotificationContent)
+                @Html.DisplayNameFor(model => model.IsDrafted)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.IsNotificationDraft)
+                @Html.DisplayNameFor(model => model.CreatedAt)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.NotificationCreatedAt)
+                @Html.DisplayNameFor(model => model.UpdatedAt)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.NotificationUpdatedAt)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.UserIdSenderNavigation)
+                @Html.DisplayNameFor(model => model.SenderId)
             </th>
             <th></th>
         </tr>
@@ -37,27 +34,24 @@
 @foreach (var item in Model) {
         <tr>
             <td>
-                @Html.DisplayFor(modelItem => item.NotificationTitle)
+                @Html.DisplayFor(modelItem => item.Title)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.NotificationContent)
+                @Html.DisplayFor(modelItem => item.IsDrafted)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.IsNotificationDraft)
+                @Html.DisplayFor(modelItem => item.CreatedAt)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.NotificationCreatedAt)
+                @Html.DisplayFor(modelItem => item.UpdatedAt)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.NotificationUpdatedAt)
+                @Html.DisplayFor(modelItem => item.SenderId)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.UserIdSenderNavigation.UserId)
-            </td>
-            <td>
-                <a asp-action="Edit" asp-route-id="@item.NotificationId">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.NotificationId">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.NotificationId">Delete</a>
+                <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
+                    <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
+                    <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
             </td>
         </tr>
 }

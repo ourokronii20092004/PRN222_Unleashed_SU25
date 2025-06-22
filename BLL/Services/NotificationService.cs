@@ -1,5 +1,6 @@
 ﻿
 using BLL.Interfaces;
+using DAL.DTOs.NotificationDTOs;
 using DAL.Models;
 using DAL.Repositories.Interfaces;
 using System;
@@ -25,18 +26,22 @@ namespace BLL.Services
             _accountRepository = accountRepository;
         }
 
-        public async Task<bool> AddNotificationAsync(Notification notification, IEnumerable<User> users)
+        public async Task<bool> AddNotificationAsync(Notification notification, IEnumerable<string> usernames)
         {
             try
             {
+                notification.NotificationCreatedAt = DateTimeOffset.UtcNow;
+                notification.NotificationUpdatedAt = DateTimeOffset.UtcNow;
+                notification.UserIdSenderNavigation = await _accountRepository.GetByIdAsync(notification.UserIdSender);
+               
                 await _notificationRepository.AddAsync(notification);
-                if (users != null && users.Any())
+                if (usernames != null && usernames.Any())
                 {
-                    foreach (var user in users)
+                    foreach (var username in usernames)
                     {
                         await _notificationUserRepository.AddAsync(new NotificationUser
                         {
-                            User = user,
+                            User = await _accountRepository.GetByUsernameAsync(username),
                             Notification = notification,
                         });
                     }
@@ -53,19 +58,44 @@ namespace BLL.Services
             }
         }
 
-        public Task<bool> EditNotificationAsync(Notification notification, IEnumerable<User> users)
+        public async Task<bool> EditNotificationAsync(Notification notification, IEnumerable<string> usernames)
         {
-            throw new NotImplementedException();
+            try
+            {
+                if (usernames != null && usernames.Any() && notification != null)
+                {
+                    foreach (var username in usernames)
+                    {
+                        await _notificationUserRepository.AddAsync(new NotificationUser
+                        {
+                            User = await _accountRepository.GetByUsernameAsync(username),
+                            Notification = notification,
+                        });
+                    } 
+                    return true;
+                }
+                return false;
+               
+            }
+            catch (DBConcurrencyException)
+            {
+                return false;
+            }
+            catch (Exception)
+            {
+                return false;
+            }
         }
 
-        public Task<IEnumerable<Notification>> GetAllNotificationsAsync()
+        public async Task<IEnumerable<NotificationDetailDTO>> GetAllNotificationsAsync()
         {
-            return _notificationRepository.GetAllAsync();
+            IEnumerable<Notification> notifications = await _notificationRepository.GetAllAsync();
+            return notifications.Select(n => NotificationDetailDTO.FromNotification(n));
         }
 
-        public Task<Notification> GetNotificationByIdAsync(int id)
+        public async Task<Notification> GetNotificationByIdAsync(int id)
         {
-            return _notificationRepository.GetByIdAsync(id);
+            return await _notificationRepository.GetByIdAsync(id);
         }
 
         public async Task<bool> RemoveNotificationAsync(int id)

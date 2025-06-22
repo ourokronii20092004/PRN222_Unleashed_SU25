@@ -50,7 +50,6 @@
                 {
                     <tr>
                         <td>
-                            @* Check if IsEnabled is true, display a green 'Enabled' badge, else a red 'Disabled' badge *@
                             @if (item.IsEnabled.GetValueOrDefault(false))
                             {
                                 <span class="badge bg-success">Enabled</span>
@@ -86,10 +85,17 @@
                             @Html.DisplayFor(modelItem => item.UpdatedDate)
                         </td>
                         <td>
-                            @Html.DisplayFor(modelItem => item.Gender)
+                            @if (item.Gender.HasValue)
+                            {
+                                @(item.Gender.Value ? "Female" : "Male")
+                            }
+                            else
+                            {
+                                @:Unknown
+                            }
                         </td>
                         <td>
-                            @Html.DisplayFor(modelItem => item.Role.RoleName)
+                                @Html.DisplayFor(modelItem => item.Role.RoleName)
                         </td>
                         <td>
                             <div class="btn-group" role="group" aria-label="Account Actions">
