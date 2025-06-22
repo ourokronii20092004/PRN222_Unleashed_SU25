@@ -24,7 +24,7 @@ namespace Unleashed_MVC
             builder.Services.AddScoped<IBrandService, BrandService>();
 
             builder.Services.AddScoped<IAccountService, AccountService>();
-
+            builder.Services.AddScoped<ProductService>();
 
             //
 
