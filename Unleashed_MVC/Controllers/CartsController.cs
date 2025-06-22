@@ -15,6 +15,7 @@ namespace Unleashed_MVC.Controllers
     public class CartsController : Controller
     {
         private readonly ICartService _cartService;
+        private readonly IAccountService _accountService;
         //private Guid GetCurrentUserId()
         //{
         //    {
@@ -22,11 +23,12 @@ namespace Unleashed_MVC.Controllers
         //        return claim != null ? Guid.Parse(claim.Value) : throw new Exception("Not authenticated");
         //    }
         //}
-        public CartsController(ICartService cartService)
+        public CartsController(ICartService cartService, IAccountService accountService)
         {
             _cartService = cartService;
+            _accountService = accountService;
         }
-
+       
         // GET: Carts
         public async Task<IActionResult> Index()
         {
@@ -65,6 +67,7 @@ namespace Unleashed_MVC.Controllers
                 await _cartService.CreateCartAsync(cart);
                 return RedirectToAction(nameof(Index));
             }
+            //ViewData["UserId"] = new SelectList( await _accountService.GetAccountsAsync(), "Username", "Username");
             //var variations = await _cartService.GetAllVariationsAsync();
             //ViewData["VariationId"] = new SelectList(variations, "VariationId", "VariationId");
             return View(cart);

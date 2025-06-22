@@ -5,7 +5,7 @@ namespace DAL.Models;
 
 public partial class Order
 {
-    public string OrderId { get; set; } = null!;
+    public Guid OrderId { get; set; }
 
     public Guid UserId { get; set; }
 
