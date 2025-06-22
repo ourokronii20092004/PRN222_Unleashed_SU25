@@ -1,17 +1,12 @@
-﻿using DAL.Models;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using DAL.DTOs.AccountDTOs;
+using DAL.Models;
 
 namespace BLL.Interfaces
 {
     public interface IAccountService
     {
-        Task<IEnumerable<User>> GetAccountsAsync();
-        Task<bool> AddEmployeeAsync(User user);
-        Task<bool> AddCustomerAsync(User user);
+        Task<IEnumerable<AccountDetailDTO>> GetAccountsAsync();
+        Task<bool> AddUserAsync(User user, int RoleId);
         Task<bool> EditUserAsync(User user);
         Task<bool> DeleteUserAsync(User user);
         Task<User> GetUserByUsernameAsync(string username);

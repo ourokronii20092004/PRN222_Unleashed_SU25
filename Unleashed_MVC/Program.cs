@@ -16,19 +16,26 @@ namespace Unleashed_MVC
             // Add services to the container.
             builder.Services.AddControllersWithViews();
 
-            // Add Repository
+            // khai bao repository o day
             builder.Services.AddScoped<IAccountRepository, AccountRepository>();
             builder.Services.AddScoped<IRoleRepository,RoleRepository>();
+            builder.Services.AddScoped<IBrandRepository, BrandRepository>();
+            builder.Services.AddScoped<IProductRepository, ProductRepository>();
             builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
             builder.Services.AddScoped<ICartRepository, CartRepository>();
+
             // khai bao services o day
             builder.Services.AddScoped<IBrandService, BrandService>();
             builder.Services.AddScoped<ICategoryService, CategoryService>();
             builder.Services.AddScoped<IAccountService, AccountService>();
             builder.Services.AddScoped<ICartService, CartService>();
 
+            // khai bao auto mapper o day
+            builder.Services.AddAutoMapper(typeof(BLL.Mappings.BrandProfile).Assembly);
 
-            //
+            // khai bao controllers
+            builder.Services.AddControllers();
+
 
             var app = builder.Build();
 

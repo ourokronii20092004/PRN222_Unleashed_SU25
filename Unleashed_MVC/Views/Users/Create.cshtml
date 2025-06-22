@@ -1,78 +1,98 @@
 ﻿@model DAL.Models.User
 
 @{
-    ViewData["Title"] = "Create";
+    ViewData["Title"] = "Create User";
 }
 
-<h1>Create</h1>
+<div class="container mt-4">
+    <h1 class="mb-3 text-center">Create New User Account</h1>
+    <hr class="mb-4" />
 
-<h4>User</h4>
-<hr />
-<div class="row">
-    <div class="col-md-4">
-        <form asp-action="Create">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <div class="form-group">
-                <label asp-for="UserUsername" class="control-label">Username</label>
-                <input asp-for="UserUsername" class="form-control" />
-                <span asp-validation-for="UserUsername" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="UserPassword" class="control-label">Password</label>
-                <input asp-for="UserPassword" class="form-control" />
-                <span asp-validation-for="UserPassword" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="UserFullname" class="control-label">Fullname</label>
-                <input asp-for="UserFullname" class="form-control" />
-                <span asp-validation-for="UserFullname" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="UserEmail" class="control-label">Email</label>
-                <input asp-for="UserEmail" class="form-control" />
-                <span asp-validation-for="UserEmail" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="UserPhone" class="control-label">Phonenumber</label>
-                <input asp-for="UserPhone" class="form-control" />
-                <span asp-validation-for="UserPhone" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="UserBirthdate" class="control-label">Birthdate</label>
-                <input type="date" asp-for="UserBirthdate" class="form-control" />
-                <span asp-validation-for="UserBirthdate" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="UserAddress" class="control-label">Address</label>
-                <input asp-for="UserAddress" class="form-control" />
-                <span asp-validation-for="UserAddress" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="UserImage" class="control-label"></label>
-                <input type="url" asp-for="UserImage" class="form-control" />
-                <span asp-validation-for="UserImage" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label class="control-label">Gender</label>
-                <div>
-                    <input type="radio" value="false" asp-for="Gender" id="genderMale" />
-                    <label for="genderMale">Male</label>
+    <div class="row justify-content-center">
+        <div class="col-md-7 col-lg-6">
+            <div class="card shadow-lg border-0 rounded-lg mt-5">
+                <div class="card-header bg-primary text-white text-center py-3">
+                    <h4 class="mb-0">User Account Information</h4>
                 </div>
-                <div>
-                    <input type="radio" value="true" asp-for="Gender" id="genderFemale" />
-                    <label for="genderFemale">Female</label>
+                <div class="card-body p-4">
+                    <form asp-action="Create" method="post">
+                        <div asp-validation-summary="ModelOnly" class="alert alert-danger mb-4" role="alert"></div>
+
+                        <div class="mb-3">
+                            <label asp-for="UserUsername" class="form-label fw-bold">Username</label>
+                            <input asp-for="UserUsername" class="form-control" placeholder="Choose a unique username" />
+                            <span asp-validation-for="UserUsername" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="UserPassword" class="form-label fw-bold">Password</label>
+                            <input asp-for="UserPassword" class="form-control" type="password" placeholder="Set a strong password" />
+                            <span asp-validation-for="UserPassword" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="UserFullname" class="form-label fw-bold">Full Name</label>
+                            <input asp-for="UserFullname" class="form-control" placeholder="Enter the user's full name" />
+                            <span asp-validation-for="UserFullname" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="UserEmail" class="form-label fw-bold">Email Address</label>
+                            <input asp-for="UserEmail" class="form-control" type="email" placeholder="Enter a valid email address" />
+                            <span asp-validation-for="UserEmail" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="UserPhone" class="form-label fw-bold">Phone Number</label>
+                            <input asp-for="UserPhone" class="form-control" type="tel" placeholder="e.g., 0912345678" />
+                            <span asp-validation-for="UserPhone" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="UserBirthdate" class="form-label fw-bold">Birthdate</label>
+                            <input type="date" asp-for="UserBirthdate" class="form-control" />
+                            <span asp-validation-for="UserBirthdate" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="UserAddress" class="form-label fw-bold">Address</label>
+                            <input asp-for="UserAddress" class="form-control" placeholder="Enter full address" />
+                            <span asp-validation-for="UserAddress" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="UserImage" class="form-label fw-bold">Profile Image URL (Optional)</label>
+                            <input asp-for="UserImage" class="form-control" placeholder="Link to profile picture" />
+                            <span asp-validation-for="UserImage" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="form-label fw-bold">Gender</label>
+                            <div class="d-flex">
+                                <div class="form-check form-check-inline me-3">
+                                    <input class="form-check-input" type="radio" value="false" asp-for="Gender" id="genderMale" />
+                                    <label class="form-check-label" for="genderMale">Male</label>
+                                </div>
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="radio" value="true" asp-for="Gender" id="genderFemale" />
+                                    <label class="form-check-label" for="genderFemale">Female</label>
+                                </div>
+                            </div>
+                            <span asp-validation-for="Gender" class="text-danger"></span>
+                        </div>
+
+                        <div class="d-grid gap-2 mt-4">
+                            <button type="submit" class="btn btn-primary btn-lg"><i class="bi bi-person-plus me-2"></i>Create User</button>
+                        </div>
+                    </form>
                 </div>
-                <span asp-validation-for="Gender" class="text-danger"></span>
             </div>
-            <div class="form-group">
-                <input type="submit" value="Create" class="btn btn-primary" />
-            </div>
-        </form>
+        </div>
     </div>
-</div>
 
-<div>
-    <a asp-action="Index">Back to List</a>
+    <div class="text-center mt-4 mb-5">
+        <a asp-action="Index" class="btn btn-outline-secondary"><i class="bi bi-arrow-left me-2"></i>Back to User List</a>
+    </div>
 </div>
 
 @section Scripts {
