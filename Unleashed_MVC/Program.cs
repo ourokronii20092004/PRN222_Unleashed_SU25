@@ -19,10 +19,10 @@ namespace Unleashed_MVC
             // Add Repository
             builder.Services.AddScoped<IAccountRepository, AccountRepository>();
             builder.Services.AddScoped<IRoleRepository,RoleRepository>();
-
+            builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
             // khai bao services o day
             builder.Services.AddScoped<IBrandService, BrandService>();
-
+            builder.Services.AddScoped<ICategoryService, CategoryService>();
             builder.Services.AddScoped<IAccountService, AccountService>();
 
 
