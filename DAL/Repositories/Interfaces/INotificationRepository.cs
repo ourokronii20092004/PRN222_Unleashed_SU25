@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace DAL.Repositories.Interfaces
 {
-    internal interface INotificationRepository : IGenericRepository<Notification, int>
+    public interface INotificationRepository : IGenericRepository<Notification, int>
     {
     }
 }
