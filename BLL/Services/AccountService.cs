@@ -1,4 +1,6 @@
 ﻿using BLL.Interfaces;
+using BLL.Utilities;
+using DAL.DTOs.AccountDTOs;
 using DAL.Models;
 using DAL.Repositories.Interfaces;
 using Microsoft.EntityFrameworkCore;
@@ -16,40 +18,27 @@ namespace BLL.Services
             _roleRepository = roleRepository;
         }
 
-        public async Task<bool> AddEmployeeAsync(User user)
+        public async Task<bool> AddUserAsync(User user, int roleId)
         {
             try
             {
+                user.UserPassword = HashingPassword.HashPassword(user.UserPassword);
                 user.IsUserEnabled = true;
-                user.Role = await _roleRepository.GetByIdAsync(2);
+                user.Role = await _roleRepository.GetByIdAsync(roleId); // Role is passed as a parameter
                 user.UserCreatedAt = DateTime.UtcNow;
                 user.UserUpdatedAt = DateTime.UtcNow;
                 await _accountRepository.AddAsync(user);
                 return true;
             }
             catch (DBConcurrencyException)
-            {
+            {             
+                return false;
+            }
+            catch (Exception) 
+            {                
                 return false;
             }
         }
-
-        public async Task<bool> AddCustomerAsync(User user)
-        {
-            try
-            {
-                user.IsUserEnabled = true;
-                user.Role = await _roleRepository.GetByIdAsync(2);
-                user.UserCreatedAt = DateTime.UtcNow;
-                user.UserUpdatedAt = DateTime.UtcNow;
-                await _accountRepository.AddAsync(user);
-                return true;
-            }
-            catch (DBConcurrencyException)
-            {
-                return false;
-            }
-        }
-
         public async Task<bool> DeleteUserAsync(User user)
         {
             try
@@ -75,6 +64,7 @@ namespace BLL.Services
                     _user.UserFullname = user.UserFullname;
                     _user.IsUserEnabled = user.IsUserEnabled;
                     _user.UserEmail = user.UserEmail;
+                    _user.Gender = user.Gender;
                     _user.UserBirthdate = user.UserBirthdate;
                     _user.UserPhone = user.UserPhone;
                     _user.UserAddress = user.UserAddress;
@@ -91,9 +81,11 @@ namespace BLL.Services
             }
         }
 
-        public async Task<IEnumerable<User>> GetAccountsAsync()
+        public async Task<IEnumerable<AccountDetailDTO>> GetAccountsAsync()
         {
-           return await _accountRepository.GetAllAsync();
+            IEnumerable<User> users = await _accountRepository.GetAllAsync();
+            IEnumerable<AccountDetailDTO> accounts = users.Select(u => AccountDetailDTO.FromUser(u));
+            return accounts;
         }
 
 
@@ -104,10 +96,10 @@ namespace BLL.Services
             return await _accountRepository.GetByUsernameAsync(username) != null;
         }
 
-        public Task<User> GetUserByUsernameAsync(string username)
+        public async Task<User> GetUserByUsernameAsync(string username)
         {
             ArgumentNullException.ThrowIfNullOrEmpty(username);
-            return _accountRepository.GetByUsernameAsync(username);
+            return await _accountRepository.GetByUsernameAsync(username);            
         }
     }
 }
