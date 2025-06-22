@@ -69,7 +69,7 @@ namespace BLL.Services
                     _user.UserPhone = user.UserPhone;
                     _user.UserAddress = user.UserAddress;
                     _user.UserImage = user.UserImage;
-                    user.UserUpdatedAt = DateTime.UtcNow;
+                    _user.UserUpdatedAt = DateTime.UtcNow;
                     await _accountRepository.Update(_user);
                    return true; 
                 }
@@ -84,8 +84,7 @@ namespace BLL.Services
         public async Task<IEnumerable<AccountDetailDTO>> GetAccountsAsync()
         {
             IEnumerable<User> users = await _accountRepository.GetAllAsync();
-            IEnumerable<AccountDetailDTO> accounts = users.Select(u => AccountDetailDTO.FromUser(u));
-            return accounts;
+            return users.Select(u => AccountDetailDTO.FromUser(u));
         }
 
 

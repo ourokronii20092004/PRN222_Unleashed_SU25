@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using DAL.Data;
 using DAL.Models;
 using BLL.Interfaces;
+using DAL.DTOs.NotificationDTOs;
 
 namespace Unleashed_MVC.Controllers
 {
@@ -49,7 +50,7 @@ namespace Unleashed_MVC.Controllers
         // GET: Notifications/Create
         public async Task<IActionResult> Create()
         {
-            ViewData["Sender"] = new SelectList(await _accountService.GetAccountsAsync(), "Username", "Username");
+            ViewData["Receivers"] = new SelectList(await _accountService.GetAccountsAsync(), "Username", "Username");
             return View();
         }
 
@@ -58,15 +59,15 @@ namespace Unleashed_MVC.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("NotificationId,UserIdSender,NotificationTitle,NotificationContent,IsNotificationDraft,NotificationCreatedAt,NotificationUpdatedAt")] Notification notification, IEnumerable<string> usernames)
+        public async Task<IActionResult> Create([Bind("Title,Content,IsDrafted,Receivers")] NotificationCreateDTO notification)
         {
+            notification.SenderId = Guid.Parse("A4390209-C626-423D-20B5-08DDB1A39C2A");
             if (ModelState.IsValid)
             {
-                IEnumerable<User> users = new List<User>();
-                await _notificationService.AddNotificationAsync(notification, users);
+                await _notificationService.AddNotificationAsync(notification.ToNotification(), notification.Receivers);
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["Sender"] = new SelectList(await _accountService.GetAccountsAsync(), "Username", "Username");
+            ViewData["Receivers"] = new SelectList(await _accountService.GetAccountsAsync(), "Username", "Username");
             return View(notification);
         }
 
@@ -83,7 +84,7 @@ namespace Unleashed_MVC.Controllers
             {
                 return NotFound();
             }
-            ViewData["Sender"] = new SelectList(await _accountService.GetAccountsAsync(), "Username", "Username");
+            ViewData["Receivers"] = new SelectList(await _accountService.GetAccountsAsync(), "Username", "Username");
             return View(notification);
         }
 
@@ -92,27 +93,27 @@ namespace Unleashed_MVC.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("NotificationId,UserIdSender,NotificationTitle,NotificationContent,IsNotificationDraft,NotificationCreatedAt,NotificationUpdatedAt")] Notification notification)
+        public async Task<IActionResult> Edit(int id, IEnumerable<string> usernames)
         {
-            if (id != notification.NotificationId)
-            {
-                return NotFound();
-            }
-
-            if (ModelState.IsValid)
+            var notification = await _notificationService.GetNotificationByIdAsync(id);
+            if ( notification != null)
             {
                 try
                 {
-                    IEnumerable<User> users = new List<User>();
-                    await _notificationService.EditNotificationAsync(notification, users);
+
+                    if (!await _notificationService.EditNotificationAsync(notification, usernames))
+                    {
+                        ViewData["Receivers"] = new SelectList(await _accountService.GetAccountsAsync(), "Username", "Username");
+                        return View(notification);
+                    }
                 }
                 catch (DbUpdateConcurrencyException)
-                {                  
-                        return NotFound();                               
+                {
+                    return NotFound();
                 }
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["Sender"] = new SelectList(await _accountService.GetAccountsAsync(), "Username", "Username");
+            ViewData["Receivers"] = new SelectList(await _accountService.GetAccountsAsync(), "Username", "Username");
             return View(notification);
         }
 

@@ -1,4 +1,5 @@
-﻿using DAL.Models;
+﻿using DAL.DTOs.NotificationDTOs;
+using DAL.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,9 +10,9 @@ namespace BLL.Interfaces
 {
     public interface INotificationService
     {
-        public Task<IEnumerable<Notification>> GetAllNotificationsAsync();
-        public Task<bool> AddNotificationAsync(Notification notification, IEnumerable<User> users);
-        public Task<bool> EditNotificationAsync(Notification notification, IEnumerable<User> users);
+        public Task<IEnumerable<NotificationDetailDTO>> GetAllNotificationsAsync();
+        public Task<bool> AddNotificationAsync(Notification notification, IEnumerable<string> usernames);
+        public Task<bool> EditNotificationAsync(Notification notification, IEnumerable<string> usernames);
         public Task<bool> RemoveNotificationAsync(int id);
         public Task<Notification> GetNotificationByIdAsync(int id);
     }

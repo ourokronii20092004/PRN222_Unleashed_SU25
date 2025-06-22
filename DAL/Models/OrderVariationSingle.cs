@@ -5,7 +5,7 @@ namespace DAL.Models;
 
 public partial class OrderVariationSingle
 {
-    public string OrderId { get; set; } = null!;
+    public Guid OrderId { get; set; }
 
     public int VariationSingleId { get; set; }
 
