@@ -2,8 +2,8 @@
 using DAL.DTO;
 using DAL.Models;
 
-namespace BLL.Mappings;
-
+namespace BLL.Mappings
+{
     public class BrandProfile : Profile
     {
         public BrandProfile()
@@ -19,4 +19,4 @@ namespace BLL.Mappings;
             CreateMap<BrandDTO, Brand>();
         }
     }
-
+}

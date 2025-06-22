@@ -331,15 +331,9 @@ public partial class UnleashedContext : DbContext
         {
             entity.ToTable("order");
 
-            entity.Property(e => e.OrderId)
-                .HasMaxLength(255)
-                .IsUnicode(false)
-                .HasColumnName("order_id");
+            entity.Property(e => e.OrderId).HasColumnName("order_id");
             entity.Property(e => e.DiscountId).HasColumnName("discount_id");
-            entity.Property(e => e.InchargeEmployeeId)
-                .HasMaxLength(255)
-                .IsUnicode(false)
-                .HasColumnName("incharge_employee_id");
+            entity.Property(e => e.InchargeEmployeeId).HasColumnName("incharge_employee_id");
             entity.Property(e => e.OrderBillingAddress)
                 .HasMaxLength(255)
                 .HasColumnName("order_billing_address");
@@ -410,10 +404,7 @@ public partial class UnleashedContext : DbContext
 
             entity.ToTable("order_variation_single");
 
-            entity.Property(e => e.OrderId)
-                .HasMaxLength(255)
-                .IsUnicode(false)
-                .HasColumnName("order_id");
+            entity.Property(e => e.OrderId).HasColumnName("order_id");
             entity.Property(e => e.VariationSingleId).HasColumnName("variation_single_id");
             entity.Property(e => e.SaleId).HasColumnName("sale_id");
             entity.Property(e => e.VariationPriceAtPurchase)
@@ -539,17 +530,15 @@ public partial class UnleashedContext : DbContext
             entity.ToTable("review");
 
             entity.Property(e => e.ReviewId).HasColumnName("review_id");
-            entity.Property(e => e.OrderId)
-                .HasMaxLength(255)
-                .IsUnicode(false)
-                .HasColumnName("order_id");
-            entity.Property(e => e.ProductId)
-                .HasMaxLength(255)
-                .IsUnicode(false)
-                .HasColumnName("product_id");
+
+            entity.Property(e => e.OrderId).HasColumnName("order_id");
+            // REMOVE these if they were there for the string version:
+            // .HasMaxLength(255)
+            // .IsUnicode(false)
+
+            entity.Property(e => e.ProductId).HasColumnName("product_id");
             entity.Property(e => e.ReviewRating).HasColumnName("review_rating");
-            entity.Property(e => e.UserId)
-                .HasColumnName("user_id");
+            entity.Property(e => e.UserId).HasColumnName("user_id");
 
             entity.HasOne(d => d.Order).WithMany(p => p.Reviews)
                 .HasForeignKey(d => d.OrderId)
@@ -557,10 +546,12 @@ public partial class UnleashedContext : DbContext
 
             entity.HasOne(d => d.Product).WithMany(p => p.Reviews)
                 .HasForeignKey(d => d.ProductId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_review_product");
 
             entity.HasOne(d => d.User).WithMany(p => p.Reviews)
                 .HasForeignKey(d => d.UserId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_review_user");
         });
 
@@ -706,10 +697,7 @@ public partial class UnleashedContext : DbContext
             entity.ToTable("transaction");
 
             entity.Property(e => e.TransactionId).HasColumnName("transaction_id");
-            entity.Property(e => e.InchargeEmployeeId)
-                .HasMaxLength(255)
-                .IsUnicode(false)
-                .HasColumnName("incharge_employee_id");
+            entity.Property(e => e.InchargeEmployeeId).HasColumnName("incharge_employee_id");
             entity.Property(e => e.ProviderId).HasColumnName("provider_id");
             entity.Property(e => e.StockId).HasColumnName("stock_id");
             entity.Property(e => e.TransactionDate).HasColumnName("transaction_date");
@@ -876,10 +864,15 @@ public partial class UnleashedContext : DbContext
 
         // raw sql = this shit is needed
         // pls no delete or I cries
-        modelBuilder.Entity<DAL.DTO.BrandDTO>(dto =>
-        {
-            dto.HasNoKey();
-        });
+        modelBuilder.Entity<DAL.DTO.BrandDTO>(dto =>dto.HasNoKey());
+
+        modelBuilder.Entity<DAL.DTO.StockDetailDTO>(dto => dto.HasNoKey());
+
+        modelBuilder.Entity<DAL.DTO.SimplifiedTransactionCardDTO>(dto => dto.HasNoKey());
+
+        modelBuilder.Entity<DAL.DTO.ProductSearchResultDTO>(dto => dto.HasNoKey());
+
+
 
 
         OnModelCreatingPartial(modelBuilder);

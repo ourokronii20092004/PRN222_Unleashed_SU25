@@ -63,10 +63,50 @@ namespace DAL.Repositories
             return color;
         }
 
+        /**
+         * thang nao lam color khai cho 1 dong ben interface roi khong implement? 
+         * - Hau
+         **/
+
         public async Task Update(Color entity, CancellationToken cancellationToken = default)
         {
             _context.Update(entity);
             await _context.SaveChangesAsync();
+        }
+
+        Task<string> IColorRepository.AddColorAsync(string color)
+        {
+            throw new NotImplementedException();
+        }
+
+        Task IColorRepository.DeleteColorAsync(int id)
+        {
+            throw new NotImplementedException();
+        }
+
+        Task<bool> IColorRepository.ExistsByNameAsync(string name, int? excludeColorId)
+        {
+            throw new NotImplementedException();
+        }
+
+        Task<List<string>> IColorRepository.GetAllColorsAsync()
+        {
+            throw new NotImplementedException();
+        }
+
+        Task<string?> IColorRepository.GetColorByIdAsync(int id)
+        {
+            throw new NotImplementedException();
+        }
+
+        Task<int> IColorRepository.SaveChangesAsync()
+        {
+            throw new NotImplementedException();
+        }
+
+        Task IColorRepository.UpdateColorAsync(int id, string color)
+        {
+            throw new NotImplementedException();
         }
     }
 }
