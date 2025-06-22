@@ -3,17 +3,19 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using DAL.DTO;
 using DAL.Models;
 
 namespace BLL.Interfaces
 {
     public interface IBrandService
     {
-        Task<List<Brand>> GetAllBrandsAsync();
-        Task<Brand?> GetBrandByIdAsync(int id);
-        Task CreateBrandAsync(Brand brand);
-        Task<bool> UpdateBrandAsync(Brand brand);
-        Task<bool> DeleteBrandAsync(int id);
-        Task<bool> BrandExistsAsync(int id);
+        Task<List<BrandDTO>> GetAllBrandsWithQuantityAsync();
+        Task<BrandDTO?> GetBrandByIdAsync(int id);
+        Task<List<SearchBrandDTO>> SearchBrandsAsync();
+
+        Task<BrandDTO> CreateBrandAsync(BrandCreateDTO brandDto);
+        Task<BrandDTO?> UpdateBrandAsync(int brandId, BrandUpdateDTO brandDto);
+        Task<bool> DeleteBrandAsync(int brandId);
     }
 }

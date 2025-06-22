@@ -874,8 +874,17 @@ public partial class UnleashedContext : DbContext
                 .HasConstraintName("FK__variation__varia__3A4CA8FD");
         });
 
+        // raw sql = this shit is needed
+        // pls no delete or I cries
+        modelBuilder.Entity<DAL.DTO.BrandDTO>(dto =>
+        {
+            dto.HasNoKey();
+        });
+
+
         OnModelCreatingPartial(modelBuilder);
     }
 
     partial void OnModelCreatingPartial(ModelBuilder modelBuilder);
+
 }
