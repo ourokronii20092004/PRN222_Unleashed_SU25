@@ -3,13 +3,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using DAL.Models;
 
 namespace DAL.Repositories.Interfaces
 {
-    public interface IProductRepository
+    public interface IProductRepository : IGenericRepository<Product, int>
     {
         Task<bool> ExistsByBrandAsync(int brandId);
-        // ... other product methods
-        Task<int> SaveChangesAsync();
+        Task<ProductStatus> GetProductStatusIdAsync(Guid productID, CancellationToken cancellationToken = default);
     }
 }
