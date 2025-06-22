@@ -11,7 +11,7 @@ public partial class Review
 
     public Guid UserId { get; set; }
 
-    public string? OrderId { get; set; }
+    public Guid OrderId { get; set; }
 
     public int? ReviewRating { get; set; }
 

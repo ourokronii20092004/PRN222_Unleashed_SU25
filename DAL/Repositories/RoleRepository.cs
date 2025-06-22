@@ -9,46 +9,41 @@ namespace DAL.Repositories
     public class RoleRepository : IRoleRepository
     {
         private readonly UnleashedContext _context;
+
         public RoleRepository(UnleashedContext context)
         {
             _context = context;
         }
 
-        public async Task AddAsync(Role entity, CancellationToken cancellationToken = default)
+        public async Task<Role?> GetByIdAsync(int id)
         {
-            ArgumentNullException.ThrowIfNull(entity, nameof(entity));
-            await _context.Roles.AddAsync(entity, cancellationToken);
-            await _context.SaveChangesAsync(cancellationToken);
+            // FindAsync is suitable for finding by primary key.
+            // It first checks the local context, then queries the database if not found locally.
+            return await _context.Roles.FindAsync(id);
         }
 
-        public async Task Delete(Role entity, CancellationToken cancellationToken = default)
+        public async Task<Role?> FindByNameAsync(string roleName)
         {
-            _context.Roles.Remove(entity);
-            await _context.SaveChangesAsync(cancellationToken);
+            if (string.IsNullOrWhiteSpace(roleName))
+            {
+                return null;
+            }
+            // Using ToLower() for case-insensitive comparison.
+            // Ensure your database collation also supports case-insensitivity for best performance,
+            // or EF Core will do client-side evaluation if ToLower() isn't translated.
+            string normalizedRoleName = roleName.ToLower();
+            return await _context.Roles
+                .FirstOrDefaultAsync(r => r.RoleName != null && r.RoleName.ToLower() == normalizedRoleName);
         }
 
-        public async Task<IEnumerable<Role>> FindAsync(Expression<Func<Role, bool>> predicate, CancellationToken cancellationToken = default)
+        public async Task<List<Role>> GetAllAsync()
         {
-           return await _context.Roles
-                .Where(predicate)
-                .ToArrayAsync(cancellationToken);
+            return await _context.Roles.OrderBy(r => r.RoleName).ToListAsync();
         }
 
-        public async Task<IEnumerable<Role>> GetAllAsync()
+        public async Task<int> SaveChangesAsync()
         {
-            return await _context.Roles.ToArrayAsync();
-        }
-
-        public async Task<Role> GetByIdAsync(int id, CancellationToken cancellationToken = default)
-        {
-           return await _context.Roles
-                .FindAsync(id, cancellationToken);
-        }
-
-        public Task Update(Role entity, CancellationToken cancellationToken = default)
-        {
-            _context.Roles.Update(entity);
-            return _context.SaveChangesAsync(cancellationToken);
+            return await _context.SaveChangesAsync();
         }
     }
 }

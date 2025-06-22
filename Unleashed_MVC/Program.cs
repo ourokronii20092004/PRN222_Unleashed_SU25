@@ -13,34 +13,44 @@ namespace Unleashed_MVC
             var builder = WebApplication.CreateBuilder(args);
 
             builder.Services.ConnectUnleashedDatabase(builder.Configuration);
-            // Add services to the container.
-            builder.Services.AddControllersWithViews();
 
-            // khai bao repository o day
+            // --- MVC Services ---
+            builder.Services.AddControllersWithViews();
+            builder.Services.AddControllers();
+
+            // --- Repositories ---
             builder.Services.AddScoped<IAccountRepository, AccountRepository>();
-            builder.Services.AddScoped<IRoleRepository,RoleRepository>();
+            builder.Services.AddScoped<IRoleRepository, RoleRepository>();
             builder.Services.AddScoped<IBrandRepository, BrandRepository>();
             builder.Services.AddScoped<IProductRepository, ProductRepository>();
             builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
             builder.Services.AddScoped<INotificationRepository, NotificationRepository>();
             builder.Services.AddScoped<INotificationUserRepository, NotificationUserRepository>();
             builder.Services.AddScoped<ICartRepository, CartRepository>();
+            builder.Services.AddScoped<IStockRepository, StockRepository>();
+            builder.Services.AddScoped<IStockVariationRepository, StockVariationRepository>();
+            builder.Services.AddScoped<ITransactionRepository, TransactionRepository>();
+            builder.Services.AddScoped<ITransactionTypeRepository, TransactionTypeRepository>();
+            builder.Services.AddScoped<IVariationRepository, VariationRepository>();
+            builder.Services.AddScoped<IVariationSingleRepository, VariationSingleRepository>();
+            builder.Services.AddScoped<IUserRepository, UserRepository>();
+            builder.Services.AddScoped<IProductStatusRepository, ProductStatusRepository>();
+            builder.Services.AddScoped<IProviderRepository, ProviderRepository>();
 
 
-            // khai bao services o day
+            // --- Services ---
             builder.Services.AddScoped<IBrandService, BrandService>();
             builder.Services.AddScoped<ICategoryService, CategoryService>();
             builder.Services.AddScoped<IAccountService, AccountService>();
-            builder.Services.AddScoped<INotificationService,NotificationService>();
+            builder.Services.AddScoped<INotificationService, NotificationService>();
             builder.Services.AddScoped<ICartService, CartService>();
+            builder.Services.AddScoped<IStockService, StockService>();
+            builder.Services.AddScoped<IStockTransactionService, StockTransactionService>();
 
 
-            // khai bao auto mapper o day
-            builder.Services.AddAutoMapper(typeof(BLL.Mappings.BrandProfile).Assembly);
-
-            // khai bao controllers
-            builder.Services.AddControllers();
-
+            // --- AutoMapper ---
+            // This scans all assemblies loaded in the current application domain for AutoMapper profiles.
+            builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
             var app = builder.Build();
 
