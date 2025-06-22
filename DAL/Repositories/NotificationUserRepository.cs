@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 
 namespace DAL.Repositories
 {
-    public class NotificationUserRepository : INotificationUserRepositorycs
+    public class NotificationUserRepository : INotificationUserRepository
     {
         private readonly UnleashedContext _context;
         public NotificationUserRepository(UnleashedContext context)
@@ -48,6 +48,21 @@ namespace DAL.Repositories
            var (notificationId, UserId) = id;
             return await _context.NotificationUsers
                 .FirstOrDefaultAsync(nu => nu.NotificationId == notificationId && nu.UserId == UserId,cancellationToken);
+        }
+
+        public async Task<IEnumerable<Notification>> GetNotificationByUserId(Guid userId)
+        {
+            return await _context.NotificationUsers
+                .Where(nu => nu.UserId == userId)
+                .Select(nu => nu.Notification)
+                .ToListAsync(); 
+        }
+
+        public async Task<IEnumerable<NotificationUser>> GetNotificationUserByNotificationId(int NotificationId)
+        {
+            return await _context.NotificationUsers
+                 .Where(nu => nu.NotificationId == NotificationId)             
+                 .ToListAsync();
         }
 
         public async Task Update(NotificationUser entity, CancellationToken cancellationToken = default)

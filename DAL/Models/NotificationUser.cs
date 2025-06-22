@@ -9,9 +9,9 @@ public partial class NotificationUser
 
     public Guid UserId { get; set; }
 
-    public bool? IsNotificationViewed { get; set; }
+    public bool? IsNotificationViewed { get; set; } = false;
 
-    public bool? IsNotificationDeleted { get; set; }
+    public bool? IsNotificationDeleted { get; set; } = false;
 
     public virtual Notification Notification { get; set; } = null!;
 

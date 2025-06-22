@@ -22,11 +22,13 @@ namespace Unleashed_MVC
             builder.Services.AddScoped<IBrandRepository, BrandRepository>();
             builder.Services.AddScoped<IProductRepository, ProductRepository>();
             builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
-
+            builder.Services.AddScoped<INotificationRepository, NotificationRepository>();
+            builder.Services.AddScoped<INotificationUserRepository, NotificationUserRepository>();
             // khai bao services o day
             builder.Services.AddScoped<IBrandService, BrandService>();
             builder.Services.AddScoped<ICategoryService, CategoryService>();
             builder.Services.AddScoped<IAccountService, AccountService>();
+            builder.Services.AddScoped<INotificationService,NotificationService>();
 
             // khai bao auto mapper o day
             builder.Services.AddAutoMapper(typeof(BLL.Mappings.BrandProfile).Assembly);
