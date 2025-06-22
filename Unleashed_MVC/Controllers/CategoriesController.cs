@@ -58,8 +58,6 @@ namespace Unleashed_MVC.Controllers
         {
             if (ModelState.IsValid)
             {
-                category.CategoryCreatedAt = DateTime.Now;
-                //category.CategoryId = new();
                 await _categoryService.CreateCategoryAsync(category);
                 return RedirectToAction(nameof(Index));
             }
