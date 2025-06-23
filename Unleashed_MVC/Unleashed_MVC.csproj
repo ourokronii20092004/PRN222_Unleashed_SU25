@@ -25,4 +25,12 @@
     <ProjectReference Include="..\DAL\DAL.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <EditorConfigFiles Remove="D:\PROJECT_PRN222\Unleashed_MVC\Controllers\.editorconfig" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="D:\PROJECT_PRN222\Unleashed_MVC\Controllers\.editorconfig" />
+  </ItemGroup>
+
 </Project>
