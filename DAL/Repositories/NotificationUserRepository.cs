@@ -21,7 +21,13 @@ namespace DAL.Repositories
 
         public async Task AddAsync(NotificationUser entity, CancellationToken cancellationToken = default)
         {
-          await _context.NotificationUsers.AddAsync(entity,cancellationToken);
+            await _context.NotificationUsers.AddAsync(entity,cancellationToken);
+            await _context.SaveChangesAsync(cancellationToken);
+        }
+
+        public async Task AddRangeAsync(IEnumerable<NotificationUser> notificationUsers, CancellationToken cancellationToken)
+        {
+            await _context.NotificationUsers.AddRangeAsync(notificationUsers, cancellationToken);
             await _context.SaveChangesAsync(cancellationToken);
         }
 
@@ -68,6 +74,12 @@ namespace DAL.Repositories
         public async Task Update(NotificationUser entity, CancellationToken cancellationToken = default)
         {
             _context.NotificationUsers.Update(entity);
+            await _context.SaveChangesAsync(cancellationToken);
+        }
+
+        public async Task UpdateRangeAsync(IEnumerable<NotificationUser> notificationUsers, CancellationToken cancellationToken = default)
+        {
+            _context.NotificationUsers.UpdateRange(notificationUsers);
             await _context.SaveChangesAsync(cancellationToken);
         }
     }

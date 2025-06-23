@@ -11,5 +11,8 @@ namespace DAL.Repositories.Interfaces
     {
         Task<IEnumerable<Notification>> GetNotificationByUserId (Guid userId);
         Task<IEnumerable<NotificationUser>> GetNotificationUserByNotificationId (int NotificationId);
+
+        Task AddRangeAsync (IEnumerable<NotificationUser> notificationUsers, CancellationToken cancellationToken = default);
+        Task UpdateRangeAsync (IEnumerable<NotificationUser> notificationUsers,CancellationToken cancellationToken = default);
     }
 }

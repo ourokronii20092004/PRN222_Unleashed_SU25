@@ -37,14 +37,18 @@ namespace BLL.Services
                 await _notificationRepository.AddAsync(notification);
                 if (usernames != null && usernames.Any())
                 {
-                    foreach (var username in usernames)
+                    IEnumerable<User> users = await _accountRepository.FindAsync(u => usernames.Contains(u.UserUsername));
+                    if (users != null && users.Any())
                     {
-                        await _notificationUserRepository.AddAsync(new NotificationUser
+                        IEnumerable<NotificationUser> notificationUsers = users.Select(u => new NotificationUser
                         {
-                            User = await _accountRepository.GetByUsernameAsync(username),
+                            UserId = u.UserId,
+                            NotificationId = notification.NotificationId,
+                            User = u,
                             Notification = notification,
                         });
-                    }
+                        await _notificationUserRepository.AddRangeAsync(notificationUsers);
+                    }   
                 }
                 return true;
             }
@@ -64,15 +68,20 @@ namespace BLL.Services
             {
                 if (usernames != null && usernames.Any() && notification != null)
                 {
-                    foreach (var username in usernames)
+                    IEnumerable<User> users = await _accountRepository.FindAsync(u => usernames.Contains(u.UserUsername));
+                    if (users != null && users.Any())
                     {
-                        await _notificationUserRepository.AddAsync(new NotificationUser
+                        IEnumerable<NotificationUser> notificationUsers = users.Select(u => new NotificationUser
                         {
-                            User = await _accountRepository.GetByUsernameAsync(username),
+                            UserId = u.UserId,
+                            NotificationId = notification.NotificationId,
+                            User = u,
                             Notification = notification,
                         });
-                    } 
-                    return true;
+                        await _notificationUserRepository.AddRangeAsync(notificationUsers);
+                        return true;
+                    }
+                    return false;
                 }
                 return false;
                
@@ -100,17 +109,17 @@ namespace BLL.Services
 
         public async Task<bool> RemoveNotificationAsync(int id)
         {
-            ArgumentNullException.ThrowIfNull(id, nameof(id));
+            ArgumentOutOfRangeException.ThrowIfNegativeOrZero(id);
             try
             {
                 var notificationUsers = await _notificationUserRepository.GetNotificationUserByNotificationId(id);
-                if (notificationUsers != null)
+                if (notificationUsers != null && notificationUsers.Any())
                 {
                     foreach (var notificationUser in notificationUsers)
                     {
-                        notificationUser.IsNotificationDeleted = true;
-                        await _notificationUserRepository.Update(notificationUser);
+                        notificationUser.IsNotificationDeleted = true;                       
                     }
+                    await _notificationUserRepository.UpdateRangeAsync(notificationUsers);
                     return true;
                 } 
                 return false;
