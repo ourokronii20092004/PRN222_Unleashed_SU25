@@ -3,7 +3,7 @@ using DAL.Models;
 using System.Threading.Tasks;
 using static DAL.DTOs.ProductDTO;
 
-namespace BLL.Interfaces
+namespace BLL.Services.Interfaces
 {
     public interface IProductVariationService
     {

@@ -1,5 +1,4 @@
-﻿
-using BLL.Interfaces;
+﻿using BLL.Services.Interfaces;
 using DAL.DTOs.NotificationDTOs;
 using DAL.Models;
 using DAL.Repositories.Interfaces;

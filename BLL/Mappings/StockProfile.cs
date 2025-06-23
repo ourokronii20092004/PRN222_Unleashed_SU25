@@ -8,13 +8,18 @@ namespace BLL.Mappings
     {
         public StockProfile()
         {
-            CreateMap<Stock, StockDTO>(); // For listing, details if simple
-            CreateMap<StockDTO, Stock>(); // If needed for mapping back
+            // Entity to DTO
+            CreateMap<Stock, StockDTO>();
+            CreateMap<Stock, StockUpdateDTO>();
+            
+            // DTO to Entity
+            CreateMap<StockCreateDTO, Stock>();
+            CreateMap<StockUpdateDTO, Stock>();
+            CreateMap<StockDTO, Stock>();
 
-            CreateMap<StockCreateDTO, Stock>(); // For creating new stocks
-            CreateMap<StockUpdateDTO, Stock>(); // For applying updates
-            CreateMap<Stock, StockUpdateDTO>(); // For populating edit form
-            CreateMap<StockDTO, StockUpdateDTO>();
+            // DTO to DTO
+            CreateMap<StockDTO, StockUpdateDTO>();  
+
         }
     }
 }

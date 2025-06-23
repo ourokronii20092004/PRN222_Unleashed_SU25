@@ -7,10 +7,10 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using DAL.Data;
 using DAL.Models;
-using BLL.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using AutoMapper;
 using DAL.DTOs;
+using BLL.Services.Interfaces;
 
 namespace Unleashed_MVC.Controllers
 {

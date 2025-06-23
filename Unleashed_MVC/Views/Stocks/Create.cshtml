@@ -1,38 +1,58 @@
-﻿@model DAL.Models.Stock
+﻿@model DAL.DTOs.StockCreateDTO
 
 @{
-    ViewData["Title"] = "Create";
+    ViewData["Title"] = "Create New Stock Location";
 }
 
-<h1>Create</h1>
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1><i class="bi bi-plus-square-dotted me-2"></i>@ViewData["Title"]</h1>
+                <a asp-action="Index" class="btn btn-sm btn-outline-secondary">
+                    <i class="bi bi-arrow-left-circle me-1"></i> Back to List
+                </a>
+            </div>
 
-<h4>Stock</h4>
-<hr />
-<div class="row">
-    <div class="col-md-4">
-        <form asp-action="Create">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <div class="form-group">
-                <label asp-for="StockName" class="control-label"></label>
-                <input asp-for="StockName" class="form-control" />
-                <span asp-validation-for="StockName" class="text-danger"></span>
+            <div class="card shadow-sm">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0">New Stock Location Details</h5>
+                </div>
+                <div class="card-body">
+                    <form asp-action="Create" method="post">
+                        @Html.AntiForgeryToken()
+                        <div asp-validation-summary="ModelOnly" class="alert alert-danger alert-dismissible fade show" role="alert">
+                            Please correct the errors below.
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="StockName" class="form-label fw-bold"></label>
+                            <input asp-for="StockName" class="form-control" placeholder="e.g., Main Warehouse, Downtown Branch" />
+                            <span asp-validation-for="StockName" class="text-danger small"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="StockAddress" class="form-label fw-bold"></label>
+                            <textarea asp-for="StockAddress" class="form-control" rows="3" placeholder="Enter full address"></textarea>
+                            <span asp-validation-for="StockAddress" class="text-danger small"></span>
+                        </div>
+
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-4">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-save-fill me-1"></i> Create Stock
+                            </button>
+                            <a asp-action="Index" class="btn btn-light border">Cancel</a>
+                        </div>
+                    </form>
+                </div>
             </div>
-            <div class="form-group">
-                <label asp-for="StockAddress" class="control-label"></label>
-                <input asp-for="StockAddress" class="form-control" />
-                <span asp-validation-for="StockAddress" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <input type="submit" value="Create" class="btn btn-primary" />
-            </div>
-        </form>
+        </div>
     </div>
 </div>
 
-<div>
-    <a asp-action="Index">Back to List</a>
-</div>
-
 @section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
 }

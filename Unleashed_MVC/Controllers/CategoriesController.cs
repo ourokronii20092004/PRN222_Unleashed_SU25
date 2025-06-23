@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using DAL.Data;
 using DAL.Models;
-using BLL.Interfaces;
+using BLL.Services.Interfaces;
 
 namespace Unleashed_MVC.Controllers
 {
