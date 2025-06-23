@@ -1,30 +1,53 @@
 ﻿using DAL.Models;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 
 namespace DAL.DTOs
 {
     public class ProductDTO
     {
         public Guid ProductId { get; set; }
+
+        [Required(ErrorMessage = "Brand ID is required.")]
         public int? BrandId { get; set; }
+
         public int? ProductStatusId { get; set; }
+
+        [Required(ErrorMessage = "Product name cannot be empty.")]
+        [StringLength(255, ErrorMessage = "Product name cannot exceed 255 characters.")]
         public string? ProductName { get; set; }
+
+        [Required(ErrorMessage = "Product code cannot be empty.")]
+        [StringLength(100, ErrorMessage = "Product code cannot exceed 100 characters.")]
         public string? ProductCode { get; set; }
+
+        [StringLength(1000, ErrorMessage = "Product description cannot exceed 1000 characters.")]
         public string? ProductDescription { get; set; }
+
         public DateTimeOffset? CreatedAt { get; set; }
         public DateTimeOffset? UpdatedAt { get; set; }
+
         public List<ProductVariationDTO>? Variations { get; set; }
+
         public string? SaleType { get; set; }
+
+        [Range(0, double.MaxValue, ErrorMessage = "Sale value must be a positive number.")]
         public decimal? SaleValue { get; set; }
+
         public virtual ICollection<Review> Reviews { get; set; } = new List<Review>();
         public virtual ICollection<Category> Categories { get; set; } = new List<Category>();
         public virtual ICollection<Sale> Sales { get; set; } = new List<Sale>();
+
         public class ProductVariationDTO
         {
             public int? SizeId { get; set; }
             public int? ColorId { get; set; }
+
+            [Range(0, double.MaxValue, ErrorMessage = "Product price must be a positive number.")]
             public decimal? ProductPrice { get; set; }
+
+            [Url(ErrorMessage = "Please enter a valid product variation image URL.")]
             public string? ProductVariationImage { get; set; }
         }
 
@@ -38,9 +61,7 @@ namespace DAL.DTOs
                 ProductName = ProductName,
                 ProductCode = ProductCode,
                 ProductDescription = ProductDescription,
-
             };
-
         }
     }
 }
