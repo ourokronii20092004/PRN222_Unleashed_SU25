@@ -5,9 +5,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace DAL.DTO
+namespace DAL.DTOs
 {
-    public class BrandUpdateDTO
+    public class BrandCreateDTO
     {
         [Required(ErrorMessage = "Brand name cannot be empty.")]
         [StringLength(255)]

@@ -8,9 +8,9 @@ using Microsoft.EntityFrameworkCore;
 using DAL.Data;
 using DAL.Models;
 using BLL.Interfaces;
-using DAL.DTO;
 using Microsoft.AspNetCore.Authorization;
 using AutoMapper;
+using DAL.DTOs;
 
 namespace Unleashed_MVC.Controllers
 {
