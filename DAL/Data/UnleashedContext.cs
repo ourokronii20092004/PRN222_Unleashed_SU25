@@ -865,13 +865,13 @@ public partial class UnleashedContext : DbContext
 
         // raw sql = this shit is needed
         // pls no delete or I cries
-        modelBuilder.Entity<DAL.DTO.BrandDTO>(dto =>dto.HasNoKey());
+        modelBuilder.Entity<BrandDTO>(dto =>dto.HasNoKey());
 
-        modelBuilder.Entity<DAL.DTO.StockDetailDTO>(dto => dto.HasNoKey());
+        modelBuilder.Entity<StockDetailDTO>(dto => dto.HasNoKey());
 
-        modelBuilder.Entity<DAL.DTO.SimplifiedTransactionCardDTO>(dto => dto.HasNoKey());
+        modelBuilder.Entity<SimplifiedTransactionCardDTO>(dto => dto.HasNoKey());
 
-        modelBuilder.Entity<DAL.DTO.ProductSearchResultDTO>(dto => dto.HasNoKey());
+        modelBuilder.Entity<ProductSearchResultDTO>(dto => dto.HasNoKey());
 
 
 

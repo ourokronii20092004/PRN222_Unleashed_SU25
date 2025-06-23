@@ -10,12 +10,11 @@ namespace BLL.Mappings
         {
             // Entity to DTO
             CreateMap<Brand, BrandDTO>();
-            CreateMap<Brand, SearchBrandDTO>(); // Assuming BrandName and BrandDescription are directly on Brand
+            CreateMap<Brand, SearchBrandDTO>();
 
             // DTO to Entity
-            CreateMap<BrandCreateDTO, Brand>(); // Ignores BrandId, BrandCreatedAt, BrandUpdatedAt as they are set manually or by DB
-            CreateMap<BrandUpdateDTO, Brand>(); // Ignores BrandId, BrandCreatedAt, BrandUpdatedAt
-
+            CreateMap<BrandCreateDTO, Brand>();
+            CreateMap<BrandUpdateDTO, Brand>();
             CreateMap<BrandDTO, Brand>();
         }
     }

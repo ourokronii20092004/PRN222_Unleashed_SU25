@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using DAL.DTOs;
 using DAL.Models;
 
-namespace BLL.Interfaces
+namespace BLL.Services.Interfaces
 {
     public interface IBrandService
     {

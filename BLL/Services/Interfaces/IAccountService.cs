@@ -1,7 +1,7 @@
 ﻿using DAL.DTOs.AccountDTOs;
 using DAL.Models;
 
-namespace BLL.Interfaces
+namespace BLL.Services.Interfaces
 {
     public interface IAccountService
     {
