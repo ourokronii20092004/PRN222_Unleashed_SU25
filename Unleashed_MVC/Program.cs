@@ -25,6 +25,7 @@ namespace Unleashed_MVC
 
             builder.Services.AddScoped<IAccountService, AccountService>();
 
+            builder.Services.AddScoped<IDiscountService, DiscountService>();
 
             //
 

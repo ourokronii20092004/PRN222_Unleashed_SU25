@@ -1,0 +1,91 @@
+﻿@model DAL.Models.Discount
+
+@{
+    ViewData["Title"] = "Create";
+}
+
+<h1>Create</h1>
+
+<h4>Discount</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="Create">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-group">
+                <label asp-for="DiscountStatusId" class="control-label"></label>
+                <select asp-for="DiscountStatusId" class ="form-control" asp-items="ViewBag.DiscountStatusId"></select>
+            </div>
+            <div class="form-group">
+                <label asp-for="DiscountTypeId" class="control-label"></label>
+                <select asp-for="DiscountTypeId" class ="form-control" asp-items="ViewBag.DiscountTypeId"></select>
+            </div>
+            <div class="form-group">
+                <label asp-for="DiscountCode" class="control-label"></label>
+                <input asp-for="DiscountCode" class="form-control" />
+                <span asp-validation-for="DiscountCode" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="DiscountValue" class="control-label"></label>
+                <input asp-for="DiscountValue" class="form-control" />
+                <span asp-validation-for="DiscountValue" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="DiscountDescription" class="control-label"></label>
+                <input asp-for="DiscountDescription" class="form-control" />
+                <span asp-validation-for="DiscountDescription" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="DiscountMinimumOrderValue" class="control-label"></label>
+                <input asp-for="DiscountMinimumOrderValue" class="form-control" />
+                <span asp-validation-for="DiscountMinimumOrderValue" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="DiscountMaximumValue" class="control-label"></label>
+                <input asp-for="DiscountMaximumValue" class="form-control" />
+                <span asp-validation-for="DiscountMaximumValue" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="DiscountUsageLimit" class="control-label"></label>
+                <input asp-for="DiscountUsageLimit" class="form-control" />
+                <span asp-validation-for="DiscountUsageLimit" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="DiscountStartDate" class="control-label"></label>
+                <input asp-for="DiscountStartDate" class="form-control" />
+                <span asp-validation-for="DiscountStartDate" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="DiscountEndDate" class="control-label"></label>
+                <input asp-for="DiscountEndDate" class="form-control" />
+                <span asp-validation-for="DiscountEndDate" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="DiscountCreatedAt" class="control-label"></label>
+                <input asp-for="DiscountCreatedAt" class="form-control" />
+                <span asp-validation-for="DiscountCreatedAt" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="DiscountUpdatedAt" class="control-label"></label>
+                <input asp-for="DiscountUpdatedAt" class="form-control" />
+                <span asp-validation-for="DiscountUpdatedAt" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="DiscountUsageCount" class="control-label"></label>
+                <input asp-for="DiscountUsageCount" class="form-control" />
+                <span asp-validation-for="DiscountUsageCount" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Create" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

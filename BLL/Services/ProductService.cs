@@ -20,7 +20,7 @@ namespace BLL.Services
         {
             var product = await _context.Products
                 .Include(p => p.Variations)
-                .FirstOrDefaultAsync(p => p.ProductId == productId);
+                .FirstOrDefaultAsync(p => p.ProductId == Guid.Parse(productId));
 
             if (product == null)
                 return null;
