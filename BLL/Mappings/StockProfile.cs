@@ -1,6 +1,6 @@
 ﻿using AutoMapper;
 using DAL.Models;
-using DAL.DTO;
+using DAL.DTOs;
 
 namespace BLL.Mappings
 {
@@ -14,6 +14,7 @@ namespace BLL.Mappings
             CreateMap<StockCreateDTO, Stock>(); // For creating new stocks
             CreateMap<StockUpdateDTO, Stock>(); // For applying updates
             CreateMap<Stock, StockUpdateDTO>(); // For populating edit form
+            CreateMap<StockDTO, StockUpdateDTO>();
         }
     }
 }

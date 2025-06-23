@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using DAL.DTO;
+using DAL.DTOs;
 using DAL.Models;
 
 namespace BLL.Interfaces

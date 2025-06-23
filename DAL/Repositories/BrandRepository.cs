@@ -6,7 +6,6 @@ using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using DAL.DTO;
 
 namespace DAL.Repositories
 {
@@ -73,7 +72,7 @@ namespace DAL.Repositories
         GROUP BY b.brand_id, b.brand_name, b.brand_description, b.brand_image_url, b.brand_website_url, b.brand_created_at, b.brand_updated_at
         ORDER BY b.brand_id";
 
-            return await _context.Set<DAL.DTO.BrandDTO>()
+            return await _context.Set<BrandDTO>()
                                  .FromSqlRaw(sql)
                                  .ToListAsync();
         }

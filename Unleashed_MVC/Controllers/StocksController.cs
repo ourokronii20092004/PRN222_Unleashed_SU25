@@ -6,10 +6,10 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using DAL.Models;
-using DAL.DTO;
 using BLL.Interfaces;
 using AutoMapper;
 using Microsoft.Extensions.Logging;
+using DAL.DTOs;
 
 namespace Unleashed_MVC.Controllers
 {
