@@ -12,11 +12,14 @@ namespace DAL.DAO
 {
     public static class UnleashedDAO
     {
-        public static IServiceCollection ConnectUnleashedDatabase(this IServiceCollection services, IConfiguration configuration)
+        public static IServiceCollection ConnectUnleashedDatabase(
+            this IServiceCollection services,
+            IConfiguration configuration,
+            string connectionStringName)
         => services.AddDbContext<UnleashedContext>(
-            options =>
-            options.UseSqlServer(
-                configuration.GetConnectionString("ZeroTierOne")));
+           options =>
+           options.UseSqlServer(
+               configuration.GetConnectionString(connectionStringName)));
 
     }
 }

@@ -15,14 +15,13 @@ namespace Unleashed_MVC
         {
             var builder = WebApplication.CreateBuilder(args);
 
-            builder.Services.ConnectUnleashedDatabase(builder.Configuration);
+            builder.Services.ConnectUnleashedDatabase(builder.Configuration, "ZeroTierOne");
 
 
             // --- MVC Services ---
             builder.Services.AddControllersWithViews();
             builder.Services.AddControllers();
-            builder.Services.AddDbContext<UnleashedContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("Cloudflared")));
+
 
             // --- Repositories ---
             builder.Services.AddScoped<IUserRepository, UserRepository>();
@@ -39,7 +38,6 @@ namespace Unleashed_MVC
             builder.Services.AddScoped<ITransactionTypeRepository, TransactionTypeRepository>();
             builder.Services.AddScoped<IVariationRepository, VariationRepository>();
             builder.Services.AddScoped<IVariationSingleRepository, VariationSingleRepository>();
-            builder.Services.AddScoped<IUserRepository, UserRepository>();
             builder.Services.AddScoped<IProductStatusRepository, ProductStatusRepository>();
             builder.Services.AddScoped<IProviderRepository, ProviderRepository>();
 
