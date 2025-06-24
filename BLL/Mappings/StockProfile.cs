@@ -1,6 +1,6 @@
 ﻿using AutoMapper;
 using DAL.Models;
-using DAL.DTOs;
+using DAL.DTOs.StockDTOs;
 
 namespace BLL.Mappings
 {

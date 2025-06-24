@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace DAL.DTOs
+namespace DAL.DTOs.TransactionDTOs
 {
     public class TransactionCardDTO
     {

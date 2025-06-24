@@ -9,8 +9,8 @@ using DAL.Data;
 using DAL.Models;
 using Microsoft.AspNetCore.Authorization;
 using AutoMapper;
-using DAL.DTOs;
 using BLL.Services.Interfaces;
+using DAL.DTOs.BrandDTOs;
 
 namespace Unleashed_MVC.Controllers
 {

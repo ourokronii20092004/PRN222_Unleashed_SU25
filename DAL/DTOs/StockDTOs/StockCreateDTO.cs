@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace DAL.DTOs
+namespace DAL.DTOs.StockDTOs
 {
     public class StockCreateDTO
     {

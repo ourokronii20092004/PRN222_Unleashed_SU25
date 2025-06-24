@@ -1,4 +1,5 @@
-﻿using DAL.DTOs;
+﻿using DAL.DTOs.StockDTOs;
+using DAL.DTOs.TransactionDTOs;
 using System;
 using System.Collections.Generic;
 using System.Linq;

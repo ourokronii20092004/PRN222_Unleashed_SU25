@@ -1,5 +1,5 @@
 ﻿using DAL.Data;
-using DAL.DTOs;
+using DAL.DTOs.TransactionDTOs;
 using DAL.Models;
 using DAL.Repositories.Interfaces;
 using Microsoft.EntityFrameworkCore;

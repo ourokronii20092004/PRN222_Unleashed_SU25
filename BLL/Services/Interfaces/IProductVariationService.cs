@@ -1,4 +1,4 @@
-﻿using DAL.DTOs;
+﻿using DAL.DTOs.ProductDTOs;
 using DAL.Models;
 using System.Threading.Tasks;
 

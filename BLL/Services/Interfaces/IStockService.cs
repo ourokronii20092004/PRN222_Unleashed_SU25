@@ -1,4 +1,4 @@
-﻿using DAL.DTOs;
+﻿using DAL.DTOs.StockDTOs;
 using System;
 using System.Collections.Generic;
 using System.Linq;

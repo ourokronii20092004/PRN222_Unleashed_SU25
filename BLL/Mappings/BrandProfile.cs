@@ -1,5 +1,5 @@
 ﻿using AutoMapper;
-using DAL.DTOs;
+using DAL.DTOs.BrandDTOs;
 using DAL.Models;
 
 namespace BLL.Mappings

@@ -8,8 +8,8 @@ using DAL.Models;
 using BLL.Services.Interfaces;
 using AutoMapper;
 using Microsoft.Extensions.Logging;
-using DAL.DTOs;
 using BLL.Services.Interfaces;
+using DAL.DTOs.StockDTOs;
 
 namespace Unleashed_MVC.Controllers
 {
