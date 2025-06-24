@@ -177,5 +177,18 @@ namespace DAL.Repositories
                        .FirstOrDefaultAsync(v => v.ProductId == productID, cancellationToken) ??
                    throw new ArgumentException("Variation not found for the given productId", nameof(productID));
         }
+
+        public async Task DeleteByProductIdAsync(Guid productId)
+        {
+            var variationsToDelete = await _context.Variations
+                                       .Where(v => v.ProductId == productId)
+                                       .ToListAsync();
+
+            if (variationsToDelete.Any())
+            {
+                _context.Variations.RemoveRange(variationsToDelete);
+                await _context.SaveChangesAsync();
+            }
+        }
     }
 }

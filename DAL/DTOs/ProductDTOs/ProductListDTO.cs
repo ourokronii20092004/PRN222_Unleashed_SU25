@@ -25,5 +25,7 @@ namespace DAL.DTOs.ProductDTOs
         public long? TotalRatings { get; set; }
 
         public int Quantity { get; set; }
+
+        public List<Variation>? Variations { get; set; }
     }
 }

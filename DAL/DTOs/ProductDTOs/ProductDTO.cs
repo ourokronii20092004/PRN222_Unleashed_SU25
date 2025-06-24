@@ -41,8 +41,8 @@ namespace DAL.DTOs.ProductDTOs
 
         public class ProductVariationDTO
         {
-            public int? SizeId { get; set; }
-            public int? ColorId { get; set; }
+            public int SizeId { get; set; }
+            public int ColorId { get; set; }
 
             [Range(0, double.MaxValue, ErrorMessage = "Product price must be a positive number.")]
             public decimal? ProductPrice { get; set; }

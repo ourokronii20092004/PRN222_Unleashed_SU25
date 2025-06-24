@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace BLL.Services.Interfaces
 {
-    internal interface IProductService
+    public interface IProductService
     {
         // Lấy danh sách tất cả sản phẩm
         Task<List<ProductListDTO>> GetAllProductsAsync();
@@ -26,7 +26,7 @@ namespace BLL.Services.Interfaces
         // Thêm các biến thể vào sản phẩm đã tồn tại
         Task<Product?> AddVariationsToExistingProductAsync(Guid productId, List<ProductDTO.ProductVariationDTO> variationDTOs);
 
-        // Lấy danh sách sản phẩm còn trong kho
+        // Lấy danh sách sản phẩm còn trong kho (chưa được triển khai trong ProductService)
         Task<List<ProductDetailDTO>> GetProductsInStockAsync();
 
         // Xóa sản phẩm theo ID
