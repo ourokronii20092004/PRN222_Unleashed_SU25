@@ -1,5 +1,5 @@
 ﻿using BLL.Services.Interfaces;
-using DAL.DTOs;
+using DAL.DTOs.ProductDTOs;
 using DAL.Models;
 using DAL.Repositories;
 using DAL.Repositories.Interfaces;

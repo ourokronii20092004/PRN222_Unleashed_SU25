@@ -1,6 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using DAL.DTOs;
+using DAL.DTOs.BrandDTOs;
+using DAL.DTOs.ProductDTOs;
+using DAL.DTOs.StockDTOs;
+using DAL.DTOs.TransactionDTOs;
 using DAL.Models;
 using Microsoft.EntityFrameworkCore;
 

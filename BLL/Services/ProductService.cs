@@ -1,6 +1,6 @@
 ﻿using BLL.Services.Interfaces;
 using DAL.Data;
-using DAL.DTOs;
+using DAL.DTOs.ProductDTOs;
 using DAL.Models;
 using Microsoft.EntityFrameworkCore;
 using System;

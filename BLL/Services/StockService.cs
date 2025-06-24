@@ -1,6 +1,6 @@
 ﻿using AutoMapper;
 using BLL.Services.Interfaces;
-using DAL.DTOs;
+using DAL.DTOs.StockDTOs;
 using DAL.Models;
 using DAL.Repositories.Interfaces;
 using Microsoft.EntityFrameworkCore;

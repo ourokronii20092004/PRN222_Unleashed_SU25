@@ -1,9 +1,9 @@
-﻿using BLL.Interfaces;
-using DAL.Models; // Thêm using này
+﻿using DAL.Models; // Thêm using này
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc.Rendering; // Thêm using này
-using DAL.Data; // Thêm using này để truy cập DbContext
+using DAL.Data;
+using BLL.Services.Interfaces; // Thêm using này để truy cập DbContext
 
 namespace Unleashed_MVC.Controllers
 {

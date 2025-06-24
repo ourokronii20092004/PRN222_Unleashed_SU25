@@ -1,4 +1,4 @@
-﻿using DAL.DTOs;
+﻿using DAL.DTOs.BrandDTOs;
 using DAL.Models;
 using System;
 using System.Collections.Generic;

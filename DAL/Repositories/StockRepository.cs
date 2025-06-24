@@ -1,5 +1,5 @@
 ﻿using DAL.Data;
-using DAL.DTOs;
+using DAL.DTOs.StockDTOs;
 using DAL.Models;
 using DAL.Repositories.Interfaces;
 using Microsoft.EntityFrameworkCore;

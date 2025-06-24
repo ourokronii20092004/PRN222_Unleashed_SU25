@@ -2,7 +2,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace DAL.DTOs
+namespace DAL.DTOs.ProductDTOs
 {
     public class ProductListDTO
     {

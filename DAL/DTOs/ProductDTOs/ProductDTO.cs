@@ -3,7 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
-namespace DAL.DTOs
+namespace DAL.DTOs.ProductDTOs
 {
     public class ProductDTO
     {

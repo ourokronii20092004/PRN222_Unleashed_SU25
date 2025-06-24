@@ -1,7 +1,7 @@
 ﻿using AutoMapper;
 using BLL.Services.Interfaces;
 using DAL.Data;
-using DAL.DTOs;
+using DAL.DTOs.BrandDTOs;
 using DAL.Models;
 using DAL.Repositories.Interfaces;
 using Microsoft.EntityFrameworkCore;
