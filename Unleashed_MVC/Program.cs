@@ -2,8 +2,10 @@
 using BLL.Services;
 using BLL.Services.Interfaces;
 using DAL.DAO;
+using DAL.Data;
 using DAL.Repositories;
 using DAL.Repositories.Interfaces;
+using Microsoft.EntityFrameworkCore;
 
 namespace Unleashed_MVC
 {
@@ -15,9 +17,12 @@ namespace Unleashed_MVC
 
             builder.Services.ConnectUnleashedDatabase(builder.Configuration);
 
+
             // --- MVC Services ---
             builder.Services.AddControllersWithViews();
             builder.Services.AddControllers();
+            builder.Services.AddDbContext<UnleashedContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("Cloudflared")));
 
             // --- Repositories ---
             builder.Services.AddScoped<IUserRepository, UserRepository>();

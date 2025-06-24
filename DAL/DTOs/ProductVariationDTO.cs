@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace DAL.DTOs
 {
-    internal class ProductVariationDTO
+    public class ProductVariationDTO
     {
         public int VariationId { get; set; }
         public decimal? ProductPrice { get; set; }

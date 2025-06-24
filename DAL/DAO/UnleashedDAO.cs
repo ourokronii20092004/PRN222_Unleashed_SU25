@@ -17,5 +17,6 @@ namespace DAL.DAO
             options =>
             options.UseSqlServer(
                 configuration.GetConnectionString("ZeroTierOne")));
+
     }
 }
