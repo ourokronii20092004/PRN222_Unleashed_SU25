@@ -18,7 +18,7 @@ namespace BLL.Mappings
             CreateMap<StockDTO, Stock>();
 
             // DTO to DTO
-            CreateMap<StockDTO, StockUpdateDTO>();  
+            CreateMap<StockDTO, StockUpdateDTO>();
 
         }
     }

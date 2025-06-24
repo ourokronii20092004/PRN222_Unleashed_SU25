@@ -16,8 +16,6 @@ namespace DAL.DAO
         => services.AddDbContext<UnleashedContext>(
             options =>
             options.UseSqlServer(
-                configuration.GetConnectionString("DefaultConnection")));
-        
-
+                configuration.GetConnectionString("ZeroTierOne")));
     }
 }
