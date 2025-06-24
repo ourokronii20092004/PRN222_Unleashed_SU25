@@ -5,9 +5,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace DAL.DTOs.AccountDTOs
+namespace DAL.DTOs.UserDTOs
 {
-    internal class AccountLoginDTO
+    internal class UserLoginDTO
     {
         [Required(ErrorMessage = "Username cannot be empty.")]
         [MinLength(7, ErrorMessage = "Username must be longer than 7 characters.")]

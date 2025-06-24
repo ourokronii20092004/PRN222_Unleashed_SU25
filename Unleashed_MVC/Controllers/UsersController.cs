@@ -1,15 +1,16 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using DAL.Models;
-using BLL.Interfaces;
-using DAL.DTOs.AccountDTOs;
+using DAL.DTOs.UserDTOs;
+using BLL.Services.Interfaces;
+using Microsoft.IdentityModel.Tokens;
+using System.Diagnostics;
 
 namespace Unleashed_MVC.Controllers
 {
     public class UsersController : Controller
     {
-        private readonly IAccountService _service;
+        private readonly IUserService _service;
 
-        public UsersController(IAccountService service)
+        public UsersController(IUserService service)
         {
             _service = service;
         }
@@ -35,7 +36,7 @@ namespace Unleashed_MVC.Controllers
                 return NotFound();
             }
 
-            return View(AccountDetailDTO.FromUser(user));
+            return View(user);
         }
 
         // GET: Users/Create
@@ -49,15 +50,13 @@ namespace Unleashed_MVC.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Username,Password,Fullname,Email,Phone,Birthdate,Address,Image,Gender")] RegisterAccountDTO account)
+        public async Task<IActionResult> Create(RegisterUserDTO user)
         {
             if (!ModelState.IsValid)
             {
-                return View(account);
+                return View(user);
             }     
             
-            var user = account.ToUser(); 
-
             if (await _service.AddUserAsync(user, 2))
             {            
                 return RedirectToAction(nameof(Index));
@@ -83,7 +82,7 @@ namespace Unleashed_MVC.Controllers
                 return NotFound();
             }
             //ViewData["RoleId"] = new SelectList(_context.Roles, "RoleId", "RoleId", user.RoleId);
-            return View(AccountDetailDTO.FromUser(user));
+            return View(user);
         }
 
         // POST: Users/Edit/5
@@ -91,12 +90,12 @@ namespace Unleashed_MVC.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit ([Bind("Username,Fullname,Email,Phone,BirthDate,Address,Image,Gender,IsEnabled")] AccountDetailDTO account)
+        public async Task<IActionResult> Edit ( UserDetailDTO account)
         {
    
             if (ModelState.IsValid)
             {
-                if (!await _service.EditUserAsync(account.ToUser())) 
+                if (!await _service.EditUserAsync(account)) 
                     return NotFound();      
                 
                 return RedirectToAction(nameof(Index));
@@ -127,10 +126,10 @@ namespace Unleashed_MVC.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(string username)
         {
-            var user = await _service.GetUserByUsernameAsync(username);
-            if (user != null)
+            if (!username.IsNullOrEmpty())
             {
-               await _service.DeleteUserAsync(user);
+               if (!await _service.DeleteUserAsync(username))
+                   NotFound() ;
             }
             return RedirectToAction(nameof(Index));
         }

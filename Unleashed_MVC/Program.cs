@@ -20,7 +20,7 @@ namespace Unleashed_MVC
             builder.Services.AddControllers();
 
             // --- Repositories ---
-            builder.Services.AddScoped<IAccountRepository, AccountRepository>();
+            builder.Services.AddScoped<IUserRepository, UserRepository>();
             builder.Services.AddScoped<IRoleRepository, RoleRepository>();
             builder.Services.AddScoped<IBrandRepository, BrandRepository>();
             builder.Services.AddScoped<IProductRepository, ProductRepository>();
@@ -42,7 +42,7 @@ namespace Unleashed_MVC
             // --- Services ---
             builder.Services.AddScoped<IBrandService, BrandService>();
             builder.Services.AddScoped<ICategoryService, CategoryService>();
-            builder.Services.AddScoped<IAccountService, AccountService>();
+            builder.Services.AddScoped<IUserService, UserService>();
             builder.Services.AddScoped<INotificationService, NotificationService>();
             builder.Services.AddScoped<ICartService, CartService>();
             builder.Services.AddScoped<IStockService, StockService>();

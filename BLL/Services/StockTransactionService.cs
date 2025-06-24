@@ -163,7 +163,7 @@ namespace BLL.Services
                             return false;
                         }
 
-                        var inchargeEmployee = await _userRepository.FindByUsernameAsync(stockTransactionDto.Username);
+                        var inchargeEmployee = await _userRepository.GetByUsernameAsync(stockTransactionDto.Username);
                         if (inchargeEmployee == null)
                         {
                             _logger.LogWarning($"Incharge employee not found with username: {stockTransactionDto.Username}.");
