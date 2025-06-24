@@ -14,6 +14,7 @@ namespace DAL.Repositories.Interfaces
         Task<Variation> AddAsync(Variation variation);
         Task UpdateAsync(Variation variation);
         Task DeleteAsync(int id);
+        Task DeleteByProductIdAsync(Guid productId);
 
         // Corresponds to findProductVariationByProductId(@Param("productId") String productId)
         Task<List<Variation>> FindProductVariationByProductIdAsync(Guid productId);

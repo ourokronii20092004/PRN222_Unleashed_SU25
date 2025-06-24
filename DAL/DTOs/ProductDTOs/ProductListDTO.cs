@@ -27,5 +27,11 @@ namespace DAL.DTOs.ProductDTOs
         public int Quantity { get; set; }
 
         public List<Variation>? Variations { get; set; }
+
+
+        public string? ProductCode { get; set; } 
+        public DateTimeOffset? ProductCreatedAt { get; set; }  
+        public DateTimeOffset? ProductUpdatedAt { get; set; }  
+        public int? ProductStatusId { get; set; }  
     }
 }

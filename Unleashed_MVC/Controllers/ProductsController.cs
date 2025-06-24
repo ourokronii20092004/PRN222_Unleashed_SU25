@@ -1,30 +1,36 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.EntityFrameworkCore;
-using DAL.Data;
-using DAL.Models;
+﻿using BLL.Services.Interfaces;
 using DAL.DTOs.ProductDTOs;
+using DAL.Models;
+using DAL.Repositories.Interfaces;
+using Microsoft.AspNetCore.Mvc;
+using System;
+using System.Threading.Tasks;
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace Unleashed_MVC.Controllers
 {
     public class ProductsController : Controller
     {
-        private readonly UnleashedContext _context;
+        private readonly IProductService _productService;
+        private readonly IBrandRepository _brandRepository;     
+        private readonly IProductStatusRepository _productStatusRepository;  
 
-        public ProductsController(UnleashedContext context)
+        // Tiêm IProductService vào trong constructor
+        public ProductsController(IProductService productService, IBrandRepository brandRepository, IProductStatusRepository productStatusRepository)
         {
-            _context = context;
+            _productService = productService;
+            _brandRepository = brandRepository;
+            _productStatusRepository = productStatusRepository;
         }
 
         // GET: Products
         public async Task<IActionResult> Index()
         {
-            var unleashedContext = _context.Products.Include(p => p.Brand).Include(p => p.ProductStatus);
-            return View(await unleashedContext.ToListAsync());
+            var products = await _productService.GetAllProductsAsync();
+            return View(products);
         }
 
         // GET: Products/Details/5
@@ -35,10 +41,7 @@ namespace Unleashed_MVC.Controllers
                 return NotFound();
             }
 
-            var product = await _context.Products
-                .Include(p => p.Brand)
-                .Include(p => p.ProductStatus)
-                .FirstOrDefaultAsync(m => m.ProductId == id);
+            var product = await _productService.GetProductByIdAsync(id.Value);
             if (product == null)
             {
                 return NotFound();
@@ -48,30 +51,32 @@ namespace Unleashed_MVC.Controllers
         }
 
         // GET: Products/Create
-        public IActionResult Create()
+         public async Task<IActionResult> Create()
         {
-            ViewData["BrandId"] = new SelectList(_context.Brands, "BrandId", "BrandId");
-            ViewData["ProductStatusId"] = new SelectList(_context.ProductStatuses, "ProductStatusId", "ProductStatusId");
+            // Lấy danh sách các Brand và ProductStatus
+            ViewBag.BrandId = new SelectList(await _brandRepository.GetAllAsync(), "BrandId", "BrandName");
+            ViewBag.ProductStatusId = new SelectList(await _productStatusRepository.GetAllAsync(), "ProductStatusId", "ProductStatusName");
+
             return View();
         }
 
         // POST: Products/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("ProductId,BrandId,ProductStatusId,ProductName,ProductCode,ProductDescription,ProductCreatedAt,ProductUpdatedAt")] ProductDTO product)
+        public async Task<IActionResult> Create([Bind("ProductId,BrandId,ProductStatusId,ProductName,ProductCode,ProductDescription,ProductCreatedAt,ProductUpdatedAt")] ProductDTO productDTO)
         {
             if (ModelState.IsValid)
             {
-                product.ProductId = Guid.NewGuid();
-                _context.Add(product);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
+                productDTO.ProductId = Guid.NewGuid();  // Tạo mới ProductId
+                await _productService.CreateProductAsync(productDTO);  // Gọi service để tạo sản phẩm
+                return RedirectToAction(nameof(Index));  // Sau khi tạo, chuyển hướng về danh sách sản phẩm
             }
-            ViewData["BrandId"] = new SelectList(_context.Brands, "BrandId", "BrandId", product.BrandId);
-            ViewData["ProductStatusId"] = new SelectList(_context.ProductStatuses, "ProductStatusId", "ProductStatusId", product.ProductStatusId);
-            return View(product);
+
+            // Nếu có lỗi, trả về view và giữ lại dữ liệu đã nhập
+            ViewBag.BrandId = new SelectList(await _brandRepository.GetAllAsync(), "BrandId", "BrandName", productDTO.BrandId);
+            ViewBag.ProductStatusId = new SelectList(await _productStatusRepository.GetAllAsync(), "ProductStatusId", "ProductStatusName", productDTO.ProductStatusId);
+
+            return View(productDTO);
         }
 
         // GET: Products/Edit/5
@@ -82,51 +87,32 @@ namespace Unleashed_MVC.Controllers
                 return NotFound();
             }
 
-            var product = await _context.Products.FindAsync(id);
+            var product = await _productService.GetProductByIdAsync(id.Value);
             if (product == null)
             {
                 return NotFound();
             }
-            ViewData["BrandId"] = new SelectList(_context.Brands, "BrandId", "BrandId", product.BrandId);
-            ViewData["ProductStatusId"] = new SelectList(_context.ProductStatuses, "ProductStatusId", "ProductStatusId", product.ProductStatusId);
+
             return View(product);
         }
 
         // POST: Products/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(Guid id, [Bind("ProductId,BrandId,ProductStatusId,ProductName,ProductCode,ProductDescription,ProductCreatedAt,ProductUpdatedAt")] Product product)
+        public async Task<IActionResult> Edit(Guid id, [Bind("ProductId,BrandId,ProductStatusId,ProductName,ProductCode,ProductDescription,ProductCreatedAt,ProductUpdatedAt")] ProductDTO productDTO)
         {
-            if (id != product.ProductId)
+            if (id != productDTO.ProductId)
             {
                 return NotFound();
             }
 
             if (ModelState.IsValid)
             {
-                try
-                {
-                    _context.Update(product);
-                    await _context.SaveChangesAsync();
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!ProductExists(product.ProductId))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
-                }
+                await _productService.UpdateProductAsync(id, productDTO);
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["BrandId"] = new SelectList(_context.Brands, "BrandId", "BrandId", product.BrandId);
-            ViewData["ProductStatusId"] = new SelectList(_context.ProductStatuses, "ProductStatusId", "ProductStatusId", product.ProductStatusId);
-            return View(product);
+
+            return View(productDTO);
         }
 
         // GET: Products/Delete/5
@@ -137,10 +123,7 @@ namespace Unleashed_MVC.Controllers
                 return NotFound();
             }
 
-            var product = await _context.Products
-                .Include(p => p.Brand)
-                .Include(p => p.ProductStatus)
-                .FirstOrDefaultAsync(m => m.ProductId == id);
+            var product = await _productService.GetProductByIdAsync(id.Value);
             if (product == null)
             {
                 return NotFound();
@@ -154,19 +137,13 @@ namespace Unleashed_MVC.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(Guid id)
         {
-            var product = await _context.Products.FindAsync(id);
-            if (product != null)
+            var deleted = await _productService.DeleteProductAsync(id);
+            if (deleted)
             {
-                _context.Products.Remove(product);
+                return RedirectToAction(nameof(Index));
             }
 
-            await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
-        }
-
-        private bool ProductExists(Guid id)
-        {
-            return _context.Products.Any(e => e.ProductId == id);
+            return NotFound();
         }
     }
 }

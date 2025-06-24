@@ -56,7 +56,7 @@ namespace BLL.Services
             if (variationDTO.ColorId != null)
             {
                 // Assuming you have a ColorRepository and it has a method to get the Color by name or ID
-                var color = await _colorRepository.GetByIdAsync(variationDTO.ColorId.Value); // If Color is an object with an Id
+                var color = await _colorRepository.GetByIdAsync(variationDTO.ColorId); // If Color is an object with an Id
                 if (color != null)
                 {
                     existingVariation.Color = color; // Set the Color to the existing variation
@@ -70,7 +70,7 @@ namespace BLL.Services
             if (variationDTO.SizeId != null)
             {
                 // Assuming you have a SizeRepository and it has a method to get the Size by name or ID
-                var size = await _sizeRepository.GetByIdAsync(variationDTO.SizeId.Value); // If Size is an object with an Id
+                var size = await _sizeRepository.GetByIdAsync(variationDTO.SizeId); // If Size is an object with an Id
                 if (size != null)
                 {
                     existingVariation.Size = size; // Set the Size to the existing variation
