@@ -1,4 +1,5 @@
-﻿using BLL.Services;
+﻿using BLL.Interfaces;
+using BLL.Services;
 using BLL.Services.Interfaces;
 using DAL.DAO;
 using DAL.Repositories;
@@ -47,6 +48,7 @@ namespace Unleashed_MVC
             builder.Services.AddScoped<IStockService, StockService>();
             builder.Services.AddScoped<IStockTransactionService, StockTransactionService>();
 
+            builder.Services.AddScoped<IDiscountService, DiscountService>();
 
             // --- AutoMapper ---
             // This scans all assemblies loaded in the current application domain for AutoMapper profiles.
