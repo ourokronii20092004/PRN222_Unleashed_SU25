@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace DAL.Repositories
 {
-    internal class SizeRepository : ISizeRepository
+    public class SizeRepository : ISizeRepository
     {
         private readonly UnleashedContext _context;
 

@@ -39,6 +39,9 @@ namespace Unleashed_MVC
             builder.Services.AddScoped<IVariationSingleRepository, VariationSingleRepository>();
             builder.Services.AddScoped<IProductStatusRepository, ProductStatusRepository>();
             builder.Services.AddScoped<IProviderRepository, ProviderRepository>();
+            builder.Services.AddScoped<ISizeRepository, SizeRepository>();
+            builder.Services.AddScoped<IColorRepository, ColorRepository>();
+
 
 
             // --- Services ---
@@ -49,6 +52,7 @@ namespace Unleashed_MVC
             builder.Services.AddScoped<ICartService, CartService>();
             builder.Services.AddScoped<IStockService, StockService>();
             builder.Services.AddScoped<IStockTransactionService, StockTransactionService>();
+            builder.Services.AddScoped<IProductService, ProductService>();
 
             builder.Services.AddScoped<IDiscountService, DiscountService>();
 
