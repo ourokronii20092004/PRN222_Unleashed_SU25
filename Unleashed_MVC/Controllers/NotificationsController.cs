@@ -15,9 +15,9 @@ namespace Unleashed_MVC.Controllers
     public class NotificationsController : Controller
     {
         private readonly INotificationService _notificationService;
-        private readonly IAccountService _accountService;
+        private readonly IUserService _accountService;
 
-        public NotificationsController(INotificationService notificationService, IAccountService accountService)
+        public NotificationsController(INotificationService notificationService, IUserService accountService)
         {
             _notificationService = notificationService;
             _accountService = accountService;

@@ -16,13 +16,13 @@ namespace BLL.Services
     {
         private readonly INotificationRepository _notificationRepository;
         private readonly INotificationUserRepository _notificationUserRepository;
-        private readonly IAccountRepository _accountRepository;
+        private readonly IUserRepository _userRepository;
         
-        public NotificationService(INotificationRepository notificationRepository, INotificationUserRepository notificationUser, IAccountRepository accountRepository) 
+        public NotificationService(INotificationRepository notificationRepository, INotificationUserRepository notificationUser, IUserRepository accountRepository) 
         {
             _notificationRepository = notificationRepository;
             _notificationUserRepository = notificationUser;
-            _accountRepository = accountRepository;
+            _userRepository = accountRepository;
         }
 
         public async Task<bool> AddNotificationAsync(Notification notification, IEnumerable<string> usernames)
@@ -31,12 +31,12 @@ namespace BLL.Services
             {
                 notification.NotificationCreatedAt = DateTimeOffset.UtcNow;
                 notification.NotificationUpdatedAt = DateTimeOffset.UtcNow;
-                notification.UserIdSenderNavigation = await _accountRepository.GetByIdAsync(notification.UserIdSender);
+                notification.UserIdSenderNavigation = await _userRepository.GetByIdAsync(notification.UserIdSender);
                
                 await _notificationRepository.AddAsync(notification);
                 if (usernames != null && usernames.Any())
                 {
-                    IEnumerable<User> users = await _accountRepository.FindAsync(u => usernames.Contains(u.UserUsername));
+                    IEnumerable<User> users = await _userRepository.FindAsync(u => usernames.Contains(u.UserUsername));
                     if (users != null && users.Any())
                     {
                         IEnumerable<NotificationUser> notificationUsers = users.Select(u => new NotificationUser
@@ -67,7 +67,7 @@ namespace BLL.Services
             {
                 if (usernames != null && usernames.Any() && notification != null)
                 {
-                    IEnumerable<User> users = await _accountRepository.FindAsync(u => usernames.Contains(u.UserUsername));
+                    IEnumerable<User> users = await _userRepository.FindAsync(u => usernames.Contains(u.UserUsername));
                     if (users != null && users.Any())
                     {
                         IEnumerable<NotificationUser> notificationUsers = users.Select(u => new NotificationUser

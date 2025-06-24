@@ -1,4 +1,5 @@
-﻿@model IEnumerable<DAL.DTOs.AccountDTOs.AccountDetailDTO>
+﻿@using DAL.DTOs.UserDTOs
+@model IEnumerable<UserDetailDTO>
 
 @{
     ViewData["Title"] = "Accounts";
@@ -16,25 +17,25 @@
             <thead class="table-dark">
                 <tr>
                     <th>
-                        @Html.DisplayNameFor(model => model.IsEnabled)
+                        @Html.DisplayNameFor(model => model.IsUserEnabled)
                     </th>
                     <th>
-                        @Html.DisplayNameFor(model => model.Username)
+                        @Html.DisplayNameFor(model => model.UserUsername)
                     </th>
                     <th>
-                        @Html.DisplayNameFor(model => model.Fullname)
+                        @Html.DisplayNameFor(model => model.UserFullname)
                     </th>
                     <th>
-                        @Html.DisplayNameFor(model => model.Email)
+                        @Html.DisplayNameFor(model => model.UserEmail)
                     </th>
                     <th>
-                        @Html.DisplayNameFor(model => model.ImageLink)
+                        @Html.DisplayNameFor(model => model.UserImage)
                     </th>
                     <th>
-                        @Html.DisplayNameFor(model => model.CreatedDate)
+                        @Html.DisplayNameFor(model => model.UserCreatedAt)
                     </th>
                     <th>
-                        @Html.DisplayNameFor(model => model.UpdatedDate)
+                        @Html.DisplayNameFor(model => model.UserUpdatedAt)
                     </th>
                     <th>
                         @Html.DisplayNameFor(model => model.Gender)
@@ -50,7 +51,7 @@
                 {
                     <tr>
                         <td>
-                            @if (item.IsEnabled.GetValueOrDefault(false))
+                            @if (item.IsUserEnabled.GetValueOrDefault(false))
                             {
                                 <span class="badge bg-success">Enabled</span>
                             }
@@ -60,18 +61,18 @@
                             }
                         </td>
                         <td>
-                            @Html.DisplayFor(modelItem => item.Username)
+                            @Html.DisplayFor(modelItem => item.UserUsername)
                         </td>
                         <td>
-                            @Html.DisplayFor(modelItem => item.Fullname)
+                            @Html.DisplayFor(modelItem => item.UserFullname)
                         </td>
                         <td>
-                            @Html.DisplayFor(modelItem => item.Email)
+                            @Html.DisplayFor(modelItem => item.UserEmail)
                         </td>
                         <td>
-                            @if (!string.IsNullOrEmpty(item.ImageLink))
+                            @if (!string.IsNullOrEmpty(item.UserImage))
                             {
-                                <img src="@item.ImageLink" alt="User Image" class="img-thumbnail" style="width: 50px; height: 50px; object-fit: cover;" />
+                                <img src="@item.UserImage" alt="User Image" class="img-thumbnail" style="width: 50px; height: 50px; object-fit: cover;" />
                             }
                             else
                             {
@@ -79,10 +80,10 @@
                             }
                         </td>
                         <td>
-                            @Html.DisplayFor(modelItem => item.CreatedDate)
+                            @Html.DisplayFor(modelItem => item.UserCreatedAt)
                         </td>
                         <td>
-                            @Html.DisplayFor(modelItem => item.UpdatedDate)
+                            @Html.DisplayFor(modelItem => item.UserUpdatedAt)
                         </td>
                         <td>
                             @if (item.Gender.HasValue)
@@ -99,9 +100,9 @@
                         </td>
                         <td>
                             <div class="btn-group" role="group" aria-label="Account Actions">
-                                <a asp-action="Edit" asp-route-username="@item.Username" class="btn btn-sm btn-outline-primary">Edit</a>
-                                <a asp-action="Details" asp-route-username="@item.Username" class="btn btn-sm btn-outline-info">Details</a>
-                                <a asp-action="Delete" asp-route-username="@item.Username" class="btn btn-sm btn-outline-danger">Delete</a>
+                                <a asp-action="Edit" asp-route-username="@item.UserUsername" class="btn btn-sm btn-outline-primary">Edit</a>
+                                <a asp-action="Details" asp-route-username="@item.UserUsername" class="btn btn-sm btn-outline-info">Details</a>
+                                <a asp-action="Delete" asp-route-username="@item.UserUsername" class="btn btn-sm btn-outline-danger">Delete</a>
                             </div>
                         </td>
                     </tr>

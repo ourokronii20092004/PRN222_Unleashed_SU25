@@ -1,4 +1,4 @@
-﻿@model DAL.DTOs.AccountDTOs.AccountDetailDTO
+﻿@model DAL.DTOs.UserDTOs.UserDetailDTO
 
 @{
     ViewData["Title"] = "Account Details";
@@ -19,11 +19,11 @@
                         @* Added mb-0 to remove default bottom margin from dl *@
 
                         <dt class="col-sm-4 text-primary">
-                            @Html.DisplayNameFor(model => model.IsEnabled)
+                            @Html.DisplayNameFor(model => model.IsUserEnabled)
                         </dt>
                         <dd class="col-sm-8">                      
                                 @* Check if IsEnabled is true, display a green 'Enabled' badge, else a red 'Disabled' badge *@
-                                @if (Model.IsEnabled.GetValueOrDefault(false))
+                                @if (Model.IsUserEnabled.GetValueOrDefault(false))
                                 {
                                     <span class="badge bg-success">Enabled</span>
                                 }
@@ -33,54 +33,54 @@
                                 }
                         </dd>
                         <dt class="col-sm-4 text-primary">
-                            @Html.DisplayNameFor(model => model.Username)
+                            @Html.DisplayNameFor(model => model.UserUsername)
                         </dt>
                         <dd class="col-sm-8">
-                            @Html.DisplayFor(model => model.Username)
+                            @Html.DisplayFor(model => model.UserUsername)
                         </dd>
 
                         <dt class="col-sm-4 text-primary">
-                            @Html.DisplayNameFor(model => model.Fullname)
+                            @Html.DisplayNameFor(model => model.UserFullname)
                         </dt>
                         <dd class="col-sm-8">
-                            @Html.DisplayFor(model => model.Fullname)
+                            @Html.DisplayFor(model => model.UserFullname)
                         </dd>
 
                         <dt class="col-sm-4 text-primary">
-                            @Html.DisplayNameFor(model => model.Email)
+                            @Html.DisplayNameFor(model => model.UserEmail)
                         </dt>
                         <dd class="col-sm-8">
-                            @Html.DisplayFor(model => model.Email)
+                            @Html.DisplayFor(model => model.UserEmail)
                         </dd>
 
                         <dt class="col-sm-4 text-primary">
-                            @Html.DisplayNameFor(model => model.Phone)
+                            @Html.DisplayNameFor(model => model.UserPhone)
                         </dt>
                         <dd class="col-sm-8">
-                            @Html.DisplayFor(model => model.Phone)
+                            @Html.DisplayFor(model => model.UserPhone)
                         </dd>
 
                         <dt class="col-sm-4 text-primary">
-                            @Html.DisplayNameFor(model => model.BirthDate)
+                            @Html.DisplayNameFor(model => model.UserBirthdate)
                         </dt>
                         <dd class="col-sm-8">
-                            @Html.DisplayFor(model => model.BirthDate)
+                            @Html.DisplayFor(model => model.UserBirthdate)
                         </dd>
 
                         <dt class="col-sm-4 text-primary">
-                            @Html.DisplayNameFor(model => model.Address)
+                            @Html.DisplayNameFor(model => model.UserAddress)
                         </dt>
                         <dd class="col-sm-8">
-                            @Html.DisplayFor(model => model.Address)
+                            @Html.DisplayFor(model => model.UserAddress)
                         </dd>
 
                         <dt class="col-sm-4 text-primary">
-                            @Html.DisplayNameFor(model => model.ImageLink)
+                            @Html.DisplayNameFor(model => model.UserImage)
                         </dt>
                         <dd class="col-sm-8">
-                            @if (!string.IsNullOrEmpty(Model.ImageLink))
+                            @if (!string.IsNullOrEmpty(Model.UserImage))
                             {
-                                <img src="@Model.ImageLink" alt="User Image" class="img-thumbnail rounded-circle" style="width: 80px; height: 80px; object-fit: cover;" />
+                                <img src="@Model.UserImage" alt="User Image" class="img-thumbnail rounded-circle" style="width: 80px; height: 80px; object-fit: cover;" />
                             }
                             else
                             {
@@ -89,24 +89,24 @@
                         </dd>
 
                         <dt class="col-sm-4 text-primary">
-                            @Html.DisplayNameFor(model => model.CurrentPaymentMethod)
+                            @Html.DisplayNameFor(model => model.UserCurrentPaymentMethod)
                         </dt>
                         <dd class="col-sm-8">
-                            @Html.DisplayFor(model => model.CurrentPaymentMethod)
+                            @Html.DisplayFor(model => model.UserCurrentPaymentMethod)
                         </dd>
 
                         <dt class="col-sm-4 text-primary">
-                            @Html.DisplayNameFor(model => model.CreatedDate)
+                            @Html.DisplayNameFor(model => model.UserCreatedAt)
                         </dt>
                         <dd class="col-sm-8">
-                            @Html.DisplayFor(model => model.CreatedDate)
+                            @Html.DisplayFor(model => model.UserCreatedAt)
                         </dd>
 
                         <dt class="col-sm-4 text-primary">
-                            @Html.DisplayNameFor(model => model.UpdatedDate)
+                            @Html.DisplayNameFor(model => model.UserUpdatedAt)
                         </dt>
                         <dd class="col-sm-8">
-                            @Html.DisplayFor(model => model.UpdatedDate)
+                            @Html.DisplayFor(model => model.UserUpdatedAt)
                         </dd>
 
                         <dt class="col-sm-4 text-primary">
@@ -125,7 +125,7 @@
                     </dl>
                 </div>
                 <div class="card-footer bg-light border-top text-center py-3">
-                    <a asp-action="Edit" asp-route-username="@Model?.Username" class="btn btn-warning me-2">
+                    <a asp-action="Edit" asp-route-username="@Model?.UserUsername" class="btn btn-warning me-2">
                         <i class="bi bi-pencil-square me-1"></i> Edit
                     </a>
                     <a asp-action="Index" class="btn btn-outline-secondary">

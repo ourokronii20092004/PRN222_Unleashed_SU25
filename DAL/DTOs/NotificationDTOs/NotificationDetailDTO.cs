@@ -1,5 +1,4 @@
-﻿using DAL.DTOs.AccountDTOs;
-using DAL.Models;
+﻿using DAL.Models;
 
 namespace DAL.DTOs.NotificationDTOs
 {
