@@ -2,26 +2,41 @@
 using DAL.Data;
 using DAL.DTOs.ProductDTOs;
 using DAL.Models;
-using Microsoft.EntityFrameworkCore;
+using DAL.Repositories.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace BLL.Services
 {
     public class ProductService : IProductService
     {
-        private readonly UnleashedContext _context;
+        private readonly IProductRepository _productRepository;
+        private readonly IProductStatusRepository _productStatusRepository;
+        private readonly IVariationRepository _variationRepository;
+        private readonly ISizeRepository _sizeRepository;
+        private readonly IColorRepository _colorRepository;
+
+        public ProductService(
+            IProductRepository productRepository,
+            IProductStatusRepository productStatusRepository,
+            IVariationRepository variationRepository,
+            ISizeRepository sizeRepository,
+            IColorRepository colorRepository)
+        {
+            _productRepository = productRepository;
+            _productStatusRepository = productStatusRepository;
+            _variationRepository = variationRepository;
+            _sizeRepository = sizeRepository;
+            _colorRepository = colorRepository;
+        }
+
         public async Task<Product?> AddVariationsToExistingProductAsync(
      Guid productId, List<ProductDTO.ProductVariationDTO> variationDTOs)
         {
-            var product = await _context.Products
-                .Include(p => p.Variations)
-                .FirstOrDefaultAsync(p => p.ProductId == productId);
-
+            var product = await _productRepository.GetByIdAsync(productId);
             if (product == null)
                 return null;
 
@@ -29,8 +44,8 @@ namespace BLL.Services
 
             foreach (var dto in variationDTOs)
             {
-                var size = await _context.Sizes.FindAsync(dto.SizeId);
-                var color = await _context.Colors.FindAsync(dto.ColorId);
+                var size = await _sizeRepository.GetByIdAsync(dto.SizeId);
+                var color = await _colorRepository.GetByIdAsync(dto.ColorId);
 
                 if (size == null || color == null)
                     continue;
@@ -55,22 +70,17 @@ namespace BLL.Services
 
             if (newVariations.Any())
             {
-                await _context.Variations.AddRangeAsync(newVariations);
-                await _context.SaveChangesAsync();
-
-                if (product.Variations is Collection<Variation> variationsCollection)
+                
+                foreach (var variation in newVariations)
                 {
-                    foreach (var variation in newVariations)
-                    {
-                        variationsCollection.Add(variation);
-                    }
+                    await _variationRepository.AddAsync(variation);  
                 }
-                else
+
+                await _variationRepository.SaveChangesAsync();
+
+                foreach (var variation in newVariations)
                 {
-                    foreach (var variation in newVariations)
-                    {
-                        product.Variations.Add(variation);
-                    }
+                    product.Variations.Add(variation);
                 }
             }
 
@@ -78,48 +88,44 @@ namespace BLL.Services
         }
 
 
-        // Tạo sản phẩm mới
         public async Task<Product> CreateProductAsync(ProductDTO productDTO)
         {
-            // Kiểm tra xem ProductCode đã tồn tại chưa
-            var existingProduct = await _context.Products
-                .FirstOrDefaultAsync(p => p.ProductCode == productDTO.ProductCode);
+            // Kiểm tra xem mã sản phẩm đã tồn tại chưa
+            var existingProductId = await _productRepository.FindIdByProductCodeAsync(productDTO.ProductCode);
 
-            if (existingProduct != null)
-            {
+            if (existingProductId.HasValue)
                 throw new InvalidOperationException("ProductCode already exists!");
-            }
 
+            // Chuyển đổi ProductDTO thành Product và thiết lập các trường cơ bản
             var product = productDTO.ToProduct();
             product.ProductCreatedAt = DateTimeOffset.UtcNow;
             product.ProductUpdatedAt = DateTimeOffset.UtcNow;
 
-            // Lưu sản phẩm vào cơ sở dữ liệu
-            await _context.Products.AddAsync(product);
-            await _context.SaveChangesAsync();
+            // Thêm sản phẩm vào cơ sở dữ liệu
+            await _productRepository.AddAsync(product);
+            await _productRepository.SaveChangesAsync();
 
             // Thêm danh mục vào sản phẩm nếu có
             if (productDTO.Categories != null && productDTO.Categories.Any())
             {
-                foreach (var categoryId in productDTO.Categories)
+                foreach (var category in productDTO.Categories)
                 {
-                    var category = await _context.Categories.FindAsync(categoryId);
-                    if (category != null)
-                    {
-                        product.Categories.Add(category);
-                    }
+                    // Thêm CategoryId vào sản phẩm
+                    await _productRepository.AddProductCategoryAsync(product.ProductId, category.CategoryId);
                 }
             }
 
-            // Thêm biến thể sản phẩm nếu có
+            // Tạo danh sách biến thể sản phẩm từ dữ liệu DTO
             var variations = new List<Variation>();
             foreach (var variationDTO in productDTO.Variations)
             {
-                var size = await _context.Sizes.FindAsync(variationDTO.SizeId);
-                var color = await _context.Colors.FindAsync(variationDTO.ColorId);
+                // Lấy thông tin Size và Color từ repositories
+                var size = await _sizeRepository.GetByIdAsync(variationDTO.SizeId);
+                var color = await _colorRepository.GetByIdAsync(variationDTO.ColorId);
 
                 if (size != null && color != null)
                 {
+                    // Tạo mới biến thể sản phẩm
                     var variation = new Variation
                     {
                         ProductId = product.ProductId,
@@ -135,183 +141,133 @@ namespace BLL.Services
 
             if (variations.Any())
             {
-                await _context.Variations.AddRangeAsync(variations);
-                await _context.SaveChangesAsync();
+                foreach (var variation in variations)
+                {
+                    await _variationRepository.AddAsync(variation); 
+                }
+                await _variationRepository.SaveChangesAsync(); 
             }
+          
+            product.Variations = variations;
 
-            product.Variations = variations; // Liên kết biến thể với sản phẩm
-            return product;
+            return product; 
         }
-
 
 
         public async Task<bool> DeleteProductAsync(Guid id)
         {
-            var product = await _context.Products
-                .Include(p => p.Variations)
-                .FirstOrDefaultAsync(p => p.ProductId == id);
+            var product = await _productRepository.GetByIdAsync(id);
 
             if (product == null)
                 return false;
 
-            // Delete related variations
-            _context.Variations.RemoveRange(product.Variations);
+            // Xóa tất cả các biến thể của sản phẩm theo ProductId (Guid)
+            await _variationRepository.DeleteByProductIdAsync(product.ProductId);
 
-            // Delete product
-            _context.Products.Remove(product);
-            await _context.SaveChangesAsync();
+            // Xóa sản phẩm
+            await _productRepository.Delete(product);
+            await _productRepository.SaveChangesAsync();
             return true;
         }
 
-
-
         public async Task<List<ProductListDTO>> GetAllProductsAsync()
         {
-            var result = await _context.Products
-                .Where(p => p.ProductStatusId != null)  // Lọc sản phẩm đang hoạt động
-                .ToListAsync();
+            var products = await _productRepository.GetAllAsync();
 
-            var productList = new List<ProductListDTO>();
+            var productListDTOs = new List<ProductListDTO>();
 
-            foreach (var product in result)
+            foreach (var product in products)
             {
-                string productId = product.ProductId.ToString();
-
-                // Kiểm tra xem sản phẩm đã có trong danh sách chưa
-                bool exists = productList.Any(dto => dto.ProductId == productId);
-
-                // Bỏ qua nếu sản phẩm đã có hoặc trạng thái bị xóa (ProductStatus null)
-                if (exists || product.ProductStatusId == null)
+                var productDTO = new ProductListDTO
                 {
-                    continue;
-                }
-
-                var productListDTO = new ProductListDTO
-                {
-                    ProductId = productId,
+                    ProductId = product.ProductId.ToString(),
                     ProductName = product.ProductName,
                     ProductDescription = product.ProductDescription,
                     BrandId = product.BrandId ?? 0,
-                    BrandName = product.Brand?.BrandName
+                    BrandName = product.Brand?.BrandName,
+                    CategoryList = product.Categories.Select(c => new Category
+                    {
+                        CategoryId = c.CategoryId,
+                        CategoryName = c.CategoryName
+                    }).ToList(),
+                    Variations = await _variationRepository.FindProductVariationByProductIdAsync(product.ProductId)
                 };
 
-                // Lấy danh mục của sản phẩm
-                productListDTO.CategoryList = product.Categories.Select(c => new Category
-                {
-                    CategoryId = c.CategoryId,
-                    CategoryName = c.CategoryName
-                }).ToList();
-
-                // Lấy biến thể sản phẩm đầu tiên cho giá và hình ảnh
-                var firstVariation = await _context.Variations
-                    .Where(v => v.ProductId == product.ProductId)
-                    .FirstOrDefaultAsync();
-
-                if (firstVariation != null)
-                {
-                    productListDTO.ProductPrice = firstVariation.VariationPrice ?? 0;
-                    productListDTO.ProductVariationImage = firstVariation.VariationImage;
-                }
-
-                // Lấy thông tin khuyến mãi
-                var sale = await _context.Sales
-                   .Where(s => s.Products.Any(p => p.ProductId == product.ProductId) && s.SaleStatus.SaleStatusName == "ACTIVE")
-                   .FirstOrDefaultAsync();
-
-                if (sale != null)
-                {
-                    productListDTO.Sale = sale;
-                    productListDTO.SaleValue = sale.SaleValue;
-                }
-
-                // Lấy đánh giá của sản phẩm (tổng số và điểm trung bình)
-                var ratingData = await _context.Reviews
-                    .Where(r => r.ProductId == product.ProductId)
-                    .GroupBy(r => r.ProductId)
-                    .Select(g => new
-                    {
-                        TotalRatings = g.Count(),
-                        AverageRating = g.Average(r => r.ReviewRating ?? 0)
-                    })
-                    .FirstOrDefaultAsync();
-
-                if (ratingData != null)
-                {
-                    productListDTO.TotalRatings = ratingData.TotalRatings;
-                    productListDTO.AverageRating = Math.Round(ratingData.AverageRating, 2);
-                }
-                else
-                {
-                    productListDTO.TotalRatings = 0;
-                    productListDTO.AverageRating = 0.0;
-                }
-
-                // Tính tổng số lượng sản phẩm
-                var totalQuantity = await _context.StockVariations
-                    .Where(sv => sv.StockId.ToString() == product.ProductId.ToString())
-                    .SumAsync(sv => sv.StockQuantity);
-
-                productListDTO.Quantity = totalQuantity ?? 0;
-
-                // Thêm vào danh sách sản phẩm
-                productList.Add(productListDTO);
+                productListDTOs.Add(productDTO);
             }
 
-            return productList;
+            return productListDTOs;
         }
 
         public async Task<Product?> GetProductByIdAsync(Guid id)
         {
-            return await _context.Products
-     .FirstOrDefaultAsync(p => p.ProductId == id);
+            return await _productRepository.GetByIdAsync(id);
         }
 
-        public Task<List<ProductDetailDTO>> GetProductsInStockAsync()
+        public async Task<List<ProductDetailDTO>> GetProductsInStockAsync()
         {
-            throw new NotImplementedException();
+            var productsInStock = await _productRepository.FindProductsInStockAsync();
+
+            var productDetailDTOs = new List<ProductDetailDTO>();
+
+            foreach (var product in productsInStock)
+            {
+                var productDetailDTO = new ProductDetailDTO
+                {
+                    ProductId = product.ProductId.ToString(),
+                    ProductName = product.ProductName,
+                    ProductCode = product.ProductCode,
+                    ProductDescription = product.ProductDescription,
+                    ProductCreatedAt = product.ProductCreatedAt,
+                    ProductUpdatedAt = product.ProductUpdatedAt,
+                    Brand = product.Brand,
+                    ProductStatusId = product.ProductStatusId.HasValue ?
+                        await _productStatusRepository.GetByIdAsync(product.ProductStatusId.Value) : null,
+                    Categories = product.Categories.Select(c => new Category
+                    {
+                        CategoryId = c.CategoryId,
+                        CategoryName = c.CategoryName
+                    }).ToList(),
+                    ProductVariations = await _variationRepository.FindProductVariationByProductIdAsync(product.ProductId)
+                };
+
+                productDetailDTOs.Add(productDetailDTO);
+            }
+
+            return productDetailDTOs;
         }
+
+
 
         public async Task<bool> ProductExistsAsync(Guid id)
         {
-            return await _context.Products.AnyAsync(p => p.ProductId == id);
+            var product = await _productRepository.GetByIdAsync(id);
+            return product != null;
         }
 
-        // Cập nhật thông tin sản phẩm
         public async Task<Product> UpdateProductAsync(Guid id, ProductDTO productDTO)
         {
-            var product = await _context.Products
-                .Include(p => p.Categories)
-                .Include(p => p.Variations)
-                .FirstOrDefaultAsync(p => p.ProductId == id);
+            var product = await _productRepository.GetByIdAsync(id);
 
             if (product == null)
-            {
                 throw new InvalidOperationException("Product not found!");
-            }
 
             product.ProductName = productDTO.ProductName;
             product.ProductCode = productDTO.ProductCode;
             product.ProductDescription = productDTO.ProductDescription;
             product.ProductStatusId = productDTO.ProductStatusId;
 
-            // Cập nhật danh mục
-            if (productDTO.Categories != null && productDTO.Categories.Any())
+            // Update product categories
+            foreach (var category in productDTO.Categories)
             {
-                foreach (var categoryId in productDTO.Categories)
-                {
-                    var category = await _context.Categories.FindAsync(categoryId);
-                    if (category != null)
-                    {
-                        product.Categories.Add(category); // Thêm đối tượng Category vào sản phẩm
-                    }
-                }
+                await _productRepository.AddProductCategoryAsync(id, category.CategoryId);
             }
 
-            // Cập nhật biến thể sản phẩm
+            // Update product variations
             foreach (var variationDTO in productDTO.Variations)
             {
-                var size = await _context.Sizes.FindAsync(variationDTO.SizeId);
-                var color = await _context.Colors.FindAsync(variationDTO.ColorId);
+                var size = await _sizeRepository.GetByIdAsync(variationDTO.SizeId);
+                var color = await _colorRepository.GetByIdAsync(variationDTO.ColorId);
 
                 if (size != null && color != null)
                 {
@@ -333,15 +289,15 @@ namespace BLL.Services
                             VariationPrice = variationDTO.ProductPrice ?? 0,
                             VariationImage = variationDTO.ProductVariationImage
                         };
+
                         product.Variations.Add(newVariation);
                     }
                 }
             }
 
-            await _context.SaveChangesAsync();
+            await _productRepository.UpdateAsync(product);
+            await _productRepository.SaveChangesAsync();
             return product;
         }
-
-
     }
 }
