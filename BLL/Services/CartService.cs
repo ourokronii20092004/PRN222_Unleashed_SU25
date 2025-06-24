@@ -12,11 +12,11 @@ namespace BLL.Services
     public class CartService : ICartService 
     {
         public ICartRepository _cartRepo;
-        public IAccountRepository _accountRepo;
+        public IUserRepository _userRepo;
         //public IVariontionRepository _variationRepo;
-        public CartService(ICartRepository cartRepo, IAccountRepository accountRepository) 
+        public CartService(ICartRepository cartRepo, IUserRepository accountRepository) 
         {
-            _accountRepo = accountRepository;
+            _userRepo = accountRepository;
             // _variationRepo = variationRepository;
             _cartRepo = cartRepo;
         }

@@ -15,7 +15,7 @@ namespace Unleashed_MVC.Controllers
     public class CartsController : Controller
     {
         private readonly ICartService _cartService;
-        private readonly IAccountService _accountService;
+        private readonly IUserService _accountService;
         //private Guid GetCurrentUserId()
         //{
         //    {
@@ -23,7 +23,7 @@ namespace Unleashed_MVC.Controllers
         //        return claim != null ? Guid.Parse(claim.Value) : throw new Exception("Not authenticated");
         //    }
         //}
-        public CartsController(ICartService cartService, IAccountService accountService)
+        public CartsController(ICartService cartService, IUserService accountService)
         {
             _cartService = cartService;
             _accountService = accountService;

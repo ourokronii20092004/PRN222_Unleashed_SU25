@@ -1,4 +1,4 @@
-﻿@model DAL.Models.User
+﻿@model DAL.DTOs.UserDTOs.UserDetailDTO
 
 @{
     ViewData["Title"] = "Delete User";
@@ -34,17 +34,6 @@
                                 <span class="badge bg-danger">Disabled</span>
                             }
                         </dd>
-
-                        @* UserGoogleId might not always be present, and it's less critical for a delete confirmation *
-                           You can uncomment if you still want to show it.
-                        <dt class="col-sm-4 text-primary">
-                            @Html.DisplayNameFor(model => model.UserGoogleId)
-                        </dt>
-                        <dd class="col-sm-8">
-                            @Html.DisplayFor(model => model.UserGoogleId)
-                        </dd>
-                        *@
-
                         <dt class="col-sm-4 text-primary">
                             @Html.DisplayNameFor(model => model.UserUsername)
                         </dt>
