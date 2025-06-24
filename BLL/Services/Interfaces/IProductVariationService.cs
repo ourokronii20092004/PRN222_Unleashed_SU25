@@ -1,7 +1,6 @@
 ﻿using DAL.DTOs;
 using DAL.Models;
 using System.Threading.Tasks;
-using static DAL.DTOs.ProductDTO;
 
 namespace BLL.Services.Interfaces
 {
@@ -9,6 +8,6 @@ namespace BLL.Services.Interfaces
     {
         Task<Variation?> FindByIdAsync(int id);
         Task<bool> DeleteByIdAsync(int id);
-        Task<Variation> UpdateProductVariationAsync(int variationId, ProductVariationDTO variationDTO);
+        Task<Variation> UpdateProductVariationAsync(int variationId, ProductDTO.ProductVariationDTO variationDTO);
     }
 }

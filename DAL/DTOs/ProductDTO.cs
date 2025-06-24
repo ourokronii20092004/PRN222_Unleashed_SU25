@@ -47,7 +47,6 @@ namespace DAL.DTOs
             [Range(0, double.MaxValue, ErrorMessage = "Product price must be a positive number.")]
             public decimal? ProductPrice { get; set; }
 
-            [Url(ErrorMessage = "Please enter a valid product variation image URL.")]
             public string? ProductVariationImage { get; set; }
         }
 

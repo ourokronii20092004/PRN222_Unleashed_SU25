@@ -16,7 +16,7 @@ namespace DAL.DAO
         => services.AddDbContext<UnleashedContext>(
             options =>
             options.UseSqlServer(
-                configuration.GetConnectionString("ZeroTierOne")));
+                configuration.GetConnectionString("Cloudflared")));
         
 
     }
