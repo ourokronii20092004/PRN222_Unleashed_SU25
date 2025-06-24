@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using DAL.Models;
-using BLL.Interfaces;
 using DAL.DTOs.AccountDTOs;
+using BLL.Services.Interfaces;
 
 namespace Unleashed_MVC.Controllers
 {
