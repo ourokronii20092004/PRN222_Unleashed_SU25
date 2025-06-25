@@ -1,13 +1,15 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
-VisualStudioVersion = 17.13.36105.23 d17.13
+VisualStudioVersion = 17.13.36105.23
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Unleashed_MVC", "Unleashed_MVC.csproj", "{685A4EAE-211E-49B9-B8C0-B6B6A0D1B2A9}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BLL", "..\BLL\BLL.csproj", "{6E4BD63B-6371-4A13-BB0F-8549158711E0}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DAL", "..\DAL\DAL.csproj", "{A74711DA-6A9F-45E7-A274-7EDD4584EEEF}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Unleashed_RP", "..\Unleashed_RP\Unleashed_RP.csproj", "{7EB77CD0-9065-4A3C-A954-00770B35321C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -27,6 +29,10 @@ Global
 		{A74711DA-6A9F-45E7-A274-7EDD4584EEEF}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A74711DA-6A9F-45E7-A274-7EDD4584EEEF}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A74711DA-6A9F-45E7-A274-7EDD4584EEEF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7EB77CD0-9065-4A3C-A954-00770B35321C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7EB77CD0-9065-4A3C-A954-00770B35321C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7EB77CD0-9065-4A3C-A954-00770B35321C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7EB77CD0-9065-4A3C-A954-00770B35321C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
