@@ -14,15 +14,30 @@ namespace Unleashed_MVC
         {
             var builder = WebApplication.CreateBuilder(args);
 
+            // --- Database Services ---  
             builder.Services.ConnectUnleashedDatabase(builder.Configuration, "Cloudflared");
+            /*
+             * Configurations:
+             * 
+             * Cloudflared: This uses the Cloudflared tunnel to connect to the database.
+             *              Command: access tcp --hostname sql-server.hault-homelab.io.vn --url 127.0.0.1:4444
+             *              
+             * ZeroTierOne: This uses ZeroTierOne to connect to the database.
+             *              How to: Connect to d5e5fb653773b9bd network using ZeroTierOne client.
+             *              
+             * Local:       This uses the local database.
+             * 
+             */
 
 
-            // --- MVC Services ---
+            // --- Image Upload Services ---  
+            builder.Services.AddHttpClient<BLL.Utilities.Interfaces.IImageUploader, BLL.Utilities.ImgbbImageUploader>();
+
+            // --- MVC Services ---  
             builder.Services.AddControllersWithViews();
             builder.Services.AddControllers();
 
-
-            // --- Repositories ---
+            // --- Repositories ---  
             builder.Services.AddScoped<IUserRepository, UserRepository>();
             builder.Services.AddScoped<IRoleRepository, RoleRepository>();
             builder.Services.AddScoped<IBrandRepository, BrandRepository>();
@@ -42,9 +57,7 @@ namespace Unleashed_MVC
             builder.Services.AddScoped<ISizeRepository, SizeRepository>();
             builder.Services.AddScoped<IColorRepository, ColorRepository>();
 
-
-
-            // --- Services ---
+            // --- Services ---  
             builder.Services.AddScoped<IBrandService, BrandService>();
             builder.Services.AddScoped<ICategoryService, CategoryService>();
             builder.Services.AddScoped<IUserService, UserService>();
@@ -56,17 +69,17 @@ namespace Unleashed_MVC
 
             builder.Services.AddScoped<IDiscountService, DiscountService>();
 
-            // --- AutoMapper ---
-            // This scans all assemblies loaded in the current application domain for AutoMapper profiles.
+            // --- AutoMapper ---  
+            // This scans all assemblies loaded in the current application domain for AutoMapper profiles.  
             builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
             var app = builder.Build();
 
-            // Configure the HTTP request pipeline.
+            // Configure the HTTP request pipeline.  
             if (!app.Environment.IsDevelopment())
             {
                 app.UseExceptionHandler("/Home/Error");
-                // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
+                // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.  
                 app.UseHsts();
             }
 

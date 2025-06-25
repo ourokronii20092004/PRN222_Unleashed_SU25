@@ -49,7 +49,7 @@ namespace Unleashed_MVC.Controllers
         }
 
         // GET: Brands/Details/5
-        [Authorize(Roles = "ADMIN,STAFF")] // Example authorization
+        //[Authorize(Roles = "ADMIN,STAFF")] // Example authorization
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null)
@@ -76,7 +76,7 @@ namespace Unleashed_MVC.Controllers
         }
 
         // GET: Brands/Create
-        [Authorize(Roles = "ADMIN")]
+        //[Authorize(Roles = "ADMIN")]
         public IActionResult Create()
         {
             // Pass an empty DTO if your Create view is strongly typed to it for validation summary
@@ -85,8 +85,8 @@ namespace Unleashed_MVC.Controllers
 
         // POST: Brands/Create
         [HttpPost]
-        [ValidateAntiForgeryToken]
-        [Authorize(Roles = "ADMIN")]
+        //[ValidateAntiForgeryToken]
+        //[Authorize(Roles = "ADMIN")]
         public async Task<IActionResult> Create([Bind("BrandName,BrandDescription,BrandImageUrl,BrandWebsiteUrl")] BrandCreateDTO brandDto)
         {
             if (ModelState.IsValid)
@@ -112,7 +112,7 @@ namespace Unleashed_MVC.Controllers
         }
 
         // GET: Brands/Edit/5
-        [Authorize(Roles = "ADMIN")]
+        //[Authorize(Roles = "ADMIN")]
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
@@ -141,8 +141,8 @@ namespace Unleashed_MVC.Controllers
 
         // POST: Brands/Edit/5
         [HttpPost]
-        [ValidateAntiForgeryToken]
-        [Authorize(Roles = "ADMIN")]
+        //[ValidateAntiForgeryToken]
+        //[Authorize(Roles = "ADMIN")]
         public async Task<IActionResult> Edit(int id, [Bind("BrandName,BrandDescription,BrandImageUrl,BrandWebsiteUrl")] BrandUpdateDTO brandDto)
         {
             // It's good practice to ensure the ID from the route matches any ID potentially in the DTO,
@@ -186,7 +186,7 @@ namespace Unleashed_MVC.Controllers
         }
 
         // GET: Brands/Delete/5
-        [Authorize(Roles = "ADMIN")]
+        //[Authorize(Roles = "ADMIN")]
         public async Task<IActionResult> Delete(int? id, bool error = false)
         {
             if (id == null)
@@ -219,8 +219,8 @@ namespace Unleashed_MVC.Controllers
 
         // POST: Brands/Delete/5
         [HttpPost, ActionName("Delete")]
-        [ValidateAntiForgeryToken]
-        [Authorize(Roles = "ADMIN")]
+        //[ValidateAntiForgeryToken]
+        //[Authorize(Roles = "ADMIN")]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             try
