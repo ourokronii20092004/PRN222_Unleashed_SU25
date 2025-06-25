@@ -3,15 +3,8 @@ using DAL.DTOs.ImageUploadDTOs;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace BLL.Utilities
 {
@@ -58,10 +51,10 @@ namespace BLL.Utilities
                 return null;
             }
 
-            string originalFileName = fileName; // Keep original for the result
+            string originalFileName = fileName; // Keep original for the result  
             if (string.IsNullOrWhiteSpace(fileName))
             {
-                // Generate a name if one isn't provided, but the result should ideally reflect the actual name used or provided
+                // Generate a name if one isn't provided, but the result should ideally reflect the actual name used or provided  
                 originalFileName = $"image_{Path.GetRandomFileName().Replace(".", "")}{Path.GetExtension(contentType.Split('/').LastOrDefault() ?? ".tmp")}";
                 fileName = originalFileName;
                 _logger.LogInformation($"No filename provided for byte array upload. Generated: {fileName}");
@@ -111,16 +104,6 @@ namespace BLL.Utilities
                 _logger.LogError(ex, "Exception during ImgBB image upload for file '{FileName}'.", originalFileName);
                 return null;
             }
-        }
-
-        Task<ImageUploadResultDTO?> IImageUploader.UploadImageAsync(IFormFile imageFile)
-        {
-            throw new NotImplementedException();
-        }
-
-        Task<ImageUploadResultDTO?> IImageUploader.UploadImageAsync(byte[] imageBytes, string fileName, string contentType)
-        {
-            throw new NotImplementedException();
         }
     }
 }
