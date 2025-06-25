@@ -9,6 +9,7 @@ using DAL.Data;
 using DAL.Models;
 using DAL.DTOs.NotificationDTOs;
 using BLL.Services.Interfaces;
+using DAL.DTOs.UserDTOs;
 
 namespace Unleashed_MVC.Controllers
 {
@@ -50,7 +51,7 @@ namespace Unleashed_MVC.Controllers
         // GET: Notifications/Create
         public async Task<IActionResult> Create()
         {
-            ViewData["Receivers"] = new SelectList(await _accountService.GetAccountsAsync(), "Username", "Username");
+            ViewData["Receivers"] = new SelectList(await _accountService.GetAccountsAsync(), "UserUsername", "UserUsername");
             return View();
         }
 
@@ -61,10 +62,9 @@ namespace Unleashed_MVC.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("Title,Content,IsDrafted,Receivers")] NotificationCreateDTO notification)
         {
-            notification.SenderId = Guid.Parse("A4390209-C626-423D-20B5-08DDB1A39C2A");
             if (ModelState.IsValid)
             {
-                await _notificationService.AddNotificationAsync(notification.ToNotification(), notification.Receivers);
+                await _notificationService.AddNotificationAsync(notification);
                 return RedirectToAction(nameof(Index));
             }
             ViewData["Receivers"] = new SelectList(await _accountService.GetAccountsAsync(), "Username", "Username");
@@ -101,7 +101,7 @@ namespace Unleashed_MVC.Controllers
                 try
                 {
 
-                    if (!await _notificationService.EditNotificationAsync(notification, usernames))
+                    if (!await _notificationService.EditNotificationAsync(id, usernames))
                     {
                         ViewData["Receivers"] = new SelectList(await _accountService.GetAccountsAsync(), "Username", "Username");
                         return View(notification);
