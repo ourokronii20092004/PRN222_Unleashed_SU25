@@ -14,7 +14,7 @@ namespace Unleashed_MVC
         {
             var builder = WebApplication.CreateBuilder(args);
 
-            builder.Services.ConnectUnleashedDatabase(builder.Configuration, "ZeroTierOne");
+            builder.Services.ConnectUnleashedDatabase(builder.Configuration, "Cloudflared");
 
 
             // --- MVC Services ---
