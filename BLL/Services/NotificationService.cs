@@ -1,4 +1,5 @@
-﻿using BLL.Services.Interfaces;
+﻿using AutoMapper;
+using BLL.Services.Interfaces;
 using DAL.DTOs.NotificationDTOs;
 using DAL.Models;
 using DAL.Repositories.Interfaces;
@@ -17,23 +18,27 @@ namespace BLL.Services
         private readonly INotificationRepository _notificationRepository;
         private readonly INotificationUserRepository _notificationUserRepository;
         private readonly IUserRepository _userRepository;
+        private readonly IMapper _mapper;
         
-        public NotificationService(INotificationRepository notificationRepository, INotificationUserRepository notificationUser, IUserRepository accountRepository) 
+        public NotificationService(INotificationRepository notificationRepository, INotificationUserRepository notificationUser, IUserRepository accountRepository, IMapper mapper) 
         {
             _notificationRepository = notificationRepository;
             _notificationUserRepository = notificationUser;
             _userRepository = accountRepository;
+            _mapper = mapper;
         }
 
-        public async Task<bool> AddNotificationAsync(Notification notification, IEnumerable<string> usernames)
+        public async Task<bool> AddNotificationAsync(NotificationCreateDTO createNotification)
         {
             try
             {
+                var notification = _mapper.Map<Notification>(createNotification);
                 notification.NotificationCreatedAt = DateTimeOffset.UtcNow;
                 notification.NotificationUpdatedAt = DateTimeOffset.UtcNow;
                 notification.UserIdSenderNavigation = await _userRepository.GetByIdAsync(notification.UserIdSender);
                
                 await _notificationRepository.AddAsync(notification);
+                IEnumerable<string> usernames= createNotification.Receivers;
                 if (usernames != null && usernames.Any())
                 {
                     IEnumerable<User> users = await _userRepository.FindAsync(u => usernames.Contains(u.UserUsername));
@@ -61,10 +66,12 @@ namespace BLL.Services
             }
         }
 
-        public async Task<bool> EditNotificationAsync(Notification notification, IEnumerable<string> usernames)
+        public async Task<bool> EditNotificationAsync(int id, IEnumerable<string> usernames)
         {
             try
             {
+                ArgumentOutOfRangeException.ThrowIfNegative(id);
+                var notification = await _notificationRepository.GetByIdAsync(id);
                 if (usernames != null && usernames.Any() && notification != null)
                 {
                     IEnumerable<User> users = await _userRepository.FindAsync(u => usernames.Contains(u.UserUsername));
