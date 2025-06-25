@@ -103,7 +103,7 @@ namespace Unleashed_MVC.Controllers
             {
                 try
                 {
-                    _cartService.UpdateCartAsync(cart);
+                    await _cartService.UpdateCartAsync(cart);
                 }
                 catch (Exception e)
                 {

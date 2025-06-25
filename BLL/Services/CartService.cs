@@ -34,14 +34,14 @@ namespace BLL.Services
             await _cartRepo.Delete(cart);
         }
 
-        public Task<IEnumerable<Cart>> GetAllAsync()
+        public async Task<IEnumerable<Cart>> GetAllAsync()
         {
-            return _cartRepo.GetAllAsync();
+            return await _cartRepo.GetAllAsync();
         }
 
-        public Task<Cart> GetCartByIdAsync((Guid, int) id)
+        public async Task<Cart> GetCartByIdAsync((Guid, int) id)
         {
-            return _cartRepo.GetByIdAsync(id);
+            return await _cartRepo.GetByIdAsync(id);
         }
 
         public async Task UpdateCartAsync(Cart cart)
