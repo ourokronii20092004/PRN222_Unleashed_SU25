@@ -16,14 +16,20 @@ namespace Unleashed_MVC.Controllers
     {
         private readonly IProductService _productService;
         private readonly IBrandRepository _brandRepository;     
-        private readonly IProductStatusRepository _productStatusRepository;  
+        private readonly IProductStatusRepository _productStatusRepository;
+        private readonly IVariationRepository _variationRepository;
+        private readonly IColorRepository _colorRepository;
+        private readonly ISizeRepository _sizeRepository;
 
         // Tiêm IProductService vào trong constructor
-        public ProductsController(IProductService productService, IBrandRepository brandRepository, IProductStatusRepository productStatusRepository)
+        public ProductsController(IProductService productService, IBrandRepository brandRepository, IProductStatusRepository productStatusRepository, IVariationRepository variationRepository, IColorRepository colorRepository, ISizeRepository sizeRepository)
         {
             _productService = productService;
             _brandRepository = brandRepository;
             _productStatusRepository = productStatusRepository;
+            _variationRepository = variationRepository;
+            _colorRepository = colorRepository;
+            _sizeRepository = sizeRepository;
         }
 
         // GET: Products
@@ -53,10 +59,11 @@ namespace Unleashed_MVC.Controllers
         // GET: Products/Create
          public async Task<IActionResult> Create()
         {
-            // Lấy danh sách các Brand và ProductStatus
+            // Lấy danh sách thương hiệu và trạng thái sản phẩm để hiển thị trong dropdown
             ViewBag.BrandId = new SelectList(await _brandRepository.GetAllAsync(), "BrandId", "BrandName");
             ViewBag.ProductStatusId = new SelectList(await _productStatusRepository.GetAllAsync(), "ProductStatusId", "ProductStatusName");
-
+            ViewBag.SizeId = new SelectList(await _sizeRepository.GetAllAsync(), "SizeId", "SizeName");
+            ViewBag.ColorId = new SelectList(await _colorRepository.GetAllAsync(), "ColorId", "ColorName");
             return View();
         }
 
@@ -67,9 +74,9 @@ namespace Unleashed_MVC.Controllers
         {
             if (ModelState.IsValid)
             {
-                productDTO.ProductId = Guid.NewGuid();  // Tạo mới ProductId
-                await _productService.CreateProductAsync(productDTO);  // Gọi service để tạo sản phẩm
-                return RedirectToAction(nameof(Index));  // Sau khi tạo, chuyển hướng về danh sách sản phẩm
+                productDTO.ProductId = Guid.NewGuid();  
+                await _productService.CreateProductAsync(productDTO); 
+                return RedirectToAction(nameof(Index));  
             }
 
             // Nếu có lỗi, trả về view và giữ lại dữ liệu đã nhập

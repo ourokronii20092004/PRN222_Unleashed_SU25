@@ -180,6 +180,10 @@ namespace BLL.Services
             {
                 var productDTO = new ProductListDTO
                 {
+                    ProductCreatedAt = product.ProductCreatedAt,
+                    ProductUpdatedAt = product.ProductUpdatedAt,
+                    ProductCode = product.ProductCode,
+                    ProductStatusName = product.ProductStatus?.ProductStatusName,
                     ProductId = product.ProductId.ToString(),
                     ProductName = product.ProductName,
                     ProductDescription = product.ProductDescription,
@@ -190,7 +194,7 @@ namespace BLL.Services
                         CategoryId = c.CategoryId,
                         CategoryName = c.CategoryName
                     }).ToList(),
-                    Variations = await _variationRepository.FindProductVariationByProductIdAsync(product.ProductId)
+                    //Variations = await _variationRepository.FindProductVariationByProductIdAsync(product.ProductId)
                 };
 
                 productListDTOs.Add(productDTO);

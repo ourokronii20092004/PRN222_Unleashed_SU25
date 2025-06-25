@@ -32,6 +32,7 @@ namespace DAL.DTOs.ProductDTOs
         public string? ProductCode { get; set; } 
         public DateTimeOffset? ProductCreatedAt { get; set; }  
         public DateTimeOffset? ProductUpdatedAt { get; set; }  
-        public int? ProductStatusId { get; set; }  
+        public int? ProductStatusId { get; set; }
+        public string? ProductStatusName { get; set; }
     }
 }
