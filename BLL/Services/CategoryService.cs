@@ -31,14 +31,14 @@ namespace BLL.Services
             await _categoryRepo.Delete(category);
         }
 
-        public Task<IEnumerable<Category>> GetAllCategoriesAsync()
+        public async Task<IEnumerable<Category>> GetAllCategoriesAsync()
         {
-            return _categoryRepo.GetAllAsync();
+            return await _categoryRepo.GetAllAsync();
         }
 
-        public Task<Category> GetCategoryByIdAsync(int id)
+        public async Task<Category> GetCategoryByIdAsync(int id)
         {
-            return _categoryRepo.GetByIdAsync(id);
+            return await _categoryRepo.GetByIdAsync(id);
         }
 
         public async Task UpdateCategoryAsync(int id, Category category)

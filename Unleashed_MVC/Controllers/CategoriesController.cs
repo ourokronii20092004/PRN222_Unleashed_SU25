@@ -29,11 +29,6 @@ namespace Unleashed_MVC.Controllers
         // GET: Categories/Details/5
         public async Task<IActionResult> Details(int id)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
             var category = await _categoryService.GetCategoryByIdAsync(id);
             if (category == null)
             {
@@ -67,11 +62,6 @@ namespace Unleashed_MVC.Controllers
         // GET: Categories/Edit/5
         public async Task<IActionResult> Edit(int id)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
             var category = await _categoryService.GetCategoryByIdAsync(id);
             if (category == null)
             {
@@ -110,12 +100,7 @@ namespace Unleashed_MVC.Controllers
         // GET: Categories/Delete/5
         public async Task<IActionResult> Delete(int id)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            var category = _categoryService.GetCategoryByIdAsync(id);
+            var category = await _categoryService.GetCategoryByIdAsync(id);
             if (category == null)
             {
                 return NotFound();
