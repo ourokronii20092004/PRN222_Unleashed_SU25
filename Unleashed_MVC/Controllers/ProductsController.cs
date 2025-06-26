@@ -104,27 +104,52 @@ namespace Unleashed_MVC.Controllers
         }
 
 
-        // GET: Products/Edit/5
-        public async Task<IActionResult> Edit(Guid? id)
+       // GET: Products/Edit/5
+public async Task<IActionResult> Edit(Guid? id)
+{
+    if (id == null)
+    {
+        return NotFound();
+    }
+
+    var product = await _productService.GetProductByIdAsync(id.Value);
+    if (product == null)
+    {
+        return NotFound();
+    }
+
+    // Load data for dropdowns
+    ViewBag.BrandId = new SelectList(await _brandRepository.GetAllAsync(), "BrandId", "BrandName", product.BrandId);
+    ViewBag.ProductStatusId = new SelectList(await _productStatusRepository.GetAllAsync(), "ProductStatusId", "ProductStatusName", product.ProductStatusId);
+    ViewBag.SizeId = new SelectList(await _sizeRepository.GetAllAsync(), "SizeId", "SizeName");
+    ViewBag.ColorId = new SelectList(await _colorRepository.GetAllAsync(), "ColorId", "ColorName");
+
+    // Preparing variations for edit view
+    var productDTO = new ProductDTO
+    {
+        ProductId = product.ProductId,
+        ProductName = product.ProductName,
+        ProductCode = product.ProductCode,
+        ProductDescription = product.ProductDescription,
+        BrandId = product.BrandId ?? 0,
+        ProductStatusId = product.ProductStatusId ?? 0,
+        Variations = product.Variations.Select(v => new ProductDTO.ProductVariationDTO
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
+            SizeId = v.SizeId,
+            ColorId = v.ColorId,
+            ProductPrice = v.VariationPrice,
+            ProductVariationImage = v.VariationImage
+        }).ToList()
+    };
 
-            var product = await _productService.GetProductByIdAsync(id.Value);
-            if (product == null)
-            {
-                return NotFound();
-            }
+    return View(productDTO);
+}
 
-            return View(product);
-        }
 
         // POST: Products/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(Guid id, [Bind("ProductId,BrandId,ProductStatusId,ProductName,ProductCode,ProductDescription,ProductCreatedAt,ProductUpdatedAt")] ProductDTO productDTO)
+        public async Task<IActionResult> Edit(Guid id, ProductDTO productDTO)
         {
             if (id != productDTO.ProductId)
             {
@@ -133,12 +158,23 @@ namespace Unleashed_MVC.Controllers
 
             if (ModelState.IsValid)
             {
+                
+                if (productDTO.CreatedAt == null) 
+                {
+                    productDTO.CreatedAt = DateTimeOffset.Now;
+                }
+
+                productDTO.UpdatedAt = DateTimeOffset.Now; 
+
+                // Update the product
                 await _productService.UpdateProductAsync(id, productDTO);
                 return RedirectToAction(nameof(Index));
             }
 
             return View(productDTO);
         }
+
+
 
         // GET: Products/Delete/5
         public async Task<IActionResult> Delete(Guid? id)

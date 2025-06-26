@@ -9,9 +9,9 @@ public partial class Variation
 
     public Guid ProductId { get; set; }
 
-    public int? SizeId { get; set; }
+    public int SizeId { get; set; }
 
-    public int? ColorId { get; set; }
+    public int ColorId { get; set; }
 
     public string? VariationImage { get; set; }
 

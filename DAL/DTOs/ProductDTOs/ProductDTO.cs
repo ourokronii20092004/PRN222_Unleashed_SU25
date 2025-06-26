@@ -62,10 +62,5 @@ namespace DAL.DTOs.ProductDTOs
                 ProductDescription = ProductDescription,
             };
         }
-
-        public class CountResult
-        {
-            public int Count { get; set; }
-        }
     }
 }

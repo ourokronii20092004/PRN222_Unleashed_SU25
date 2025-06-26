@@ -256,18 +256,21 @@ namespace BLL.Services
             if (product == null)
                 throw new InvalidOperationException("Product not found!");
 
+            // Update basic product fields
             product.ProductName = productDTO.ProductName;
             product.ProductCode = productDTO.ProductCode;
             product.ProductDescription = productDTO.ProductDescription;
             product.ProductStatusId = productDTO.ProductStatusId;
+            product.BrandId = productDTO.BrandId;
+            product.ProductUpdatedAt = DateTimeOffset.UtcNow;
 
-            // Update product categories
+            // Handle categories - Ensure no duplicates and add/remove as necessary
             foreach (var category in productDTO.Categories)
             {
                 await _productRepository.AddProductCategoryAsync(id, category.CategoryId);
             }
 
-            // Update product variations
+            // Handle variations - Update existing ones and add new ones
             foreach (var variationDTO in productDTO.Variations)
             {
                 var size = await _sizeRepository.GetByIdAsync(variationDTO.SizeId);
@@ -280,11 +283,13 @@ namespace BLL.Services
 
                     if (existingVariation != null)
                     {
+                        // Update existing variation
                         existingVariation.VariationPrice = variationDTO.ProductPrice ?? 0;
                         existingVariation.VariationImage = variationDTO.ProductVariationImage;
                     }
                     else
                     {
+                        // Add new variation
                         var newVariation = new Variation
                         {
                             ProductId = product.ProductId,
@@ -293,16 +298,18 @@ namespace BLL.Services
                             VariationPrice = variationDTO.ProductPrice ?? 0,
                             VariationImage = variationDTO.ProductVariationImage
                         };
-
                         product.Variations.Add(newVariation);
                     }
                 }
             }
 
+            // Save the updated product
             await _productRepository.UpdateAsync(product);
             await _productRepository.SaveChangesAsync();
+
             return product;
         }
+
         public async Task<(List<ProductSearchResultDTO> Products, int TotalCount)> SearchProductsAsync(string? query, int skip, int take)
         {
             return await _productRepository.SearchProductsAsync(query, skip, take);
