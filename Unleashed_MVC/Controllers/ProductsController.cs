@@ -21,7 +21,6 @@ namespace Unleashed_MVC.Controllers
         private readonly IColorRepository _colorRepository;
         private readonly ISizeRepository _sizeRepository;
 
-        // Tiêm IProductService vào trong constructor
         public ProductsController(IProductService productService, IBrandRepository brandRepository, IProductStatusRepository productStatusRepository, IVariationRepository variationRepository, IColorRepository colorRepository, ISizeRepository sizeRepository)
         {
             _productService = productService;
@@ -47,8 +46,6 @@ namespace Unleashed_MVC.Controllers
 
             return View(pagedProducts); 
         }
-
-
 
         // GET: Products/Details/5
         public async Task<IActionResult> Details(Guid? id)
