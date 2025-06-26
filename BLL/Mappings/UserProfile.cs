@@ -8,7 +8,8 @@ namespace BLL.Mappings
     {
         public UserProfile() {
             CreateMap<RegisterUserDTO, User>();
-            CreateMap<UserDetailDTO,User>();
+            CreateMap<UserDetailDTO,User>()
+                .ForMember(u => u.UserCreatedAt, c => c.Ignore());
             
             CreateMap<User,UserDetailDTO>();
         }

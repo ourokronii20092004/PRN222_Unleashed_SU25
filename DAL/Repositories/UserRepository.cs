@@ -34,7 +34,7 @@ namespace DAL.Repositories
             await _unleashedContext.SaveChangesAsync(cancellationToken);
         }
 
-        public async Task<User> GetByUsernameAsync(string username, CancellationToken cancellationToken = default)
+        public async Task<User?> GetByUsernameAsync(string username, CancellationToken cancellationToken = default)
         {
             ArgumentNullException.ThrowIfNull(username);
             return await _unleashedContext.Users
