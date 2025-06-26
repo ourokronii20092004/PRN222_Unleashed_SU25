@@ -10,9 +10,10 @@
 <hr />
 <div class="row">
     <div class="col-md-4">
-        <form asp-action="Create">
+        <form asp-action="Create" enctype="multipart/form-data">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
 
+            <!-- Brand and Status Dropdowns -->
             <div class="form-group">
                 <label for="BrandId" class="control-label">Brand</label>
                 <select asp-for="BrandId" class="form-control" asp-items="ViewBag.BrandId"></select>
@@ -23,29 +24,38 @@
                 <select asp-for="ProductStatusId" class="form-control" asp-items="ViewBag.ProductStatusId"></select>
             </div>
 
-            <!-- <div class="form-group">
-                <label for="SizeId" class="control-label">Size</label>
-                <select asp-for="SizeId" class="form-control" asp-items="ViewBag.SizeId"></select>
-            </div>
+            <!-- Variations List -->
+            @for (var i = 0; i < Model.Variations.Count; i++)
+            {
+                <div class="card mt-3 p-3">
+                    <h5>Variation @(i + 1)</h5>
 
-            <div class="form-group">
-                <label for="ColorId" class="control-label">Color</label>
-                <select asp-for="ColorId" class="form-control" asp-items="ViewBag.ColorId"></select>
-            </div>
+                    <div class="form-group">
+                        <label asp-for="Variations[@i].SizeId" class="control-label">Size</label>
+                        <select asp-for="Variations[@i].SizeId" class="form-control" asp-items="ViewBag.SizeId"></select>
+                    </div>
 
-            <div class="form-group">
-                <label for="VariationImage" class="control-label">Variation Image</label>
-                <input asp-for="VariationImage" class="form-control" type="file" />
-                <span asp-validation-for="VariationImage" class="text-danger"></span>
-            </div>
+                    <div class="form-group">
+                        <label asp-for="Variations[@i].ColorId" class="control-label">Color</label>
+                        <select asp-for="Variations[@i].ColorId" class="form-control" asp-items="ViewBag.ColorId"></select>
+                    </div>
 
-            <div class="form-group">
-                <label for="VariationPrice" class="control-label">Variation Price</label>
-                <input asp-for="VariationPrice" class="form-control" type="number" step="0.01" />
-                <span asp-validation-for="VariationPrice" class="text-danger"></span>
-            </div> -->
+                    <div class="form-group">
+                        <label asp-for="Variations[@i].ProductVariationImage" class="control-label">Variation Image</label>
+                        <input asp-for="Variations[@i].ProductVariationImage" class="form-control" type="file" />
+                        <span asp-validation-for="Variations[@i].ProductVariationImage" class="text-danger"></span>
+                    </div>
 
-            <div class="form-group">
+                    <div class="form-group">
+                        <label asp-for="Variations[@i].ProductPrice" class="control-label">Variation Price</label>
+                        <input asp-for="Variations[@i].ProductPrice" class="form-control" type="number" step="0.01" />
+                        <span asp-validation-for="Variations[@i].ProductPrice" class="text-danger"></span>
+                    </div>
+                </div>
+            }
+
+            <!-- Main Product Info -->
+            <div class="form-group mt-3">
                 <label asp-for="ProductName" class="control-label"></label>
                 <input asp-for="ProductName" class="form-control" />
                 <span asp-validation-for="ProductName" class="text-danger"></span>
@@ -63,7 +73,8 @@
                 <span asp-validation-for="ProductDescription" class="text-danger"></span>
             </div>
 
-            <div class="form-group">
+            <!-- Submit Button -->
+            <div class="form-group mt-3">
                 <input type="submit" value="Create" class="btn btn-primary" />
             </div>
         </form>
