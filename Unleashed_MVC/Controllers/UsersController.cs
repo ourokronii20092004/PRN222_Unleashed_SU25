@@ -10,6 +10,7 @@ namespace Unleashed_MVC.Controllers
     {
         private readonly IUserService _service;
 
+
         public UsersController(IUserService service)
         {
             _service = service;
@@ -50,14 +51,14 @@ namespace Unleashed_MVC.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(RegisterUserDTO user)
+        public async Task<IActionResult> Create(RegisterUserDTO user, IFormFile profileImageFile)
         {
-            if (!ModelState.IsValid)
+            if(_service.GetUserByUsernameAsync(user.UserUsername).Result != null)
             {
+                ModelState.AddModelError(string.Empty, "Username has been existed, Please use a new username.");
                 return View(user);
-            }     
-            
-            if (await _service.AddUserAsync(user, 2))
+            }
+            if (await _service.AddUserAsync(user, 2, profileImageFile))
             {            
                 return RedirectToAction(nameof(Index));
             }
@@ -81,7 +82,7 @@ namespace Unleashed_MVC.Controllers
             {
                 return NotFound();
             }
-            //ViewData["RoleId"] = new SelectList(_context.Roles, "RoleId", "RoleId", user.RoleId);
+
             return View(user);
         }
 
@@ -90,18 +91,17 @@ namespace Unleashed_MVC.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit ( UserDetailDTO account)
+        public async Task<IActionResult> Edit(UserDetailDTO user, IFormFile profileImageFile)
         {
-   
-            if (ModelState.IsValid)
-            {
-                if (!await _service.EditUserAsync(account)) 
-                    return NotFound();      
-                
+            try {
+                ArgumentNullException.ThrowIfNull(await _service.GetUserByUsernameAsync(user.UserUsername));
+                if (!await _service.EditUserAsync(user, profileImageFile))
+                    return View(user);
+
                 return RedirectToAction(nameof(Index));
+            } catch (Exception) {
+                return NotFound(); 
             }
- 
-            return View(account);
         }
 
         // GET: Users/Delete/5

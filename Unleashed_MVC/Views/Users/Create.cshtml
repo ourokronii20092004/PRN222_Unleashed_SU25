@@ -16,36 +16,36 @@
                     <h4 class="mb-0">User Account Information</h4>
                 </div>
                 <div class="card-body p-4">
-                    <form asp-action="Create" method="post">
+                    <form asp-action="Create" enctype="multipart/form-data" method="post">
                         <div asp-validation-summary="ModelOnly" class="alert alert-danger mb-4" role="alert"></div>
 
                         <div class="mb-3">
                             <label asp-for="UserUsername" class="form-label fw-bold">Username</label>
-                            <input asp-for="UserUsername" class="form-control" placeholder="Choose a unique username" />
+                            <input asp-for="UserUsername" class="form-control" placeholder="Username" />
                             <span asp-validation-for="UserUsername" class="text-danger"></span>
                         </div>
 
                         <div class="mb-3">
                             <label asp-for="UserPassword" class="form-label fw-bold">Password</label>
-                            <input asp-for="UserPassword" class="form-control" type="password" placeholder="Set a strong password" />
+                            <input asp-for="UserPassword" class="form-control" type="password" placeholder="Password" />
                             <span asp-validation-for="UserPassword" class="text-danger"></span>
                         </div>
 
                         <div class="mb-3">
                             <label asp-for="UserFullname" class="form-label fw-bold">Full Name</label>
-                            <input asp-for="UserFullname" class="form-control" placeholder="Enter the user's full name" />
+                            <input asp-for="UserFullname" class="form-control" placeholder="Full name" />
                             <span asp-validation-for="UserFullname" class="text-danger"></span>
                         </div>
 
                         <div class="mb-3">
                             <label asp-for="UserEmail" class="form-label fw-bold">Email Address</label>
-                            <input asp-for="UserEmail" class="form-control" type="email" placeholder="Enter a valid email address" />
+                            <input asp-for="UserEmail" class="form-control" type="email" placeholder="Email address" />
                             <span asp-validation-for="UserEmail" class="text-danger"></span>
                         </div>
 
                         <div class="mb-3">
                             <label asp-for="UserPhone" class="form-label fw-bold">Phone Number</label>
-                            <input asp-for="UserPhone" class="form-control" type="tel" placeholder="e.g., 0912345678" />
+                            <input asp-for="UserPhone" class="form-control" type="tel" placeholder="Phonenumber" />
                             <span asp-validation-for="UserPhone" class="text-danger"></span>
                         </div>
 
@@ -57,14 +57,13 @@
 
                         <div class="mb-3">
                             <label asp-for="UserAddress" class="form-label fw-bold">Address</label>
-                            <input asp-for="UserAddress" class="form-control" placeholder="Enter full address" />
+                            <input asp-for="UserAddress" class="form-control" placeholder="Address" />
                             <span asp-validation-for="UserAddress" class="text-danger"></span>
                         </div>
 
                         <div class="mb-3">
-                            <label asp-for="UserImage" class="form-label fw-bold">Profile Image URL (Optional)</label>
-                            <input asp-for="UserImage" class="form-control" placeholder="Link to profile picture" />
-                            <span asp-validation-for="UserImage" class="text-danger"></span>
+                                <label class="form-label fw-bold" for="profileImageFile">Profile Image (Optional)</label>
+                                <input type="file" id="profileImageFile" name="profileImageFile"/>
                         </div>
 
                         <div class="mb-4">

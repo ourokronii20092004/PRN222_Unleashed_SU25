@@ -1,12 +1,16 @@
 ﻿using AutoMapper;
 using BLL.Services.Interfaces;
 using BLL.Utilities;
+using BLL.Utilities.Interfaces;
 using DAL.DTOs.UserDTOs;
 using DAL.Models;
 using DAL.Repositories.Interfaces;
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.FileProviders;
 using System.Data;
 using System.Diagnostics;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace BLL.Services
 {
@@ -15,14 +19,16 @@ namespace BLL.Services
         private readonly IUserRepository _userRepository;
         private readonly IRoleRepository _roleRepository;
         private readonly IMapper _mapper;
-        public UserService(IUserRepository accountRepository, IRoleRepository roleRepository, IMapper mapper)
+        private readonly IImageUploader _imageUploader;
+        public UserService(IUserRepository accountRepository, IRoleRepository roleRepository, IMapper mapper, IImageUploader imageUploader)
         {
             _userRepository = accountRepository;
             _roleRepository = roleRepository;
             _mapper = mapper;
+            _imageUploader = imageUploader;
         }
 
-        public async Task<bool> AddUserAsync(RegisterUserDTO registerUser, int roleId)
+        public async Task<bool> AddUserAsync(RegisterUserDTO registerUser, int roleId, IFormFile? image)
         {
             try
             {
@@ -32,6 +38,13 @@ namespace BLL.Services
                 user.Role = await _roleRepository.GetByIdAsync(roleId); // Role is passed as a parameter
                 user.UserCreatedAt = DateTime.UtcNow;
                 user.UserUpdatedAt = DateTime.UtcNow;
+                if (image != null)
+                {
+                   var link = await _imageUploader.UploadImageAsync(image);
+                   ArgumentNullException.ThrowIfNull(link);
+                   user.UserImage = link.Url;
+                }
+                
                 await _userRepository.AddAsync(user);
                 return true;
             }
@@ -70,7 +83,7 @@ namespace BLL.Services
             }
 
         }
-        public async Task<bool> EditUserAsync(UserDetailDTO user)
+        public async Task<bool> EditUserAsync(UserDetailDTO user, IFormFile? image)
         {
             try
             {
@@ -79,6 +92,12 @@ namespace BLL.Services
                 {
                     _mapper.Map(user, _user);
                     _user.UserUpdatedAt = DateTime.UtcNow;
+                    if (image != null)
+                    {
+                        var link = await _imageUploader.UploadImageAsync(image);
+                        ArgumentNullException.ThrowIfNull(link);
+                        _user.UserImage = link.Url;
+                    }
                     await _userRepository.Update(_user);
                    return true; 
                 }
@@ -104,11 +123,18 @@ namespace BLL.Services
             return await _userRepository.GetByUsernameAsync(username) != null;
         }
 
-        public async Task<UserDetailDTO> GetUserByUsernameAsync(string username)
+        public async Task<UserDetailDTO?> GetUserByUsernameAsync(string username)
         {
-            ArgumentNullException.ThrowIfNullOrEmpty(username);
-            var user = await _userRepository.GetByUsernameAsync(username);    
-            return _mapper.Map<UserDetailDTO>(user);    
+            try
+            {
+                ArgumentNullException.ThrowIfNullOrEmpty(username);
+                var user = await _userRepository.GetByUsernameAsync(username);
+                return user != null ? _mapper.Map<UserDetailDTO>(user) : null;
+            }
+            catch (Exception)
+            {
+                return null;
+            }   
         }
     }
 }

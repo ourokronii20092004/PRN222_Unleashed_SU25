@@ -9,6 +9,6 @@ namespace DAL.Repositories.Interfaces
 {
     public interface IUserRepository : IGenericRepository<User, Guid>
     {
-        Task<User> GetByUsernameAsync(string username, CancellationToken cancellationToken = default);        
+        Task<User?> GetByUsernameAsync(string username, CancellationToken cancellationToken = default);        
     }
 }
