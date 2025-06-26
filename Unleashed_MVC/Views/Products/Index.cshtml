@@ -1,72 +1,93 @@
 ﻿@model IEnumerable<DAL.DTOs.ProductDTOs.ProductListDTO>
 
 @{
-    ViewData["Title"] = "Index";
+    ViewData["Title"] = "Product List";
 }
 
-<h1>Index</h1>
+<h1>Product List</h1>
 
+<!-- =========================== CREATE BUTTON =========================== -->
 <p>
-    <a asp-action="Create">Create New</a>
+    <a asp-action="Create" class="btn btn-success">Create New Product</a>
 </p>
-<table class="table">
+
+<!-- =========================== TABLE =========================== -->
+<table class="table table-hover table-bordered">
     <thead>
         <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.ProductName)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.ProductCode)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.ProductDescription)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.ProductCreatedAt)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.ProductUpdatedAt)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.BrandName)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.ProductStatusName)
-            </th>
-            <th></th>
+            <th>Product Name</th>
+            <th>Product Code</th>
+            <th>Description</th>
+            <th>Created At</th>
+            <th>Updated At</th>
+            <th>Brand</th>
+            <th>Status</th>
+            <th>Actions</th>
         </tr>
     </thead>
     <tbody>
-        @foreach (var item in Model)
+        @if (Model != null && Model.Any())
+        {
+            foreach (var item in Model)
+            {
+                <tr>
+                    <td>@item.ProductName</td>
+                    <td>@item.ProductCode</td>
+                    <td>@item.ProductDescription</td>
+                    <td>@item.ProductCreatedAt?.ToString("dd/MM/yyyy")</td>
+                    <td>@item.ProductUpdatedAt?.ToString("dd/MM/yyyy")</td>
+                    <td>@item.BrandName</td>
+                    <td>@item.ProductStatusName</td>
+                    <td>
+                        <a class="btn btn-sm btn-warning" asp-action="Edit" asp-route-id="@item.ProductId">Edit</a> |
+                        <a class="btn btn-sm btn-info" asp-action="Details" asp-route-id="@item.ProductId">Details</a> |
+                        <a class="btn btn-sm btn-danger" asp-action="Delete" asp-route-id="@item.ProductId">Delete</a>
+                    </td>
+                </tr>
+            }
+        }
+        else
         {
             <tr>
-                <td>
-                    @Html.DisplayFor(modelItem => item.ProductName)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.ProductCode)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.ProductDescription)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.ProductCreatedAt)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.ProductUpdatedAt)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.BrandName)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.ProductStatusName)
-                </td>
-                <td>
-                    <a asp-action="Edit" asp-route-id="@item.ProductId">Edit</a> |
-                    <a asp-action="Details" asp-route-id="@item.ProductId">Details</a> |
-                    <a asp-action="Delete" asp-route-id="@item.ProductId">Delete</a>
-                </td>
+                <td colspan="8" class="text-center text-muted">No results found</td>
             </tr>
         }
     </tbody>
 </table>
+
+<!-- =========================== PAGINATION =========================== -->
+@if (ViewBag.TotalCount != null && ViewBag.PageSize != null && ViewBag.Page != null)
+{
+    var totalCount = (int)ViewBag.TotalCount;
+    var pageSize = (int)ViewBag.PageSize;
+    var page = (int)ViewBag.Page;
+
+    if (totalCount > pageSize)
+    {
+        <nav>
+            <ul class="pagination">
+                @if (page > 1)
+                {
+                    <li class="page-item">
+                        <a class="page-link"
+                           asp-action="Index"
+                           asp-route-query="@ViewBag.Query"
+                           asp-route-page="@(page - 1)"
+                           asp-route-pageSize="@pageSize">Previous</a>
+                    </li>
+                }
+
+                @if ((page * pageSize) < totalCount)
+                {
+                    <li class="page-item">
+                        <a class="page-link"
+                           asp-action="Index"
+                           asp-route-query="@ViewBag.Query"
+                           asp-route-page="@(page + 1)"
+                           asp-route-pageSize="@pageSize">Next</a>
+                    </li>
+                }
+            </ul>
+        </nav>
+    }
+}

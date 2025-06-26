@@ -303,5 +303,9 @@ namespace BLL.Services
             await _productRepository.SaveChangesAsync();
             return product;
         }
+        public async Task<(List<ProductSearchResultDTO> Products, int TotalCount)> SearchProductsAsync(string? query, int skip, int take)
+        {
+            return await _productRepository.SearchProductsAsync(query, skip, take);
+        }
     }
 }

@@ -32,12 +32,23 @@ namespace Unleashed_MVC.Controllers
             _sizeRepository = sizeRepository;
         }
 
-        // GET: Products
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(int page = 1, int pageSize = 10)
         {
-            var products = await _productService.GetAllProductsAsync();
-            return View(products);
+            int skip = (page - 1) * pageSize;
+
+            var products = await _productService.GetAllProductsAsync(); 
+            var pagedProducts = products.Skip(skip).Take(pageSize).ToList(); 
+
+            var totalCount = products.Count();
+
+            ViewBag.TotalCount = totalCount;
+            ViewBag.Page = page;
+            ViewBag.PageSize = pageSize;
+
+            return View(pagedProducts); 
         }
+
+
 
         // GET: Products/Details/5
         public async Task<IActionResult> Details(Guid? id)
@@ -57,34 +68,44 @@ namespace Unleashed_MVC.Controllers
         }
 
         // GET: Products/Create
-         public async Task<IActionResult> Create()
+        public async Task<IActionResult> Create()
         {
-            // Lấy danh sách thương hiệu và trạng thái sản phẩm để hiển thị trong dropdown
             ViewBag.BrandId = new SelectList(await _brandRepository.GetAllAsync(), "BrandId", "BrandName");
             ViewBag.ProductStatusId = new SelectList(await _productStatusRepository.GetAllAsync(), "ProductStatusId", "ProductStatusName");
             ViewBag.SizeId = new SelectList(await _sizeRepository.GetAllAsync(), "SizeId", "SizeName");
             ViewBag.ColorId = new SelectList(await _colorRepository.GetAllAsync(), "ColorId", "ColorName");
-            return View();
+
+            var model = new ProductDTO
+            {
+                Variations = new List<ProductDTO.ProductVariationDTO>
+        {
+            new ProductDTO.ProductVariationDTO()
         }
+            };
+            return View(model);
+        }
+
 
         // POST: Products/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("ProductId,BrandId,ProductStatusId,ProductName,ProductCode,ProductDescription,ProductCreatedAt,ProductUpdatedAt")] ProductDTO productDTO)
+        public async Task<IActionResult> Create(ProductDTO productDTO)
         {
             if (ModelState.IsValid)
             {
-                productDTO.ProductId = Guid.NewGuid();  
-                await _productService.CreateProductAsync(productDTO); 
-                return RedirectToAction(nameof(Index));  
+                productDTO.ProductId = Guid.NewGuid();
+                await _productService.CreateProductAsync(productDTO);
+                return RedirectToAction(nameof(Index));
             }
 
-            // Nếu có lỗi, trả về view và giữ lại dữ liệu đã nhập
             ViewBag.BrandId = new SelectList(await _brandRepository.GetAllAsync(), "BrandId", "BrandName", productDTO.BrandId);
             ViewBag.ProductStatusId = new SelectList(await _productStatusRepository.GetAllAsync(), "ProductStatusId", "ProductStatusName", productDTO.ProductStatusId);
+            ViewBag.SizeId = new SelectList(await _sizeRepository.GetAllAsync(), "SizeId", "SizeName");
+            ViewBag.ColorId = new SelectList(await _colorRepository.GetAllAsync(), "ColorId", "ColorName");
 
             return View(productDTO);
         }
+
 
         // GET: Products/Edit/5
         public async Task<IActionResult> Edit(Guid? id)
