@@ -1,41 +1,46 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using AspNetCoreGeneratedDocument;
+using BLL.Services.Interfaces;
+using DAL.DTOs.UserDTOs;
 using Microsoft.AspNetCore.Mvc;
+
 
 namespace Unleashed_MVC.Controllers
 {
     public class AuthenticationController : Controller
     {
+        private readonly IAuthenticationService _authenticationService;
+
+        public AuthenticationController(IAuthenticationService authenticationService)
+        {
+            _authenticationService = authenticationService;
+        }
         // GET: AuthenticationController
-        public ActionResult Index()
+        public ActionResult Login()
         {
             return View();
         }
 
-        // GET: AuthenticationController/Details/5
-        public ActionResult Details(int id)
-        {
-            return View();
-        }
-
-        // GET: AuthenticationController/Create
-        public ActionResult Create()
-        {
-            return View();
-        }
-
-        // POST: AuthenticationController/Create
+       
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Create(IFormCollection collection)
+        public async Task<ActionResult> Login(UserLoginDTO loginInfor)
         {
-            try
+            
             {
-                return RedirectToAction(nameof(Index));
+                if (ModelState.IsValid)
+                {
+                    var user = await _authenticationService.Login(loginInfor);
+                    if (user != null)
+                    {
+                        HttpContext.Session.SetString("username", user.UserUsername);
+                        return RedirectToAction("Index", "Home");
+                    }
+                }
+                ModelState.AddModelError(string.Empty, "Invalid Username or Password");
+                loginInfor.UserPassword = null;
+                return View(loginInfor);
             }
-            catch
-            {
-                return View();
-            }
+           
         }
 
         // GET: AuthenticationController/Edit/5

@@ -15,7 +15,7 @@ namespace Unleashed_MVC
             var builder = WebApplication.CreateBuilder(args);
 
             // --- Database Services ---  
-            builder.Services.ConnectUnleashedDatabase(builder.Configuration, "Cloudflared");
+            builder.Services.ConnectUnleashedDatabase(builder.Configuration, "Local");
             /*
              * Configurations:
              * 
@@ -29,6 +29,15 @@ namespace Unleashed_MVC
              * 
              */
 
+
+            // --- Add Session services --- 
+            builder.Services.AddDistributedMemoryCache();
+            builder.Services.AddSession(options =>
+            {
+                options.IdleTimeout = TimeSpan.FromMinutes(30); // Set a timeout for the session
+                options.Cookie.HttpOnly = true; // Make the session cookie inaccessible to client-side script
+                options.Cookie.IsEssential = true; // Make the session cookie essential for GDPR compliance
+            });
 
             // --- Image Upload Services ---  
             builder.Services.AddHttpClient<BLL.Utilities.Interfaces.IImageUploader, BLL.Utilities.ImgbbImageUploader>();
@@ -66,6 +75,7 @@ namespace Unleashed_MVC
             builder.Services.AddScoped<IStockService, StockService>();
             builder.Services.AddScoped<IStockTransactionService, StockTransactionService>();
             builder.Services.AddScoped<IProductService, ProductService>();
+            builder.Services.AddScoped<IAuthenticationService, AuthenticationService>();
 
             builder.Services.AddScoped<IDiscountService, DiscountService>();
 
@@ -83,6 +93,7 @@ namespace Unleashed_MVC
                 app.UseHsts();
             }
 
+            app.UseSession();
             app.UseHttpsRedirection();
             app.UseStaticFiles();
 

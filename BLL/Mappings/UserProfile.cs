@@ -10,6 +10,7 @@ namespace BLL.Mappings
             CreateMap<RegisterUserDTO, User>();
             CreateMap<UserDetailDTO,User>()
                 .ForMember(u => u.UserCreatedAt, c => c.Ignore());
+            CreateMap<UserLoginDTO, User>();
             
             CreateMap<User,UserDetailDTO>();
         }

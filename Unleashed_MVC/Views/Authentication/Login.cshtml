@@ -1,0 +1,42 @@
+﻿@model DAL.DTOs.UserDTOs.UserLoginDTO
+
+@{
+    ViewData["Title"] = "Log in";
+}
+
+<h1>@ViewData["Title"]</h1>
+<div class="row">
+    <div class="col-md-4">
+        <section>
+            <form id="account" method="post">
+                <h4>Login</h4>
+                <hr />
+                <div asp-validation-summary="All" class="text-danger"></div>
+                <div class="form-group">
+                    <label asp-for="UserUsername"></label>
+                    <input asp-for="UserUsername" class="form-control" />
+                    <span asp-validation-for="UserUsername" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="UserPassword"></label>
+                    <input asp-for="UserPassword" class="form-control" />
+                    <span asp-validation-for="UserPassword" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <div class="checkbox">
+                        <label>Remember</>
+                            <input type="checkbox" name="Remember" />
+                        </label>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <button type="submit" class="btn btn-primary">Log in</button>
+                </div>
+            </form>
+        </section>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
