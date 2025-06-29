@@ -10,6 +10,7 @@ using DAL.Models;
 
 namespace Unleashed_MVC.Controllers
 {
+    [Filter.Filter]
     public class TransactionsController : Controller
     {
         private readonly UnleashedContext _context;

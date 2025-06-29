@@ -6,6 +6,7 @@ using System.Diagnostics;
 
 namespace Unleashed_MVC.Controllers
 {
+    [Filter.Filter]
     public class UsersController : Controller
     {
         private readonly IUserService _service;
