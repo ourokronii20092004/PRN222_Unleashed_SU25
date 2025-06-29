@@ -12,6 +12,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace Unleashed_MVC.Controllers
 {
+    [Filter.Filter]
     public class ProductsController : Controller
     {
         private readonly IProductService _productService;

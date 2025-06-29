@@ -30,18 +30,20 @@ namespace BLL.Services
 
         public async Task<bool> AddNotificationAsync(NotificationCreateDTO createNotification)
         {
-            try
+            
             {
+                var sender = await _userRepository.GetByUsernameAsync(createNotification.UsernameSender);
+                ArgumentNullException.ThrowIfNull(createNotification, nameof(createNotification));
                 var notification = _mapper.Map<Notification>(createNotification);
+                notification.UserIdSender = sender.UserId;
+                notification.UserIdSenderNavigation = sender;
                 notification.NotificationCreatedAt = DateTimeOffset.UtcNow;
                 notification.NotificationUpdatedAt = DateTimeOffset.UtcNow;
                 notification.UserIdSenderNavigation = await _userRepository.GetByIdAsync(notification.UserIdSender);
                
                 await _notificationRepository.AddAsync(notification);
-                IEnumerable<string> usernames= createNotification.Receivers;
-                if (usernames != null && usernames.Any())
-                {
-                    IEnumerable<User> users = await _userRepository.FindAsync(u => usernames.Contains(u.UserUsername));
+
+                    IEnumerable<User> users = await _userRepository.FindAsync(u => u.RoleId == 3);
                     if (users != null && users.Any())
                     {
                         IEnumerable<NotificationUser> notificationUsers = users.Select(u => new NotificationUser
@@ -53,17 +55,10 @@ namespace BLL.Services
                         });
                         await _notificationUserRepository.AddRangeAsync(notificationUsers);
                     }   
-                }
+                
                 return true;
             }
-            catch (DBConcurrencyException)
-            {
-                return false;
-            }
-            catch (Exception)
-            {
-                return false;
-            }
+           
         }
 
         public async Task<bool> EditNotificationAsync(int id, IEnumerable<string> usernames)

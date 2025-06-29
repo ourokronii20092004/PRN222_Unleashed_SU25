@@ -13,6 +13,7 @@ using DAL.DTOs.UserDTOs;
 
 namespace Unleashed_MVC.Controllers
 {
+    [Filter.Filter]
     public class NotificationsController : Controller
     {
         private readonly INotificationService _notificationService;
@@ -60,14 +61,13 @@ namespace Unleashed_MVC.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Title,Content,IsDrafted,Receivers")] NotificationCreateDTO notification)
+        public async Task<IActionResult> Create([Bind("Title,Content,IsDrafted")] NotificationCreateDTO notification)
         {
-            if (ModelState.IsValid)
-            {
-                await _notificationService.AddNotificationAsync(notification);
+            notification.UsernameSender = HttpContext.Session.GetString("username");
+            if (await _notificationService.AddNotificationAsync(notification))
+            {            
                 return RedirectToAction(nameof(Index));
-            }
-            ViewData["Receivers"] = new SelectList(await _accountService.GetAccountsAsync(), "Username", "Username");
+            }          
             return View(notification);
         }
 

@@ -11,6 +11,7 @@ using BLL.Services.Interfaces;
 
 namespace Unleashed_MVC.Controllers
 {
+    [Filter.Filter]
     public class CategoriesController : Controller
     {
         private readonly ICategoryService _categoryService;

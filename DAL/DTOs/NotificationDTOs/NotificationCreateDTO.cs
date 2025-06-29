@@ -5,7 +5,7 @@ namespace DAL.DTOs.NotificationDTOs
 {
     public class NotificationCreateDTO
     {
-        public Guid UserIdSender { get; set; }
+        public string UsernameSender { get; set; }
 
         [Display(Name ="Title")]
         public string? NotificationTitle { get; set; }
@@ -13,8 +13,6 @@ namespace DAL.DTOs.NotificationDTOs
         public string? NotificationContent { get; set; }
         [Display(Name = "Draft")]
         public bool? IsNotificationDraft { get; set; } = false;
-
-        public IEnumerable<string>? Receivers { get; set; }
        
     }
 }

@@ -8,11 +8,11 @@ using DAL.Models;
 using BLL.Services.Interfaces;
 using AutoMapper;
 using Microsoft.Extensions.Logging;
-using BLL.Services.Interfaces;
 using DAL.DTOs.StockDTOs;
 
 namespace Unleashed_MVC.Controllers
 {
+    [Filter.Filter]
     public class StocksController : Controller
     {
         private readonly IStockService _stockService;

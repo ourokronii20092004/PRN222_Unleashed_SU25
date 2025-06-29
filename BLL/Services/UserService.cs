@@ -65,7 +65,7 @@ namespace BLL.Services
                 var user = await _userRepository.GetByUsernameAsync(username);
                 if (user != null)
                 {
-                    user.IsUserEnabled = false;
+                    user.IsUserEnabled = user.IsUserEnabled.GetValueOrDefault(false) ? false : null;
                     user.UserUpdatedAt = DateTime.UtcNow;
                     await _userRepository.Update(user);
                     return true;
@@ -111,7 +111,7 @@ namespace BLL.Services
 
         public async Task<IEnumerable<UserDetailDTO>> GetAccountsAsync()
         {
-            IEnumerable<User> users = await _userRepository.GetAllAsync();
+            IEnumerable<User> users = await _userRepository.FindAsync(u => u.IsUserEnabled != null);
             return _mapper.Map<IEnumerable<UserDetailDTO>>(users);
         }
 

@@ -7,6 +7,7 @@ using BLL.Services.Interfaces; // Thêm using này để truy cập DbContext
 
 namespace Unleashed_MVC.Controllers
 {
+    [Filter.Filter]
     public class DiscountsController : Controller
     {
         private readonly IDiscountService _discountService;

@@ -14,7 +14,7 @@ using DAL.DTOs.BrandDTOs;
 
 namespace Unleashed_MVC.Controllers
 {
-    // [Authorize] // You can apply authorization at the controller level if all actions require it
+    [Filter.Filter]
     public class BrandsController : Controller
     {
         private readonly IBrandService _brandService;
