@@ -11,6 +11,7 @@ using Microsoft.AspNetCore.Authorization;
 using AutoMapper;
 using BLL.Services.Interfaces;
 using DAL.DTOs.BrandDTOs;
+using BLL.Utilities.Interfaces;
 
 namespace Unleashed_MVC.Controllers
 {
@@ -20,12 +21,14 @@ namespace Unleashed_MVC.Controllers
         private readonly IBrandService _brandService;
         private readonly IMapper _mapper;
         private readonly ILogger<BrandsController> _logger;
+        private readonly IImageUploader _imageUploader;
 
-        public BrandsController(IBrandService brandService, IMapper mapper, ILogger<BrandsController> logger)
+        public BrandsController(IBrandService brandService, IMapper mapper, ILogger<BrandsController> logger, IImageUploader imageUploader)
         {
             _brandService = brandService;
             _mapper = mapper;
             _logger = logger;
+            _imageUploader = imageUploader;
         }
 
         // GET: Brands
@@ -85,21 +88,31 @@ namespace Unleashed_MVC.Controllers
 
         // POST: Brands/Create
         [HttpPost]
-        //[ValidateAntiForgeryToken]
+        [ValidateAntiForgeryToken]
         //[Authorize(Roles = "ADMIN")]
-        public async Task<IActionResult> Create([Bind("BrandName,BrandDescription,BrandImageUrl,BrandWebsiteUrl")] BrandCreateDTO brandDto)
+        public async Task<IActionResult> Create(BrandCreateDTO brandDto)
         {
             if (ModelState.IsValid)
             {
+                if (brandDto.BrandImageFile != null && brandDto.BrandImageFile.Length > 0)
+                {
+                    var uploadResult = await _imageUploader.UploadImageAsync(brandDto.BrandImageFile);
+                    if (uploadResult != null)
+                    {
+                        brandDto.BrandImageUrl = uploadResult.Url;
+                    }
+                    else
+                    {
+                        ModelState.AddModelError("BrandImageFile", "Image upload failed. Please try again.");
+                        return View(brandDto);
+                    }
+                }
+
                 try
                 {
                     await _brandService.CreateBrandAsync(brandDto);
                     TempData["SuccessMessage"] = "Brand created successfully!";
                     return RedirectToAction(nameof(Index));
-                }
-                catch (InvalidOperationException ex) // For business rule violations (e.g., duplicate name)
-                {
-                    ModelState.AddModelError(string.Empty, ex.Message);
                 }
                 catch (Exception ex)
                 {
@@ -107,7 +120,6 @@ namespace Unleashed_MVC.Controllers
                     ModelState.AddModelError(string.Empty, "An unexpected error occurred. Please try again.");
                 }
             }
-            // If we got this far, something failed, redisplay form with the DTO
             return View(brandDto);
         }
 
@@ -127,8 +139,13 @@ namespace Unleashed_MVC.Controllers
                 {
                     return NotFound($"Brand with ID {id.Value} not found for editing.");
                 }
-                // Map the BrandDTO (from service) to a BrandUpdateDTO for the Edit view
+
                 var brandUpdateDto = _mapper.Map<BrandUpdateDTO>(brandDto);
+
+                ViewData["BrandId"] = brandDto.BrandId;
+                ViewData["CreatedAtDisplay"] = brandDto.BrandCreatedAt.HasValue ? brandDto.BrandCreatedAt.Value.ToString("F") : "N/A";
+                ViewData["UpdatedAtDisplay"] = brandDto.BrandUpdatedAt.HasValue ? brandDto.BrandUpdatedAt.Value.ToString("F") : "N/A";
+
                 return View(brandUpdateDto);
             }
             catch (Exception ex)
@@ -143,45 +160,35 @@ namespace Unleashed_MVC.Controllers
         [HttpPost]
         //[ValidateAntiForgeryToken]
         //[Authorize(Roles = "ADMIN")]
-        public async Task<IActionResult> Edit(int id, [Bind("BrandName,BrandDescription,BrandImageUrl,BrandWebsiteUrl")] BrandUpdateDTO brandDto)
+        public async Task<IActionResult> Edit(int id, BrandUpdateDTO brandDto)
         {
-            // It's good practice to ensure the ID from the route matches any ID potentially in the DTO,
-            // or better yet, only rely on the route ID for identifying the entity.
-
             if (ModelState.IsValid)
             {
+                if (brandDto.BrandImageFile != null && brandDto.BrandImageFile.Length > 0)
+                {
+                    var uploadResult = await _imageUploader.UploadImageAsync(brandDto.BrandImageFile);
+                    if (uploadResult != null)
+                    {
+                        brandDto.BrandImageUrl = uploadResult.Url;
+                    }
+                    else
+                    {
+                        ModelState.AddModelError("BrandImageFile", "New image upload failed. Please try again.");
+                        return View(brandDto);
+                    }
+                }
                 try
                 {
-                    var updatedBrand = await _brandService.UpdateBrandAsync(id, brandDto);
-                    if (updatedBrand == null)
-                    {
-                        // This case can happen if the brand was deleted between GET and POST
-                        return NotFound($"Brand with ID {id} not found during update attempt.");
-                    }
+                    await _brandService.UpdateBrandAsync(id, brandDto);
                     TempData["SuccessMessage"] = "Brand updated successfully!";
                     return RedirectToAction(nameof(Index));
-                }
-                catch (DbUpdateConcurrencyException ex)
-                {
-                    _logger.LogWarning(ex, $"Concurrency issue updating brand ID {id}.");
-                    ModelState.AddModelError(string.Empty, "The record you attempted to edit "
-                        + "was modified by another user. The edit operation was canceled. Please try again.");
-                    // Optionally, you could re-fetch the current data and send it back to the view
-                    // var currentBrandDto = await _brandService.GetBrandByIdAsync(id);
-                    // var currentUpdateDto = _mapper.Map<BrandUpdateDTO>(currentBrandDto);
-                    // return View(currentUpdateDto); // Or return View(brandDto) with the user's attempted values
-                }
-                catch (InvalidOperationException ex) // For business rule violations (e.g., duplicate name on another brand)
-                {
-                    ModelState.AddModelError(string.Empty, ex.Message);
                 }
                 catch (Exception ex)
                 {
                     _logger.LogError(ex, $"Error updating brand ID {id}.");
-                    ModelState.AddModelError(string.Empty, "An unexpected error occurred while updating. Please try again.");
+                    ModelState.AddModelError(string.Empty, "An unexpected error occurred while updating.");
                 }
             }
-            // If we got this far, something failed (model state invalid or exception), redisplay form with the DTO
             return View(brandDto);
         }
 
@@ -228,16 +235,14 @@ namespace Unleashed_MVC.Controllers
                 bool deleted = await _brandService.DeleteBrandAsync(id);
                 if (!deleted)
                 {
-                    // This implies the brand was not found by the service during the delete attempt
                     TempData["ErrorMessage"] = $"Brand with ID {id} could not be found to delete.";
                     return RedirectToAction(nameof(Index));
                 }
                 TempData["SuccessMessage"] = "Brand deleted successfully.";
             }
-            catch (InvalidOperationException ex) // e.g., "Cannot delete brand because it has linked products."
+            catch (InvalidOperationException ex)
             {
                 _logger.LogWarning($"Business rule violation while deleting brand ID {id}: {ex.Message}");
-                // To show this on the Delete confirmation page, redirect back to the GET Delete action
                 TempData["ErrorMessage"] = ex.Message;
                 return RedirectToAction(nameof(Delete), new { id = id, error = true });
             }
@@ -245,7 +250,6 @@ namespace Unleashed_MVC.Controllers
             {
                 _logger.LogError(ex, $"Error deleting brand ID {id}.");
                 TempData["ErrorMessage"] = "An unexpected error occurred while deleting the brand.";
-                // Optionally redirect to Delete GET action, or Index
                 return RedirectToAction(nameof(Delete), new { id = id, error = true });
             }
             return RedirectToAction(nameof(Index));

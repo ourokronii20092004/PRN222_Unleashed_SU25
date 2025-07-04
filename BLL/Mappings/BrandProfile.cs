@@ -16,6 +16,9 @@ namespace BLL.Mappings
             CreateMap<BrandCreateDTO, Brand>();
             CreateMap<BrandUpdateDTO, Brand>();
             CreateMap<BrandDTO, Brand>();
+
+            //DTO to DTO
+            CreateMap<BrandDTO, BrandUpdateDTO>();
         }
     }
 }

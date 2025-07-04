@@ -4,7 +4,30 @@
     ViewData["Title"] = "Brand Management";
 }
 
-<div class="container mt-4">
+@section Styles {
+    <style>
+        .table th, .table td {
+            vertical-align: middle;
+        }
+
+        .img-thumbnail-table {
+            width: 60px;
+            height: 60px;
+            object-fit: cover;
+            border-radius: .25rem;
+            padding: .1rem;
+        }
+
+        .table-description {
+            max-width: 300px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+    </style>
+}
+
+<div class="container-fluid mt-4">
     <div class="d-flex justify-content-between align-items-center mb-3">
         <h1><i class="bi bi-tags-fill"></i> @ViewData["Title"]</h1>
         <a asp-action="Create" class="btn btn-success">
@@ -12,91 +35,72 @@
         </a>
     </div>
 
-    @if (!Model.Any())
-    {
-        <div class="alert alert-info" role="alert">
-            No brands found. Click "Create New Brand" to add one.
-        </div>
-    }
-    else
-    {
-        <div class="card shadow-sm">
-            <div class="card-header bg-primary text-white">
-                <h5 class="mb-0">Brand List</h5>
-            </div>
-            <div class="table-responsive">
-                <table class="table table-hover table-striped mb-0">
-                    <thead class="table-light">
-                        <tr>
-                            <th style="width: 5%;">Image</th>
-                            <th>@(Html.DisplayNameFor(model => model.FirstOrDefault().BrandName))</th>
-                            <th style="width: 25%;">@(Html.DisplayNameFor(model => model.FirstOrDefault().BrandDescription))</th>
-                            <th>@(Html.DisplayNameFor(model => model.FirstOrDefault().BrandWebsiteUrl))</th>
-                            <th class="text-nowrap">@(Html.DisplayNameFor(model => model.FirstOrDefault().BrandCreatedAt))</th>
-                            <th class="text-nowrap">@(Html.DisplayNameFor(model => model.FirstOrDefault().BrandUpdatedAt))</th>
-                            <th style="width: 15%;" class="text-center">Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach (var item in Model)
-                        {
+    <div class="card shadow-sm">
+        <div class="card-body p-0">
+            @if (!Model.Any())
+            {
+                <div class="alert alert-info m-3" role="alert">
+                    No brands found. Click "Create New Brand" to add one.
+                </div>
+            }
+            else
+            {
+                <div class="table-responsive">
+                    <table class="table table-hover table-striped mb-0">
+                        <thead class="table-light">
                             <tr>
-                                <td>
-                                    @if (!string.IsNullOrEmpty(item.BrandImageUrl))
-                                    {
-                                        <img src="@item.BrandImageUrl" alt="@item.BrandName" class="img-thumbnail" style="width: 50px; height: 50px; object-fit: cover;"
-                                             onerror="this.onerror=null;this.src='/images/placeholder-image.png';" />
-                                    }
-                                    else
-                                    {
-                                        <img src="/images/placeholder-image.png" alt="No image" class="img-thumbnail" style="width: 50px; height: 50px; object-fit: cover;" />
-                                    }
-                                </td>
-                                <td class="align-middle"><strong>@Html.DisplayFor(modelItem => item.BrandName)</strong></td>
-                                <td class="align-middle small">@Html.DisplayFor(modelItem => item.BrandDescription)</td>
-                                <td class="align-middle">
-                                    @if (!string.IsNullOrEmpty(item.BrandWebsiteUrl))
-                                    {
-                                        <a href="@item.BrandWebsiteUrl" target="_blank" rel="noopener noreferrer">
-                                            @item.BrandWebsiteUrl.Replace("https://", "").Replace("http://", "").Split('/')[0]
-                                            <i class="bi bi-box-arrow-up-right ms-1"></i>
-                                        </a>
-                                    }
-                                    else
-                                    {
-                                        <span class="text-muted">N/A</span>
-                                    }
-                                </td>
-                                <td class="align-middle small text-nowrap">
-                                    @(item.BrandCreatedAt.HasValue ? item.BrandCreatedAt.Value.ToString("yyyy-MM-dd HH:mm") : "N/A")
-                                </td>
-                                <td class="align-middle small text-nowrap">
-                                    @(item.BrandUpdatedAt.HasValue ? item.BrandUpdatedAt.Value.ToString("yyyy-MM-dd HH:mm") : "N/A")
-                                </td>
-                                <td class="align-middle text-center">
-                                    <div class="btn-group btn-group-sm" role="group">
-                                        <a asp-action="Details" asp-route-id="@item.BrandId" class="btn btn-outline-info" title="Details"><i class="bi bi-eye-fill"></i></a>
-                                        <a asp-action="Edit" asp-route-id="@item.BrandId" class="btn btn-outline-primary" title="Edit"><i class="bi bi-pencil-fill"></i></a>
-                                        <a asp-action="Delete" asp-route-id="@item.BrandId" class="btn btn-outline-danger" title="Delete"><i class="bi bi-trash3-fill"></i></a>
-                                    </div>
-                                </td>
+                                <th style="width: 80px;">Image</th>
+                                <th>Brand Name</th>
+                                <th>Description</th>
+                                <th>Website</th>
+                                <th class="text-nowrap">Last Updated</th>
+                                <th style="width: 120px;" class="text-center">Actions</th>
                             </tr>
-                        }
-                    </tbody>
-                </table>
-            </div>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in Model)
+                            {
+                                <tr>
+                                    <td>
+                                        @if (!string.IsNullOrEmpty(item.BrandImageUrl))
+                                        {
+                                            <img src="@item.BrandImageUrl" alt="@item.BrandName" class="img-thumbnail-table"
+                                                 onerror="this.src='/images/placeholder-image.png';" />
+                                        }
+                                        else
+                                        {
+                                            <div class="d-flex align-items-center justify-content-center bg-light img-thumbnail-table">
+                                                <i class="bi bi-image text-muted fs-4"></i>
+                                            </div>
+                                        }
+                                    </td>
+                                    <td><strong>@Html.DisplayFor(modelItem => item.BrandName)</strong></td>
+                                    <td class="table-description" title="@item.BrandDescription">@Html.DisplayFor(modelItem => item.BrandDescription)</td>
+                                    <td>
+                                        @if (!string.IsNullOrEmpty(item.BrandWebsiteUrl))
+                                        {
+                                            <a href="@item.BrandWebsiteUrl" target="_blank" rel="noopener noreferrer">
+                                                @item.BrandWebsiteUrl.Replace("https://", "").Replace("http://", "").Split('/')[0]
+                                                <i class="bi bi-box-arrow-up-right ms-1 small"></i>
+                                            </a>
+                                        }
+                                    </td>
+                                    <td class="small text-nowrap">
+                                        @(item.BrandUpdatedAt.HasValue ? item.BrandUpdatedAt.Value.ToString("yyyy-MM-dd HH:mm") : "N/A")
+                                    </td>
+                                    <td class="text-center">
+                                        <div class="btn-group btn-group-sm" role="group">
+                                            <a asp-action="Details" asp-route-id="@item.BrandId" class="btn btn-outline-info" title="Details"><i class="bi bi-eye-fill"></i></a>
+                                            <a asp-action="Edit" asp-route-id="@item.BrandId" class="btn btn-outline-primary" title="Edit"><i class="bi bi-pencil-fill"></i></a>
+                                            <a asp-action="Delete" asp-route-id="@item.BrandId" class="btn btn-outline-danger" title="Delete"><i class="bi bi-trash3-fill"></i></a>
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
         </div>
-    }
+    </div>
 </div>
-
-@section Styles {
-    <style>
-        .table th, .table td {
-            vertical-align: middle;
-        }
-
-        .img-thumbnail {
-            padding: .1rem;
-        }
-    </style>
-}
