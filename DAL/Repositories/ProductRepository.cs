@@ -77,12 +77,18 @@ namespace DAL.Repositories
                 .Include(p => p.Brand)
                 .Include(p => p.ProductStatus)
                 .Include(p => p.Categories)
+                .Include(p => p.Variations)
                 .FirstOrDefaultAsync(p => p.ProductId == id);
         }
 
-        public Task<Product> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
+        public async Task<Product> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
         {
-            throw new NotImplementedException();
+            return await _context.Products
+                .Include(p => p.Brand)
+                .Include(p => p.ProductStatus)
+                .Include(p => p.Categories)
+                .Include(p => p.Variations)
+                .FirstOrDefaultAsync(p => p.ProductId == id);
         }
 
 
@@ -369,6 +375,9 @@ namespace DAL.Repositories
             return await _context.SaveChangesAsync();
         }
 
-
+        public async Task<Product?> GetProductByCodeAsync(string productCode)
+        {
+            return await _context.Products.FirstOrDefaultAsync(p => p.ProductCode == productCode);
+        }
     }
 }

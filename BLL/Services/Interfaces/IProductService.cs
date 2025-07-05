@@ -17,6 +17,6 @@ namespace BLL.Services.Interfaces
         Task<List<ProductDetailDTO>> GetProductsInStockAsync();
         Task<bool> DeleteProductAsync(Guid id);
         Task<(List<ProductSearchResultDTO> Products, int TotalCount)> SearchProductsAsync(string? query, int skip, int take);
-
+        Task<Product?> GetProductByCodeAsync(string productCode);
     }
 }

@@ -92,10 +92,6 @@ namespace BLL.Services
         {
             // Kiểm tra xem mã sản phẩm đã tồn tại chưa
             var existingProductId = await _productRepository.FindIdByProductCodeAsync(productDTO.ProductCode);
-
-            if (existingProductId.HasValue)
-                throw new InvalidOperationException("ProductCode already exists!");
-
             // Chuyển đổi ProductDTO thành Product và thiết lập các trường cơ bản
             var product = productDTO.ToProduct();
             product.ProductCreatedAt = DateTimeOffset.UtcNow;
@@ -252,9 +248,10 @@ namespace BLL.Services
         public async Task<Product> UpdateProductAsync(Guid id, ProductDTO productDTO)
         {
             var product = await _productRepository.GetByIdAsync(id);
-
             if (product == null)
+            {
                 throw new InvalidOperationException("Product not found!");
+            }
 
             // Update basic product fields
             product.ProductName = productDTO.ProductName;
@@ -262,57 +259,80 @@ namespace BLL.Services
             product.ProductDescription = productDTO.ProductDescription;
             product.ProductStatusId = productDTO.ProductStatusId;
             product.BrandId = productDTO.BrandId;
-            product.ProductUpdatedAt = DateTimeOffset.UtcNow;
+            product.ProductUpdatedAt = productDTO.UpdatedAt ?? DateTimeOffset.UtcNow;
+            product.ProductCreatedAt = productDTO.CreatedAt ?? DateTimeOffset.UtcNow;
 
-            // Handle categories - Ensure no duplicates and add/remove as necessary
-            foreach (var category in productDTO.Categories)
-            {
-                await _productRepository.AddProductCategoryAsync(id, category.CategoryId);
-            }
+            // Handle variations
+            await UpdateProductVariations(product, productDTO.Variations);
 
-            // Handle variations - Update existing ones and add new ones
-            foreach (var variationDTO in productDTO.Variations)
-            {
-                var size = await _sizeRepository.GetByIdAsync(variationDTO.SizeId);
-                var color = await _colorRepository.GetByIdAsync(variationDTO.ColorId);
-
-                if (size != null && color != null)
-                {
-                    var existingVariation = product.Variations
-                        .FirstOrDefault(v => v.SizeId == size.SizeId && v.ColorId == color.ColorId);
-
-                    if (existingVariation != null)
-                    {
-                        // Update existing variation
-                        existingVariation.VariationPrice = variationDTO.ProductPrice ?? 0;
-                        existingVariation.VariationImage = variationDTO.ProductVariationImage;
-                    }
-                    else
-                    {
-                        // Add new variation
-                        var newVariation = new Variation
-                        {
-                            ProductId = product.ProductId,
-                            SizeId = size.SizeId,
-                            ColorId = color.ColorId,
-                            VariationPrice = variationDTO.ProductPrice ?? 0,
-                            VariationImage = variationDTO.ProductVariationImage
-                        };
-                        product.Variations.Add(newVariation);
-                    }
-                }
-            }
-
-            // Save the updated product
+            // Save changes
             await _productRepository.UpdateAsync(product);
             await _productRepository.SaveChangesAsync();
 
             return product;
         }
+        private async Task UpdateProductVariations(Product product, List<ProductDTO.ProductVariationDTO> variationDTOs)
+        {
+            if (variationDTOs == null) return;
 
+            // Update existing variations
+            foreach (var variation in product.Variations.ToList())
+            {
+                var dto = variationDTOs.FirstOrDefault(v =>
+                    v.SizeId == variation.SizeId &&
+                    v.ColorId == variation.ColorId);
+
+                if (dto != null)
+                {
+                    // Update existing variation
+                    variation.VariationPrice = dto.ProductPrice ?? 0;
+                    variation.VariationImage = dto.ProductVariationImage;
+                }
+                else
+                {
+                    // Remove variation not in DTO
+                    await _variationRepository.DeleteAsync(variation.VariationId);
+                }
+            }
+
+            // Add new variations
+            foreach (var dto in variationDTOs)
+            {
+                var exists = product.Variations.Any(v =>
+                    v.SizeId == dto.SizeId &&
+                    v.ColorId == dto.ColorId);
+
+                if (!exists)
+                {
+                    var size = await _sizeRepository.GetByIdAsync(dto.SizeId);
+                    var color = await _colorRepository.GetByIdAsync(dto.ColorId);
+
+                    if (size != null && color != null)
+                    {
+                        var newVariation = new Variation
+                        {
+                            ProductId = product.ProductId,
+                            SizeId = size.SizeId,
+                            ColorId = color.ColorId,
+                            VariationPrice = dto.ProductPrice ?? 0,
+                            VariationImage = dto.ProductVariationImage
+                        };
+                        await _variationRepository.AddAsync(newVariation);
+                        product.Variations.Add(newVariation);
+                    }
+                }
+            }
+
+            await _variationRepository.SaveChangesAsync();
+        }
         public async Task<(List<ProductSearchResultDTO> Products, int TotalCount)> SearchProductsAsync(string? query, int skip, int take)
         {
             return await _productRepository.SearchProductsAsync(query, skip, take);
+        }
+
+        public async Task<Product?> GetProductByCodeAsync(string productCode)
+        {
+            return await _productRepository.GetProductByCodeAsync(productCode);
         }
     }
 }
