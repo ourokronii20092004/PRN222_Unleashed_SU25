@@ -30,6 +30,8 @@ namespace DAL.Repositories.Interfaces
         Task<Product?> GetByIdAsync(Guid id);
         Task<Product> AddAsync(Product product);
         Task UpdateAsync(Product product);
+
+        Task<Product?> GetProductByCodeAsync(string productCode);
     }
 
 }

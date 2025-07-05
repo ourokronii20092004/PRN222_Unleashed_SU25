@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace DAL.DTOs.ProductDTOs
 {
@@ -41,10 +42,14 @@ namespace DAL.DTOs.ProductDTOs
 
         public class ProductVariationDTO
         {
+            [Required(ErrorMessage = "Size is required.")]
             public int SizeId { get; set; }
+            [Required(ErrorMessage = "Color is required.")]
             public int ColorId { get; set; }
 
-            [Range(0, double.MaxValue, ErrorMessage = "Product price must be a positive number.")]
+            [Required(ErrorMessage = "Price is required.")]
+            [Range(0.01, 999999999999.99, ErrorMessage = "Price must be between 0.01 and 999,999,999,999.99")]
+            [Column(TypeName = "decimal(18,2)")]
             public decimal? ProductPrice { get; set; }
 
             public string? ProductVariationImage { get; set; }
@@ -54,7 +59,6 @@ namespace DAL.DTOs.ProductDTOs
         {
             return new Product
             {
-                ProductId = ProductId,
                 BrandId = BrandId,
                 ProductStatusId = ProductStatusId,
                 ProductName = ProductName,

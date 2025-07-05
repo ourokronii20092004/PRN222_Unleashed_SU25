@@ -76,6 +76,7 @@ namespace Unleashed_MVC.Controllers
             var model = new ProductDTO
             {
                 Variations = new List<ProductDTO.ProductVariationDTO>
+                
         {
             new ProductDTO.ProductVariationDTO()
         }
@@ -89,63 +90,88 @@ namespace Unleashed_MVC.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(ProductDTO productDTO)
         {
-            if (ModelState.IsValid)
+            // Check for duplicate ProductCode before model validation
+            var existingProduct = await _productService.GetProductByCodeAsync(productDTO.ProductCode);
+            if (existingProduct != null)
             {
-                productDTO.ProductId = Guid.NewGuid();
-                await _productService.CreateProductAsync(productDTO);
-                return RedirectToAction(nameof(Index));
+                ModelState.AddModelError("ProductCode", "Product code already exists");
             }
 
+            if (ModelState.IsValid)
+            {
+                try
+                {
+                    productDTO.ProductId = Guid.NewGuid();
+                    await _productService.CreateProductAsync(productDTO);
+                    return RedirectToAction(nameof(Index));
+                }
+                catch (Exception ex)
+                {
+                    ModelState.AddModelError("", "Error creating product: " + ex.Message);
+                }
+            }
+
+            // Reload dropdowns if there's an error
             ViewBag.BrandId = new SelectList(await _brandRepository.GetAllAsync(), "BrandId", "BrandName", productDTO.BrandId);
-            ViewBag.ProductStatusId = new SelectList(await _productStatusRepository.GetAllAsync(), "ProductStatusId", "ProductStatusName", productDTO.ProductStatusId);
+            ViewBag.ProductStatusId = new SelectList(await _productStatusRepository.GetAllAsync(), "ProductStatusId", "StatusName", productDTO.ProductStatusId);
             ViewBag.SizeId = new SelectList(await _sizeRepository.GetAllAsync(), "SizeId", "SizeName");
             ViewBag.ColorId = new SelectList(await _colorRepository.GetAllAsync(), "ColorId", "ColorName");
+
+            // Ensure Variations isn't null
+            productDTO.Variations ??= new List<ProductDTO.ProductVariationDTO> { new ProductDTO.ProductVariationDTO() };
 
             return View(productDTO);
         }
 
 
-       // GET: Products/Edit/5
-public async Task<IActionResult> Edit(Guid? id)
-{
-    if (id == null)
-    {
-        return NotFound();
-    }
-
-    var product = await _productService.GetProductByIdAsync(id.Value);
-    if (product == null)
-    {
-        return NotFound();
-    }
-
-    // Load data for dropdowns
-    ViewBag.BrandId = new SelectList(await _brandRepository.GetAllAsync(), "BrandId", "BrandName", product.BrandId);
-    ViewBag.ProductStatusId = new SelectList(await _productStatusRepository.GetAllAsync(), "ProductStatusId", "ProductStatusName", product.ProductStatusId);
-    ViewBag.SizeId = new SelectList(await _sizeRepository.GetAllAsync(), "SizeId", "SizeName");
-    ViewBag.ColorId = new SelectList(await _colorRepository.GetAllAsync(), "ColorId", "ColorName");
-
-    // Preparing variations for edit view
-    var productDTO = new ProductDTO
-    {
-        ProductId = product.ProductId,
-        ProductName = product.ProductName,
-        ProductCode = product.ProductCode,
-        ProductDescription = product.ProductDescription,
-        BrandId = product.BrandId ?? 0,
-        ProductStatusId = product.ProductStatusId ?? 0,
-        Variations = product.Variations.Select(v => new ProductDTO.ProductVariationDTO
+        // GET: Products/Edit/5
+        public async Task<IActionResult> Edit(Guid? id)
         {
-            SizeId = v.SizeId,
-            ColorId = v.ColorId,
-            ProductPrice = v.VariationPrice,
-            ProductVariationImage = v.VariationImage
-        }).ToList()
-    };
+                var product = await _productService.GetProductByIdAsync(id.Value);
+                if (product == null)
+                {
+                    return NotFound();
+                }
 
-    return View(productDTO);
-}
+                // Load dropdown data with null checks
+                var brands = await _brandRepository.GetAllAsync() ?? new List<Brand>();
+                var statuses = await _productStatusRepository.GetAllAsync() ?? new List<ProductStatus>();
+                var sizes = await _sizeRepository.GetAllAsync() ?? new List<Size>();
+                var colors = await _colorRepository.GetAllAsync() ?? new List<Color>();
 
+                ViewBag.BrandId = new SelectList(brands, "BrandId", "BrandName", product.BrandId);
+                ViewBag.ProductStatusId = new SelectList(statuses, "ProductStatusId", "ProductStatusName", product.ProductStatusId);
+                ViewBag.SizeId = new SelectList(sizes, "SizeId", "SizeName");
+                ViewBag.ColorId = new SelectList(colors, "ColorId", "ColorName");
+
+                var productDTO = new ProductDTO
+                {
+                    ProductId = product.ProductId,
+                    ProductName = product.ProductName,
+                    ProductCode = product.ProductCode,
+                    ProductDescription = product.ProductDescription,
+                    BrandId = product.BrandId,
+                    ProductStatusId = product.ProductStatusId,
+                    CreatedAt = product.ProductCreatedAt,
+                    UpdatedAt = product.ProductUpdatedAt,
+                    Variations = product.Variations?.Select(v => new ProductDTO.ProductVariationDTO
+                    {
+                        SizeId = v.SizeId,
+                        ColorId = v.ColorId,
+                        ProductPrice = v.VariationPrice,
+                        ProductVariationImage = v.VariationImage
+                    }).ToList() ?? new List<ProductDTO.ProductVariationDTO>()
+                };
+
+                // Ensure at least one variation exists
+                if (!productDTO.Variations.Any())
+                {
+                    productDTO.Variations.Add(new ProductDTO.ProductVariationDTO());
+                }
+
+                return View(productDTO);
+            
+        }
 
         // POST: Products/Edit/5
         [HttpPost]
@@ -154,28 +180,61 @@ public async Task<IActionResult> Edit(Guid? id)
         {
             if (id != productDTO.ProductId)
             {
-                return NotFound();
+                return NotFound(); // Kiểm tra nếu id không khớp
             }
 
-            if (ModelState.IsValid)
+            var brands = await _brandRepository.GetAllAsync() ?? new List<Brand>();
+            var statuses = await _productStatusRepository.GetAllAsync() ?? new List<ProductStatus>();
+            var sizes = await _sizeRepository.GetAllAsync() ?? new List<Size>();
+            var colors = await _colorRepository.GetAllAsync() ?? new List<Color>();
+
+            try
             {
-                
-                if (productDTO.CreatedAt == null) 
+                if (ModelState.IsValid)
                 {
-                    productDTO.CreatedAt = DateTimeOffset.Now;
+                    var existingProduct = await _productService.GetProductByCodeAsync(productDTO.ProductCode);
+                    if (existingProduct != null && existingProduct.ProductId != id)
+                    {
+                        ModelState.AddModelError("ProductCode", "Product code already exists");
+                    }
+                    else
+                    {
+                        productDTO.UpdatedAt = DateTimeOffset.UtcNow;
+                        productDTO.CreatedAt ??= DateTimeOffset.UtcNow;
+
+                        await _productService.UpdateProductAsync(id, productDTO);
+                        return RedirectToAction(nameof(Index)); // Redirect to Index after success
+                    }
                 }
 
-                productDTO.UpdatedAt = DateTimeOffset.Now; 
+                // If validation fails, reload dropdowns
+                ViewBag.BrandId = new SelectList(brands, "BrandId", "BrandName", productDTO.BrandId);
+                ViewBag.ProductStatusId = new SelectList(statuses, "ProductStatusId", "ProductStatusName", productDTO.ProductStatusId);
+                ViewBag.SizeId = new SelectList(sizes, "SizeId", "SizeName");
+                ViewBag.ColorId = new SelectList(colors, "ColorId", "ColorName");
 
-                // Update the product
-                await _productService.UpdateProductAsync(id, productDTO);
-                return RedirectToAction(nameof(Index));
+                // Ensure variations exist
+                productDTO.Variations ??= new List<ProductDTO.ProductVariationDTO>();
+                if (!productDTO.Variations.Any())
+                {
+                    productDTO.Variations.Add(new ProductDTO.ProductVariationDTO());
+                }
+
+                return View("Edit", productDTO); // Explicitly specify view name
             }
+            catch (Exception ex)
+            {
+                ModelState.AddModelError("", "An error occurred while updating the product. Please try again.");
 
-            return View(productDTO);
+                // Reload ViewBag on error
+                ViewBag.BrandId = new SelectList(brands, "BrandId", "BrandName", productDTO.BrandId);
+                ViewBag.ProductStatusId = new SelectList(statuses, "ProductStatusId", "ProductStatusName", productDTO.ProductStatusId);
+                ViewBag.SizeId = new SelectList(sizes, "SizeId", "SizeName");
+                ViewBag.ColorId = new SelectList(colors, "ColorId", "ColorName");
+
+                return View("Edit", productDTO); // Explicitly specify view name
+            }
         }
-
-
 
         // GET: Products/Delete/5
         public async Task<IActionResult> Delete(Guid? id)

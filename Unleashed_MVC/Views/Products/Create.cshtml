@@ -1,92 +1,201 @@
 ﻿@model DAL.DTOs.ProductDTOs.ProductDTO
 
 @{
-    ViewData["Title"] = "Create";
+    ViewData["Title"] = "Create Product";
 }
 
-<h1>Create</h1>
+<h1>Create Product</h1>
 
-<h4>Product</h4>
+<h4>Product Information</h4>
 <hr />
 <div class="row">
-    <div class="col-md-4">
-        <form asp-action="Create" enctype="multipart/form-data">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+    <div class="col-md-8">
+        <form asp-action="Create" enctype="multipart/form-data" id="productForm">
+            <!-- Display all validation errors at the top -->
+            <div asp-validation-summary="All" class="alert alert-danger"></div>
 
-            <!-- Brand and Status Dropdowns -->
-            <div class="form-group">
-                <label for="BrandId" class="control-label">Brand</label>
-                <select asp-for="BrandId" class="form-control" asp-items="ViewBag.BrandId"></select>
-            </div>
-
-            <div class="form-group">
-                <label for="ProductStatusId" class="control-label">Product Status</label>
-                <select asp-for="ProductStatusId" class="form-control" asp-items="ViewBag.ProductStatusId"></select>
-            </div>
-
-            <!-- Variations List -->
-            @for (var i = 0; i < Model.Variations.Count; i++)
-            {
-                <div class="card mt-3 p-3">
-                    <h5>Variation</h5>
-
-                    <div class="form-group">
-                        <label asp-for="Variations[@i].SizeId" class="control-label">Size</label>
-                        <select asp-for="Variations[@i].SizeId" class="form-control" asp-items="ViewBag.SizeId"></select>
+            <!-- Main Product Info Section -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5>Basic Information</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label asp-for="ProductName" class="control-label">Product Name*</label>
+                                <input asp-for="ProductName" class="form-control" />
+                                <span asp-validation-for="ProductName" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label asp-for="ProductCode" class="control-label">Product Code*</label>
+                                <input asp-for="ProductCode" class="form-control" />
+                                <span asp-validation-for="ProductCode" class="text-danger"></span>
+                                @if (ViewData.ModelState["ProductCode"]?.Errors.Count > 0)
+                                {
+                                    <span class="text-danger">@ViewData.ModelState["ProductCode"].Errors.First().ErrorMessage</span>
+                                }
+                            </div>
+                        </div>
                     </div>
 
                     <div class="form-group">
-                        <label asp-for="Variations[@i].ColorId" class="control-label">Color</label>
-                        <select asp-for="Variations[@i].ColorId" class="form-control" asp-items="ViewBag.ColorId"></select>
+                        <label asp-for="ProductDescription" class="control-label">Description</label>
+                        <textarea asp-for="ProductDescription" class="form-control" rows="3"></textarea>
+                        <span asp-validation-for="ProductDescription" class="text-danger"></span>
                     </div>
 
-                    <div class="form-group">
-                        <label asp-for="Variations[@i].ProductVariationImage" class="control-label">Variation Image</label>
-                        <input asp-for="Variations[@i].ProductVariationImage" class="form-control" type="file" />
-                        <span asp-validation-for="Variations[@i].ProductVariationImage" class="text-danger"></span>
-                    </div>
-
-                    <div class="form-group">
-                        <label asp-for="Variations[@i].ProductPrice" class="control-label">Variation Price</label>
-                        <input asp-for="Variations[@i].ProductPrice" class="form-control" type="number" step="0.01" />
-                        <span asp-validation-for="Variations[@i].ProductPrice" class="text-danger"></span>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label asp-for="BrandId" class="control-label">Brand*</label>
+                                <select asp-for="BrandId" class="form-control" asp-items="ViewBag.BrandId">
+                                    <option value="">-- Select Brand --</option>
+                                </select>
+                                <span asp-validation-for="BrandId" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label asp-for="ProductStatusId" class="control-label">Status*</label>
+                                <select asp-for="ProductStatusId" class="form-control" asp-items="ViewBag.ProductStatusId">
+                                    <option value="">-- Select Status --</option>
+                                </select>
+                                <span asp-validation-for="ProductStatusId" class="text-danger"></span>
+                            </div>
+                        </div>
                     </div>
                 </div>
-            }
-
-            <!-- Main Product Info -->
-            <div class="form-group mt-3">
-                <label asp-for="ProductName" class="control-label"></label>
-                <input asp-for="ProductName" class="form-control" />
-                <span asp-validation-for="ProductName" class="text-danger"></span>
             </div>
 
+            <!-- Variations Section -->
+            <div class="card mb-4">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5>Product Variations</h5>
+                    <button type="button" class="btn btn-sm btn-success" id="addVariationBtn">Add Variation</button>
+                </div>
+                <div class="card-body" id="variationsContainer">
+                    @for (var i = 0; i < Model.Variations.Count; i++)
+                    {
+                        <div class="variation-card card mb-3">
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-4">
+                                        <div class="form-group">
+                                            <label asp-for="Variations[i].SizeId" class="control-label">Size*</label>
+                                            <select asp-for="Variations[i].SizeId" class="form-control" asp-items="ViewBag.SizeId">
+                                                <option value="">-- Select Size --</option>
+                                            </select>
+                                            <span asp-validation-for="Variations[i].SizeId" class="text-danger"></span>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="form-group">
+                                            <label asp-for="Variations[i].ColorId" class="control-label">Color*</label>
+                                            <select asp-for="Variations[i].ColorId" class="form-control" asp-items="ViewBag.ColorId">
+                                                <option value="">-- Select Color --</option>
+                                            </select>
+                                            <span asp-validation-for="Variations[i].ColorId" class="text-danger"></span>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="form-group">
+                                            <label asp-for="Variations[i].ProductPrice" class="control-label">Price*</label>
+                                            <input asp-for="Variations[i].ProductPrice" class="form-control" type="number" step="0.01" min="0" max="999999999999.99" />
+                                            <span asp-validation-for="Variations[i].ProductPrice" class="text-danger"></span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label asp-for="Variations[i].ProductVariationImage" class="control-label">Variation Image</label>
+                                    <input asp-for="Variations[i].ProductVariationImage" class="form-control-file" type="file" />
+                                    <span asp-validation-for="Variations[i].ProductVariationImage" class="text-danger"></span>
+                                </div>
+                                @if (i > 0)
+                                {
+                                    <button type="button" class="btn btn-sm btn-danger remove-variation">Remove</button>
+                                }
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+
+            <!-- Form Actions -->
             <div class="form-group">
-                <label asp-for="ProductCode" class="control-label"></label>
-                <input asp-for="ProductCode" class="form-control" />
-                <span asp-validation-for="ProductCode" class="text-danger"></span>
-            </div>
-
-            <div class="form-group">
-                <label asp-for="ProductDescription" class="control-label"></label>
-                <input asp-for="ProductDescription" class="form-control" />
-                <span asp-validation-for="ProductDescription" class="text-danger"></span>
-            </div>
-
-            <!-- Submit Button -->
-            <div class="form-group mt-3">
-                <input type="submit" value="Create" class="btn btn-primary" />
+                <button type="submit" class="btn btn-primary">Create Product</button>
+                <a asp-action="Index" class="btn btn-secondary">Back to List</a>
             </div>
         </form>
     </div>
-</div>
-
-<div>
-    <a asp-action="Index">Back to List</a>
 </div>
 
 @section Scripts {
     @{
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
     }
+
+    <script>
+        $(document).ready(function() {
+            // Add new variation
+            $('#addVariationBtn').click(function() {
+                var index = $('#variationsContainer .variation-card').length;
+                var html = `
+                <div class="variation-card card mb-3">
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label class="control-label">Size*</label>
+                                    <select name="Variations[${index}].SizeId" class="form-control">
+                                        @foreach (var item in (SelectList)ViewBag.SizeId)
+                                        {
+                                                <option value="@item.Value">@item.Text</option>
+                                        }
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label class="control-label">Color*</label>
+                                    <select name="Variations[${index}].ColorId" class="form-control">
+                                        @foreach (var item in (SelectList)ViewBag.ColorId)
+                                        {
+                                                <option value="@item.Value">@item.Text</option>
+                                        }
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label class="control-label">Price*</label>
+                                    <input name="Variations[${index}].ProductPrice" class="form-control" type="number" step="0.01" min="0.01" max="999999999999.99" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label">Variation Image</label>
+                            <input name="Variations[${index}].ProductVariationImage" class="form-control-file" type="file" />
+                        </div>
+                        <button type="button" class="btn btn-sm btn-danger remove-variation">Remove</button>
+                    </div>
+                </div>`;
+                $('#variationsContainer').append(html);
+            });
+
+            // Remove variation
+            $(document).on('click', '.remove-variation', function() {
+                $(this).closest('.variation-card').remove();
+                // Reindex all remaining variations
+                $('#variationsContainer .variation-card').each(function(i) {
+                    $(this).find('select, input').each(function() {
+                        var name = $(this).attr('name').replace(/\[\d+\]/, `[${i}]`);
+                        $(this).attr('name', name);
+                    });
+                });
+            });
+        });
+    </script>
 }
