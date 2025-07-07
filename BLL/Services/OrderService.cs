@@ -28,24 +28,27 @@ namespace BLL.Services
             await _orderRepo.Delete(order);
         }
 
-        public Task<IEnumerable<Order>> GetAllOrdersAsync()
+        public async Task<IEnumerable<Order>> GetAllOrdersAsync()
         {
-            throw new NotImplementedException();
+            return await _orderRepo.GetAllAsync();
         }
 
-        public Task<Order> GetOrderByIdAsync(Guid id)
+        public async Task<Order> GetOrderByIdAsync(Guid id)
         {
-            throw new NotImplementedException();
+            return await _orderRepo.GetByIdAsync(id);
         }
 
-        public Task<IEnumerable<Order>> GetOrderListByUserId()
+        public async Task<IEnumerable<Order>> GetOrderListByUserId(Guid userId)
         {
-            throw new NotImplementedException();
+            var orders = await _orderRepo.FindAsync(o =>  o.UserId == userId);
+            return orders;
         }
 
-        public Task UpdateOrderAsync(Guid id, Order order)
+        public async Task UpdateOrderAsync(Guid id, Order order)
         {
-            throw new NotImplementedException();
+            var existingorder = await _orderRepo.GetByIdAsync(id);
+            existingorder.OrderUpdatedAt = DateTime.Now;
+            await _orderRepo.Update(existingorder);
         }
     }
 }

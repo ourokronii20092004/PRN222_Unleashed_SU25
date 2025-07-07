@@ -11,7 +11,7 @@ namespace BLL.Services.Interfaces
     {
         Task<Order> GetOrderByIdAsync(Guid id);
         Task<IEnumerable<Order>> GetAllOrdersAsync();
-        Task<IEnumerable<Order>> GetOrderListByUserId();
+        Task<IEnumerable<Order>> GetOrderListByUserId(Guid userId);
         Task CreateOrder(Order order);
         Task DeleteOrderAsync(Guid id);
         Task UpdateOrderAsync(Guid id, Order order);

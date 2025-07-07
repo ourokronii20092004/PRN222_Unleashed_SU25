@@ -16,6 +16,7 @@ namespace Unleashed_MVC.Controllers
     {
         private readonly ICartService _cartService;
         private readonly IUserService _accountService;
+        //private readonly IVariationService _variationService;
         //private Guid GetCurrentUserId()
         //{
         //    {
@@ -23,10 +24,11 @@ namespace Unleashed_MVC.Controllers
         //        return claim != null ? Guid.Parse(claim.Value) : throw new Exception("Not authenticated");
         //    }
         //}
-        public CartsController(ICartService cartService, IUserService accountService)
+        public CartsController(ICartService cartService, IUserService accountService) //IVariationService variationService
         {
             _cartService = cartService;
             _accountService = accountService;
+            //_variationService = variationService;
         }
        
         // GET: Carts
@@ -48,9 +50,10 @@ namespace Unleashed_MVC.Controllers
         }
 
         // GET: Carts/Create
-        public IActionResult Create()
+        public async Task<IActionResult> CreateAsync()
         {
-            //var variations = await _cartService.GetAllVariationsAsync(); // thêm method này vào interface nếu chưa có
+            ViewData["UserId"] = new SelectList(await _accountService.GetAccountsAsync(), "UserId", "Username");
+            //var variations =  _cartService.GetCartByIdAsync(); // thêm method này vào interface nếu chưa có
             //ViewData["VariationId"] = new SelectList(variations, "VariationId", "VariationId");
             return View();
         }
@@ -67,8 +70,8 @@ namespace Unleashed_MVC.Controllers
                 await _cartService.CreateCartAsync(cart);
                 return RedirectToAction(nameof(Index));
             }
-            //ViewData["UserId"] = new SelectList( await _accountService.GetAccountsAsync(), "Username", "Username");
-            //var variations = await _cartService.GetAllVariationsAsync();
+            ViewData["UserId"] = new SelectList(await _accountService.GetAccountsAsync(), "UserId", "Username");
+            //var variations = await _cartService.GetAllCartAsync();
             //ViewData["VariationId"] = new SelectList(variations, "VariationId", "VariationId");
             return View(cart);
         }
