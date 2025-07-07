@@ -51,18 +51,60 @@ namespace Unleashed_MVC.Controllers
         // GET: Products/Details/5
         public async Task<IActionResult> Details(Guid? id)
         {
-            if (id == null)
+            try
             {
-                return NotFound();
-            }
+                if (id == null || id == Guid.Empty)
+                {
+                    TempData["ErrorMessage"] = "Product ID is required.";
+                    return RedirectToAction(nameof(Index));
+                }
 
-            var product = await _productService.GetProductByIdAsync(id.Value);
-            if (product == null)
+                var product = await _productService.GetProductByIdAsync(id.Value);
+
+                if (product == null)
+                {
+                    TempData["ErrorMessage"] = $"Product with ID {id} not found.";
+                    return NotFound();
+                }
+
+                // Load related data if not already included
+                if (product.Brand == null)
+                {
+                    product.Brand = await _brandRepository.GetByIdAsync(product.BrandId.Value);
+                }
+
+                if (product.ProductStatus == null)
+                {
+                    if (product.ProductStatusId.HasValue)
+                    {
+                        product.ProductStatus = await _productStatusRepository.GetByIdAsync(product.ProductStatusId.Value);
+                    }
+                }
+
+                // Load variations with related data if not already included
+                if (product.Variations != null)
+                {
+                    foreach (var variation in product.Variations)
+                    {
+                        if (variation.Color == null && variation.ColorId != null)
+                        {
+                            variation.Color = await _colorRepository.GetByIdAsync(variation.ColorId);
+                        }
+
+                        if (variation.Size == null && variation.SizeId != null)
+                        {
+                            variation.Size = await _sizeRepository.GetByIdAsync(variation.SizeId);
+                        }
+                    }
+                }
+
+                return View(product);
+            }
+            catch (Exception ex)
             {
-                return NotFound();
+                TempData["ErrorMessage"] = "An error occurred while retrieving product details.";
+                return RedirectToAction(nameof(Index));
             }
-
-            return View(product);
         }
 
         // GET: Products/Create
@@ -84,43 +126,62 @@ namespace Unleashed_MVC.Controllers
             return View(model);
         }
 
-
         // POST: Products/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(ProductDTO productDTO)
         {
-            // Check for duplicate ProductCode before model validation
-            var existingProduct = await _productService.GetProductByCodeAsync(productDTO.ProductCode);
-            if (existingProduct != null)
+            try
             {
-                ModelState.AddModelError("ProductCode", "Product code already exists");
-            }
+                if (!string.IsNullOrWhiteSpace(productDTO.ProductCode))
+                {
+                    var existingProduct = await _productService.GetProductByCodeAsync(productDTO.ProductCode);
+                    if (existingProduct != null) 
+                    {
+                        return NotFound($"Product code {productDTO.ProductCode} already exists.");
+                    }
+                }
+                else
+                {
+                    ModelState.AddModelError("ProductCode", "Product code is required");
+                }
 
-            if (ModelState.IsValid)
-            {
-                try
+                if (ModelState.IsValid)
                 {
                     productDTO.ProductId = Guid.NewGuid();
                     await _productService.CreateProductAsync(productDTO);
                     return RedirectToAction(nameof(Index));
                 }
-                catch (Exception ex)
-                {
-                    ModelState.AddModelError("", "Error creating product: " + ex.Message);
-                }
+            }
+            catch (Exception ex)
+            {
+                ModelState.AddModelError("", "An error occurred while creating the product");
             }
 
-            // Reload dropdowns if there's an error
-            ViewBag.BrandId = new SelectList(await _brandRepository.GetAllAsync(), "BrandId", "BrandName", productDTO.BrandId);
-            ViewBag.ProductStatusId = new SelectList(await _productStatusRepository.GetAllAsync(), "ProductStatusId", "StatusName", productDTO.ProductStatusId);
-            ViewBag.SizeId = new SelectList(await _sizeRepository.GetAllAsync(), "SizeId", "SizeName");
-            ViewBag.ColorId = new SelectList(await _colorRepository.GetAllAsync(), "ColorId", "ColorName");
-
-            // Ensure Variations isn't null
-            productDTO.Variations ??= new List<ProductDTO.ProductVariationDTO> { new ProductDTO.ProductVariationDTO() };
-
+            // Ensure dropdowns are never null
+            await ReloadDropdowns(productDTO);
             return View(productDTO);
+        }
+
+        private async Task ReloadDropdowns(ProductDTO productDTO)
+        {
+            ViewBag.BrandId = new SelectList(
+                await _brandRepository.GetAllAsync() ?? new List<Brand>(),
+                "BrandId", "BrandName", productDTO.BrandId);
+
+            ViewBag.ProductStatusId = new SelectList(
+                await _productStatusRepository.GetAllAsync() ?? new List<ProductStatus>(),
+                "ProductStatusId", "StatusName", productDTO.ProductStatusId);
+
+            ViewBag.SizeId = new SelectList(
+                await _sizeRepository.GetAllAsync() ?? new List<Size>(),
+                "SizeId", "SizeName");
+
+            ViewBag.ColorId = new SelectList(
+                await _colorRepository.GetAllAsync() ?? new List<Color>(),
+                "ColorId", "ColorName");
+
+            productDTO.Variations ??= new List<ProductDTO.ProductVariationDTO> { new() };
         }
 
 
@@ -180,7 +241,7 @@ namespace Unleashed_MVC.Controllers
         {
             if (id != productDTO.ProductId)
             {
-                return NotFound(); // Kiểm tra nếu id không khớp
+                return NotFound();
             }
 
             var brands = await _brandRepository.GetAllAsync() ?? new List<Brand>();
@@ -192,18 +253,26 @@ namespace Unleashed_MVC.Controllers
             {
                 if (ModelState.IsValid)
                 {
-                    var existingProduct = await _productService.GetProductByCodeAsync(productDTO.ProductCode);
-                    if (existingProduct != null && existingProduct.ProductId != id)
+                    // Ensure ProductCode is not null or empty before calling GetProductByCodeAsync
+                    if (!string.IsNullOrWhiteSpace(productDTO.ProductCode))
                     {
-                        ModelState.AddModelError("ProductCode", "Product code already exists");
+                        var existingProduct = await _productService.GetProductByCodeAsync(productDTO.ProductCode);
+                        if (existingProduct != null && existingProduct.ProductId != id)
+                        {
+                            ModelState.AddModelError("ProductCode", "Product code already exists");
+                        }
+                        else
+                        {
+                            productDTO.UpdatedAt = DateTimeOffset.UtcNow;
+                            productDTO.CreatedAt ??= DateTimeOffset.UtcNow;
+
+                            await _productService.UpdateProductAsync(id, productDTO);
+                            return RedirectToAction(nameof(Index));
+                        }
                     }
                     else
                     {
-                        productDTO.UpdatedAt = DateTimeOffset.UtcNow;
-                        productDTO.CreatedAt ??= DateTimeOffset.UtcNow;
-
-                        await _productService.UpdateProductAsync(id, productDTO);
-                        return RedirectToAction(nameof(Index)); // Redirect to Index after success
+                        ModelState.AddModelError("ProductCode", "Product code is required");
                     }
                 }
 
@@ -220,7 +289,7 @@ namespace Unleashed_MVC.Controllers
                     productDTO.Variations.Add(new ProductDTO.ProductVariationDTO());
                 }
 
-                return View("Edit", productDTO); // Explicitly specify view name
+                return View("Edit", productDTO); 
             }
             catch (Exception ex)
             {
@@ -232,7 +301,7 @@ namespace Unleashed_MVC.Controllers
                 ViewBag.SizeId = new SelectList(sizes, "SizeId", "SizeName");
                 ViewBag.ColorId = new SelectList(colors, "ColorId", "ColorName");
 
-                return View("Edit", productDTO); // Explicitly specify view name
+                return View("Edit", productDTO); 
             }
         }
 
@@ -250,15 +319,26 @@ namespace Unleashed_MVC.Controllers
                 return NotFound();
             }
 
+            // Handle nullable DateTime properties for the view
+            if (product.ProductCreatedAt == null)
+            {
+                product.ProductCreatedAt = DateTimeOffset.MinValue; // Or some default value
+            }
+
+            if (product.ProductUpdatedAt == null)
+            {
+                product.ProductUpdatedAt = DateTimeOffset.MinValue; // Or some default value
+            }
+
             return View(product);
         }
 
         // POST: Products/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(Guid id)
+        public async Task<IActionResult> DeleteConfirmed(Guid ProductId)
         {
-            var deleted = await _productService.DeleteProductAsync(id);
+            var deleted = await _productService.DeleteProductAsync(ProductId);
             if (deleted)
             {
                 return RedirectToAction(nameof(Index));

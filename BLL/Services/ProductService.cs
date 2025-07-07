@@ -90,8 +90,6 @@ namespace BLL.Services
 
         public async Task<Product> CreateProductAsync(ProductDTO productDTO)
         {
-            // Kiểm tra xem mã sản phẩm đã tồn tại chưa
-            var existingProductId = await _productRepository.FindIdByProductCodeAsync(productDTO.ProductCode);
             // Chuyển đổi ProductDTO thành Product và thiết lập các trường cơ bản
             var product = productDTO.ToProduct();
             product.ProductCreatedAt = DateTimeOffset.UtcNow;
@@ -157,10 +155,8 @@ namespace BLL.Services
             if (product == null)
                 return false;
 
-            // Xóa tất cả các biến thể của sản phẩm theo ProductId (Guid)
             await _variationRepository.DeleteByProductIdAsync(product.ProductId);
 
-            // Xóa sản phẩm
             await _productRepository.Delete(product);
             await _productRepository.SaveChangesAsync();
             return true;

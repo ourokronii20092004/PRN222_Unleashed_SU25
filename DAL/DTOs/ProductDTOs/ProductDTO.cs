@@ -10,9 +10,9 @@ namespace DAL.DTOs.ProductDTOs
     {
         public Guid ProductId { get; set; }
 
-        [Required(ErrorMessage = "Brand ID is required.")]
+        [Required(ErrorMessage = "Brand is required.")]
         public int? BrandId { get; set; }
-
+        [Required(ErrorMessage = "Product Status is required.")]
         public int? ProductStatusId { get; set; }
 
         [Required(ErrorMessage = "Product name cannot be empty.")]
