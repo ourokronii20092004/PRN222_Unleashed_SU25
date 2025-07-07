@@ -20,8 +20,9 @@ namespace BLL.Services
 
         public async Task CreateCategoryAsync(Category category)
         {
+            category.CategoryId = new();
             category.CategoryCreatedAt = DateTime.Now;
-            //category.CategoryId = new();
+            category.CategoryUpdatedAt = DateTime.Now;
             await _categoryRepo.AddAsync(category);
         }
 
