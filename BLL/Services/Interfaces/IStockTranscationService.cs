@@ -1,5 +1,6 @@
 ﻿using DAL.DTOs.StockDTOs;
 using DAL.DTOs.TransactionDTOs;
+using DAL.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,11 +11,8 @@ namespace BLL.Services.Interfaces
 {
     public interface IStockTransactionService
     {
-        // Corresponds to Java findAllTransactionCards()
         Task<List<TransactionCardDTO>> GetAllTransactionCardsAsync();
-
-        // Corresponds to Java createStockTransactions(StockTransactionDTO)
-        // Consider a more descriptive result type than bool, e.g., a Result object with success/failure and messages
-        Task<bool> CreateStockTransactionsAsync(StockTransactionDTO stockTransactionDto);
+        Task CreateStockTransactionsAsync(StockTransactionDTO stockTransactionDto);
+        Task<Transaction?> GetTransactionByIdAsync(int id);
     }
 }

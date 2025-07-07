@@ -1,66 +1,62 @@
 ﻿@model DAL.Models.Transaction
 
 @{
-    ViewData["Title"] = "Details";
+    ViewData["Title"] = "Transaction Details";
 }
 
-<h1>Details</h1>
+<div class="card shadow-sm">
+    <div class="card-header bg-light">
+        <h1 class="h3">Transaction Details</h1>
+    </div>
+    <div class="card-body">
 
-<div>
-    <h4>Transaction</h4>
-    <hr />
-    <dl class="row">
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.TransactionQuantity)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.TransactionQuantity)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.TransactionDate)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.TransactionDate)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.TransactionProductPrice)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.TransactionProductPrice)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.InchargeEmployee)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.InchargeEmployee.UserId)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Provider)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Provider.ProviderId)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Stock)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Stock.StockId)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.TransactionType)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.TransactionType.TransactionTypeId)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Variation)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Variation.VariationId)
-        </dd>
-    </dl>
-</div>
-<div>
-    <a asp-action="Edit" asp-route-id="@Model?.TransactionId">Edit</a> |
-    <a asp-action="Index">Back to List</a>
+        <h4 class="mt-2">Transaction Details</h4>
+        <hr />
+        <dl class="row">
+            <dt class="col-sm-3">Transaction Type</dt>
+            <dd class="col-sm-9">@Html.DisplayFor(model => model.TransactionType.TransactionTypeName)</dd>
+
+            <dt class="col-sm-3">Date</dt>
+            <dd class="col-sm-9">@Model.TransactionDate.ToString()</dd>
+
+            <dt class="col-sm-3">Quantity</dt>
+            <dd class="col-sm-9">@Html.DisplayFor(model => model.TransactionQuantity)</dd>
+
+            <dt class="col-sm-3">Price at Time of Transaction</dt>
+            <dd class="col-sm-9">@String.Format("{0:C}", Model.TransactionProductPrice)</dd>
+        </dl>
+
+        <h4 class="mt-4">Product Details</h4>
+        <hr />
+        <dl class="row">
+            <dt class="col-sm-3">Product Name</dt>
+            <dd class="col-sm-9">@Model.Variation?.Product?.ProductName</dd>
+
+            <dt class="col-sm-3">Brand</dt>
+            <dd class="col-sm-9">@Model.Variation?.Product?.Brand?.BrandName</dd>
+
+            <dt class="col-sm-3">Size</dt>
+            <dd class="col-sm-9">@Model.Variation?.Size?.SizeName</dd>
+
+            <dt class="col-sm-3">Color</dt>
+            <dd class="col-sm-9">@Model.Variation?.Color?.ColorName</dd>
+        </dl>
+
+        <h4 class="mt-4">Participants & Location</h4>
+        <hr />
+        <dl class="row">
+            <dt class="col-sm-3">Employee In Charge</dt>
+            <dd class="col-sm-9">@Model.InchargeEmployee?.UserUsername</dd>
+
+            <dt class="col-sm-3">Stock Location</dt>
+            <dd class="col-sm-9">@Model.Stock?.StockName</dd>
+
+            <dt class="col-sm-3">Supplier / Provider</dt>
+            <dd class="col-sm-9">@Model.Provider?.ProviderName</dd>
+        </dl>
+
+    </div>
+    <div class="card-footer text-muted">
+        <a asp-action="Index" class="btn btn-secondary">Back to List</a>
+    </div>
 </div>

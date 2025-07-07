@@ -1,189 +1,59 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using BLL.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.EntityFrameworkCore;
-using DAL.Data;
-using DAL.Models;
+using System.Threading.Tasks;
 
 namespace Unleashed_MVC.Controllers
 {
-    [Filter.Filter]
+    // This custom filter attribute is assumed to be defined elsewhere in your project.
+    // [Filter.Filter] 
     public class TransactionsController : Controller
     {
-        private readonly UnleashedContext _context;
+        private readonly IStockTransactionService _transactionService;
 
-        public TransactionsController(UnleashedContext context)
+        /// <summary>
+        /// Initializes a new instance of the TransactionsController.
+        /// </summary>
+        /// <param name="transactionService">The transaction service, injected by the dependency injection container.</param>
+        public TransactionsController(IStockTransactionService transactionService)
         {
-            _context = context;
+            _transactionService = transactionService;
         }
 
-        // GET: Transactions
+        /// <summary>
+        /// GET: /Transactions
+        /// Displays a list of all transactions using an optimized data transfer object.
+        /// </summary>
+        /// <returns>A view containing a list of transaction cards.</returns>
         public async Task<IActionResult> Index()
         {
-            var unleashedContext = _context.Transactions.Include(t => t.InchargeEmployee).Include(t => t.Provider).Include(t => t.Stock).Include(t => t.TransactionType).Include(t => t.Variation);
-            return View(await unleashedContext.ToListAsync());
+            var transactionCards = await _transactionService.GetAllTransactionCardsAsync();
+
+            return View(transactionCards);
         }
 
-        // GET: Transactions/Details/5
+        /// <summary>
+        /// GET: /Transactions/Details/5
+        /// Displays the full details for a single transaction.
+        /// </summary>
+        /// <param name="id">The ID of the transaction to display.</param>
+        /// <returns>A view containing the detailed transaction information, or a NotFound result.</returns>
         public async Task<IActionResult> Details(int? id)
         {
+            // Basic validation: An ID must be provided.
             if (id == null)
             {
-                return NotFound();
+                return BadRequest("A transaction ID must be provided.");
             }
 
-            var transaction = await _context.Transactions
-                .Include(t => t.InchargeEmployee)
-                .Include(t => t.Provider)
-                .Include(t => t.Stock)
-                .Include(t => t.TransactionType)
-                .Include(t => t.Variation)
-                .FirstOrDefaultAsync(m => m.TransactionId == id);
+            var transaction = await _transactionService.GetTransactionByIdAsync(id.Value);
+
+            // If the service returns null, it means no transaction with that ID was found.
             if (transaction == null)
             {
-                return NotFound();
+                return NotFound($"No transaction found with ID {id.Value}.");
             }
 
             return View(transaction);
-        }
-
-        // GET: Transactions/Create
-        public IActionResult Create()
-        {
-            ViewData["InchargeEmployeeId"] = new SelectList(_context.Users, "UserId", "UserId");
-            ViewData["ProviderId"] = new SelectList(_context.Providers, "ProviderId", "ProviderId");
-            ViewData["StockId"] = new SelectList(_context.Stocks, "StockId", "StockId");
-            ViewData["TransactionTypeId"] = new SelectList(_context.TransactionTypes, "TransactionTypeId", "TransactionTypeId");
-            ViewData["VariationId"] = new SelectList(_context.Variations, "VariationId", "VariationId");
-            return View();
-        }
-
-        // POST: Transactions/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("TransactionId,StockId,VariationId,ProviderId,InchargeEmployeeId,TransactionTypeId,TransactionQuantity,TransactionDate,TransactionProductPrice")] Transaction transaction)
-        {
-            if (ModelState.IsValid)
-            {
-                _context.Add(transaction);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
-            }
-            ViewData["InchargeEmployeeId"] = new SelectList(_context.Users, "UserId", "UserId", transaction.InchargeEmployeeId);
-            ViewData["ProviderId"] = new SelectList(_context.Providers, "ProviderId", "ProviderId", transaction.ProviderId);
-            ViewData["StockId"] = new SelectList(_context.Stocks, "StockId", "StockId", transaction.StockId);
-            ViewData["TransactionTypeId"] = new SelectList(_context.TransactionTypes, "TransactionTypeId", "TransactionTypeId", transaction.TransactionTypeId);
-            ViewData["VariationId"] = new SelectList(_context.Variations, "VariationId", "VariationId", transaction.VariationId);
-            return View(transaction);
-        }
-
-        // GET: Transactions/Edit/5
-        public async Task<IActionResult> Edit(int? id)
-        {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            var transaction = await _context.Transactions.FindAsync(id);
-            if (transaction == null)
-            {
-                return NotFound();
-            }
-            ViewData["InchargeEmployeeId"] = new SelectList(_context.Users, "UserId", "UserId", transaction.InchargeEmployeeId);
-            ViewData["ProviderId"] = new SelectList(_context.Providers, "ProviderId", "ProviderId", transaction.ProviderId);
-            ViewData["StockId"] = new SelectList(_context.Stocks, "StockId", "StockId", transaction.StockId);
-            ViewData["TransactionTypeId"] = new SelectList(_context.TransactionTypes, "TransactionTypeId", "TransactionTypeId", transaction.TransactionTypeId);
-            ViewData["VariationId"] = new SelectList(_context.Variations, "VariationId", "VariationId", transaction.VariationId);
-            return View(transaction);
-        }
-
-        // POST: Transactions/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("TransactionId,StockId,VariationId,ProviderId,InchargeEmployeeId,TransactionTypeId,TransactionQuantity,TransactionDate,TransactionProductPrice")] Transaction transaction)
-        {
-            if (id != transaction.TransactionId)
-            {
-                return NotFound();
-            }
-
-            if (ModelState.IsValid)
-            {
-                try
-                {
-                    _context.Update(transaction);
-                    await _context.SaveChangesAsync();
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!TransactionExists(transaction.TransactionId))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
-                }
-                return RedirectToAction(nameof(Index));
-            }
-            ViewData["InchargeEmployeeId"] = new SelectList(_context.Users, "UserId", "UserId", transaction.InchargeEmployeeId);
-            ViewData["ProviderId"] = new SelectList(_context.Providers, "ProviderId", "ProviderId", transaction.ProviderId);
-            ViewData["StockId"] = new SelectList(_context.Stocks, "StockId", "StockId", transaction.StockId);
-            ViewData["TransactionTypeId"] = new SelectList(_context.TransactionTypes, "TransactionTypeId", "TransactionTypeId", transaction.TransactionTypeId);
-            ViewData["VariationId"] = new SelectList(_context.Variations, "VariationId", "VariationId", transaction.VariationId);
-            return View(transaction);
-        }
-
-        // GET: Transactions/Delete/5
-        public async Task<IActionResult> Delete(int? id)
-        {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            var transaction = await _context.Transactions
-                .Include(t => t.InchargeEmployee)
-                .Include(t => t.Provider)
-                .Include(t => t.Stock)
-                .Include(t => t.TransactionType)
-                .Include(t => t.Variation)
-                .FirstOrDefaultAsync(m => m.TransactionId == id);
-            if (transaction == null)
-            {
-                return NotFound();
-            }
-
-            return View(transaction);
-        }
-
-        // POST: Transactions/Delete/5
-        [HttpPost, ActionName("Delete")]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(int id)
-        {
-            var transaction = await _context.Transactions.FindAsync(id);
-            if (transaction != null)
-            {
-                _context.Transactions.Remove(transaction);
-            }
-
-            await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
-        }
-
-        private bool TransactionExists(int id)
-        {
-            return _context.Transactions.Any(e => e.TransactionId == id);
         }
     }
 }

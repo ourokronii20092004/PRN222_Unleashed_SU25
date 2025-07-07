@@ -32,15 +32,13 @@ namespace Unleashed_MVC.Controllers
             try
             {
                 var stockDTOs = await _stockService.GetAllStocksAsync();
-                // Assuming views still expect List<Stock> entities
                 var stocks = _mapper.Map<List<Stock>>(stockDTOs);
                 return View(stocks);
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error retrieving stock index.");
-                // Handle error appropriately, maybe return an error view or TempData message
-                return View(new List<Stock>()); // Return empty list on error
+                return View(new List<Stock>());
             }
         }
 

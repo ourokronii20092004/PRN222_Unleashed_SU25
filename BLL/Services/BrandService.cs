@@ -29,14 +29,13 @@ namespace BLL.Services
 
         public async Task<List<SearchBrandDTO>> SearchBrandsAsync()
         {
-            var brands = await _brandRepository.GetAllAsync(); // Gets all Brand entities
-            return _mapper.Map<List<SearchBrandDTO>>(brands); // Maps entities to SearchBrandDTO
+            var brands = await _brandRepository.GetAllAsync();
+            return _mapper.Map<List<SearchBrandDTO>>(brands);
         }
 
 
         public async Task<BrandDTO> CreateBrandAsync(BrandCreateDTO brandDto)
         {
-            // Validation (from Java service)
             if (await _brandRepository.ExistsByNameAsync(brandDto.BrandName))
             {
                 throw new InvalidOperationException($"Brand already exists with name: {brandDto.BrandName}");
@@ -45,7 +44,6 @@ namespace BLL.Services
             {
                 throw new InvalidOperationException($"Brand already exists with website URL: {brandDto.BrandWebsiteUrl}");
             }
-            // Basic property validation (null/empty) is typically handled by BrandCreateDTO annotations + MVC model state
 
             var brand = _mapper.Map<Brand>(brandDto);
             brand.BrandCreatedAt = DateTimeOffset.UtcNow;
@@ -61,11 +59,9 @@ namespace BLL.Services
             var existingBrand = await _brandRepository.GetByIdAsync(brandId);
             if (existingBrand == null)
             {
-                // throw new NotFoundCustomException($"Brand not found with id: {brandId}");
                 return null;
             }
 
-            // Validation (from Java service)
             if (existingBrand.BrandName != brandDto.BrandName &&
                 await _brandRepository.ExistsByNameAsync(brandDto.BrandName, excludeBrandId: brandId))
             {
@@ -77,7 +73,7 @@ namespace BLL.Services
                 throw new InvalidOperationException($"Another brand already exists with website URL: {brandDto.BrandWebsiteUrl}");
             }
 
-            _mapper.Map(brandDto, existingBrand); // Apply updates from DTO to entity
+            _mapper.Map(brandDto, existingBrand);
             existingBrand.BrandUpdatedAt = DateTimeOffset.UtcNow;
 
             await _brandRepository.UpdateAsync(existingBrand);
@@ -90,7 +86,7 @@ namespace BLL.Services
             var brand = await _brandRepository.GetByIdAsync(brandId);
             if (brand == null)
             {
-                return false; // Or throw NotFound
+                return false;
             }
 
             if (await _productRepository.ExistsByBrandAsync(brandId))
@@ -105,13 +101,8 @@ namespace BLL.Services
 
         public async Task<List<BrandDTO>> GetAllBrandsWithQuantityAsync()
         {
-            // This directly calls the repository method that executes the complex query
             return await _brandRepository.FindAllBrandsWithQuantityAsync();
         }
 
-        // The Java toOffsetDateTime helper is generally not needed if:
-        // 1. Your database stores timestamps in a way that EF Core can map directly to DateTimeOffset.
-        // 2. The custom query in FindAllBrandsWithQuantityAsync returns types that EF Core can map.
-        //    DateTimeOffset is generally well-supported.
     }
 }
