@@ -21,14 +21,14 @@ namespace DAL.Repositories
         public async Task<Brand> AddAsync(Brand brand)
         {
             await _context.Brands.AddAsync(brand);
-            // SaveChangesAsync will be called by the service or explicitly via this repo's SaveChangesAsync
+            await _context.SaveChangesAsync();
             return brand;
         }
 
         public async Task DeleteAsync(Brand brand)
         {
             _context.Brands.Remove(brand);
-            // SaveChangesAsync will be called by the service or explicitly
+            await _context.SaveChangesAsync();
         }
 
         public async Task<bool> ExistsByNameAsync(string name, int? excludeBrandId = null)
@@ -86,7 +86,7 @@ namespace DAL.Repositories
         public async Task UpdateAsync(Brand brand)
         {
             _context.Brands.Update(brand);
-            // SaveChangesAsync will be called by the service or explicitly
+            await _context.SaveChangesAsync();
         }
 
         public async Task<int> SaveChangesAsync()

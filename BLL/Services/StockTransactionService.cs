@@ -16,6 +16,9 @@ namespace BLL.Services
 {
     public class StockTransactionService : IStockTransactionService
     {
+        private const int AvailableProductStatusId = 3;
+        private const string DefaultTransactionTypeName = "IN";
+
         private readonly IVariationRepository _variationRepository;
         private readonly ITransactionRepository _transactionRepository;
         private readonly IStockRepository _stockRepository;
@@ -57,11 +60,15 @@ namespace BLL.Services
             _context = context;
         }
 
+        /// <summary>
+        /// Retrieves a list of simplified transaction data transfer objects (DTOs)
+        /// optimized for display in a list or card view (e.g., an Index page).
+        /// </summary>
         public async Task<List<TransactionCardDTO>> GetAllTransactionCardsAsync()
         {
             try
             {
-                // 1. Fetch simplified DTOs
+                // 1. Fetch simplified DTOs using a projection to be efficient.
                 var simpleDtos = await _transactionRepository.FindSimplifiedTransactionCardDTOsOrderByIdDescAsync();
 
                 if (simpleDtos == null || !simpleDtos.Any())
@@ -69,37 +76,27 @@ namespace BLL.Services
                     return new List<TransactionCardDTO>();
                 }
 
-                // 2. Collect unique Product IDs (they are Guid in SimplifiedTransactionCardDTO now)
+                // 2. Collect unique Product IDs to fetch their categories in a single query.
                 var productIds = simpleDtos
-                    .Where(dto => dto.ProductId != Guid.Empty) // Filter out if ProductId could be Guid.Empty
+                    .Where(dto => dto.ProductId != Guid.Empty)
                     .Select(dto => dto.ProductId)
                     .Distinct()
                     .ToList();
 
-                // 3. Fetch Category names mapped by Product ID
-                // Assuming IProductRepository has a method like this:
-                // Task<Dictionary<Guid, List<string>>> GetCategoryNamesMapByProductIdsAsync(List<Guid> productIds);
+                // 3. Fetch Category names mapped by Product ID.
                 var productCategoryMap = productIds.Any()
                     ? await _productRepository.GetCategoryNamesMapByProductIdsAsync(productIds)
                     : new Dictionary<Guid, List<string>>();
 
-
-                // 4. Combine data
+                // 4. Combine data into the final DTO.
                 var finalDtos = new List<TransactionCardDTO>();
                 foreach (var simpleDto in simpleDtos)
                 {
-                    var categoryNames = (simpleDto.ProductId != Guid.Empty && productCategoryMap.TryGetValue(simpleDto.ProductId, out var names))
-                        ? names
-                        : new List<string>();
+                    productCategoryMap.TryGetValue(simpleDto.ProductId, out var categoryNames);
+                    var categoryNameString = categoryNames != null && categoryNames.Any()
+                        ? string.Join(", ", categoryNames)
+                        : null; // Or "N/A" if preferred
 
-                    string categoryNameString = string.Join(", ", categoryNames);
-                    if (string.IsNullOrEmpty(categoryNameString))
-                    {
-                        categoryNameString = null; // Or "N/A"
-                    }
-
-                    // Manually construct TransactionCardDTO or use AutoMapper if a profile exists
-                    // For direct construction based on Java logic:
                     var finalDto = new TransactionCardDTO
                     {
                         Id = simpleDto.TransactionId,
@@ -129,108 +126,105 @@ namespace BLL.Services
             }
         }
 
-        public async Task<bool> CreateStockTransactionsAsync(StockTransactionDTO stockTransactionDto)
+        /// <summary>
+        /// Retrieves a single, fully detailed Transaction entity by its ID, including all related entities.
+        /// Intended for use in a "Details" view.
+        /// </summary>
+        /// <param name="id">The ID of the transaction to retrieve.</param>
+        /// <returns>A Transaction entity or null if not found.</returns>
+        public async Task<Transaction?> GetTransactionByIdAsync(int id)
         {
-            // Use an execution strategy for resilience with explicit transaction
-            var strategy = _context.Database.CreateExecutionStrategy();
-            return await strategy.ExecuteAsync(async () =>
+            try
             {
-                // Begin a database transaction
-                // All operations within this block will be part of the same transaction.
-                // If any SaveChangesAsync fails or an exception is thrown, the transaction is rolled back.
+                // This logic correctly lives in the service layer, not the controller.
+                // We use Include and ThenInclude to load all necessary related data for a detailed view.
+                var transaction = await _context.Transactions
+                    .Include(t => t.InchargeEmployee)
+                    .Include(t => t.Provider)
+                    .Include(t => t.Stock)
+                    .Include(t => t.TransactionType)
+                    .Include(t => t.Variation)
+                        .ThenInclude(v => v.Product)
+                    .Include(t => t.Variation)
+                        .ThenInclude(v => v.Size)
+                    .Include(t => t.Variation)
+                        .ThenInclude(v => v.Color)
+                    .FirstOrDefaultAsync(m => m.TransactionId == id);
+
+                return transaction;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"Error occurred while getting transaction by ID: {id}.");
+                throw;
+            }
+        }
+
+        /// <summary>
+        /// Creates a set of stock transactions in a single database transaction.
+        /// Throws exceptions on validation or database errors to ensure data integrity.
+        /// </summary>
+        public async Task CreateStockTransactionsAsync(StockTransactionDTO stockTransactionDto)
+        {
+            if (stockTransactionDto == null) throw new ArgumentNullException(nameof(stockTransactionDto));
+
+            if (stockTransactionDto.StockId == null || stockTransactionDto.ProviderId == null ||
+                string.IsNullOrWhiteSpace(stockTransactionDto.Username) ||
+                stockTransactionDto.Variations == null || !stockTransactionDto.Variations.Any())
+            {
+                throw new ArgumentException("Invalid StockTransactionDTO data provided for creation.");
+            }
+
+            var strategy = _context.Database.CreateExecutionStrategy();
+            await strategy.ExecuteAsync(async () =>
+            {
                 using (var dbTransaction = await _context.Database.BeginTransactionAsync())
                 {
                     try
                     {
-                        if (stockTransactionDto.StockId == null || stockTransactionDto.ProviderId == null ||
-                            string.IsNullOrWhiteSpace(stockTransactionDto.Username) ||
-                            stockTransactionDto.Variations == null || !stockTransactionDto.Variations.Any())
-                        {
-                            _logger.LogWarning("Invalid StockTransactionDTO provided for creation.");
-                            return false; // Or throw ArgumentNullException/ArgumentException
-                        }
+                        var provider = await _providerRepository.GetByIdAsync(stockTransactionDto.ProviderId.Value)
+                            ?? throw new KeyNotFoundException($"Provider not found with ID: {stockTransactionDto.ProviderId.Value}.");
 
-                        var provider = await _providerRepository.GetByIdAsync(stockTransactionDto.ProviderId.Value);
-                        if (provider == null)
-                        {
-                            _logger.LogWarning($"Provider not found with ID: {stockTransactionDto.ProviderId.Value}.");
-                            return false; // Or throw new KeyNotFoundException(...)
-                        }
+                        var stock = await _stockRepository.GetByIdAsync(stockTransactionDto.StockId.Value)
+                            ?? throw new KeyNotFoundException($"Stock not found with ID: {stockTransactionDto.StockId.Value}.");
 
-                        var stock = await _stockRepository.GetByIdAsync(stockTransactionDto.StockId.Value);
-                        if (stock == null)
-                        {
-                            _logger.LogWarning($"Stock not found with ID: {stockTransactionDto.StockId.Value}.");
-                            return false;
-                        }
+                        var inchargeEmployee = await _userRepository.GetByUsernameAsync(stockTransactionDto.Username)
+                            ?? throw new KeyNotFoundException($"Incharge employee not found with username: {stockTransactionDto.Username}.");
 
-                        var inchargeEmployee = await _userRepository.GetByUsernameAsync(stockTransactionDto.Username);
-                        if (inchargeEmployee == null)
-                        {
-                            _logger.LogWarning($"Incharge employee not found with username: {stockTransactionDto.Username}.");
-                            return false;
-                        }
+                        var transactionTypeName = stockTransactionDto.TransactionType ?? DefaultTransactionTypeName;
+                        var transactionType = await _transactionTypeRepository.FindByNameAsync(transactionTypeName)
+                            ?? throw new KeyNotFoundException($"TransactionType '{transactionTypeName}' not found.");
 
-                        // Assuming "IN" transaction type. In Java, it was hardcoded to ID 1.
-                        // It's better to look up by a well-known name or have it passed in DTO.
-                        var transactionType = await _transactionTypeRepository.FindByNameAsync(stockTransactionDto.TransactionType ?? "IN");
-                        if (transactionType == null)
-                        {
-                            // Fallback or handle if "IN" is not found, or use a specific ID if known and static.
-                            _logger.LogWarning($"TransactionType '{stockTransactionDto.TransactionType ?? "IN"}' not found.");
-                            transactionType = await _transactionTypeRepository.GetByIdAsync(1); // Last resort if ID 1 is always "IN"
-                            if (transactionType == null) return false;
-                        }
-
-                        // Assuming ProductStatus ID 3 is e.g. "In Stock". Better to look up by name.
-                        // ProductStatus productStatusActive = await _productStatusRepository.FindByNameAsync("In Stock");
-                        ProductStatus? productStatusActive = await _productStatusRepository.GetByIdAsync(3); // Java used ID 3
-                        if (productStatusActive == null)
-                        {
-                            _logger.LogWarning($"ProductStatus for active products (ID 3 or 'In Stock') not found.");
-                            // Decide how to handle: proceed without status update, or fail.
-                            // For now, let's allow proceeding but log it.
-                        }
-
+                        var productStatusActive = await _productStatusRepository.GetByIdAsync(AvailableProductStatusId)
+                             ?? throw new KeyNotFoundException($"ProductStatus with ID {AvailableProductStatusId} ('AVAILABLE') not found.");
 
                         foreach (var variationQuantity in stockTransactionDto.Variations)
                         {
-                            if (variationQuantity.ProductVariationId == null || variationQuantity.Quantity == null || variationQuantity.Quantity <= 0)
+                            if (variationQuantity.ProductVariationId == null || variationQuantity.Quantity <= 0)
                             {
-                                _logger.LogWarning("Invalid ProductVariationQuantity in DTO.");
-                                continue; // Skip this invalid item
+                                _logger.LogWarning("Invalid ProductVariationQuantity in DTO, skipping item.");
+                                continue;
                             }
 
                             var variation = await _variationRepository.GetByIdAsync(variationQuantity.ProductVariationId.Value);
-                            if (variation == null || variation.Product == null) // Ensure product is loaded for status update
+                            if (variation == null || variation.Product == null)
                             {
-                                _logger.LogWarning($"Variation not found or product not loaded for Variation ID: {variationQuantity.ProductVariationId.Value}.");
-                                // Consider if this should rollback the whole transaction or just skip this item.
-                                // For now, let's assume skipping this item requires a rollback.
-                                await dbTransaction.RollbackAsync();
-                                return false;
+                                throw new KeyNotFoundException($"Variation not found or product not loaded for Variation ID: {variationQuantity.ProductVariationId.Value}.");
                             }
 
                             var transaction = new Transaction
                             {
-                                StockId = stock.StockId,
-                                Stock = stock, // Navigation property
-                                VariationId = variation.VariationId,
-                                Variation = variation, // Navigation property
-                                ProviderId = provider.ProviderId,
-                                Provider = provider, // Navigation property
-                                InchargeEmployeeId = inchargeEmployee.UserId, // Assuming UserId is the PK for User
-                                InchargeEmployee = inchargeEmployee, // Navigation property
-                                TransactionTypeId = transactionType.TransactionTypeId,
-                                TransactionType = transactionType, // Navigation property
+                                Stock = stock,
+                                Variation = variation,
+                                Provider = provider,
+                                InchargeEmployee = inchargeEmployee,
+                                TransactionType = transactionType,
                                 TransactionQuantity = variationQuantity.Quantity,
-                                TransactionDate = DateOnly.FromDateTime(DateTime.UtcNow), // Matches Java @PrePersist
-                                TransactionProductPrice = variation.VariationPrice // Matches Java @PrePersist
+                                TransactionDate = DateOnly.FromDateTime(DateTime.UtcNow),
+                                TransactionProductPrice = variation.VariationPrice
                             };
                             await _transactionRepository.AddAsync(transaction);
-                            // No need for _transactionRepository.SaveChangesAsync() here, will be done once at the end.
 
-                            // Update StockVariation
                             var stockVariation = await _stockVariationRepository.GetByIdAsync(variation.VariationId, stock.StockId);
                             if (stockVariation != null)
                             {
@@ -247,29 +241,21 @@ namespace BLL.Services
                                 };
                                 await _stockVariationRepository.AddAsync(stockVariation);
                             }
-                            // No need for _stockVariationRepository.SaveChangesAsync() here.
 
-                            // Update Product Status
-                            if (productStatusActive != null && variation.Product.ProductStatusId != productStatusActive.ProductStatusId)
+                            if (variation.Product.ProductStatusId != productStatusActive.ProductStatusId)
                             {
                                 variation.Product.ProductStatusId = productStatusActive.ProductStatusId;
-                                variation.Product.ProductStatus = productStatusActive; // Set navigation property
-                                // EF Core will track this change on the Product entity via the Variation
-                                // You might need an explicit _productRepository.UpdateAsync(variation.Product) if Product isn't tracked.
-                                // However, if `variation.Product` was included when `variation` was fetched, EF Core should track it.
                             }
                         }
 
-                        await _context.SaveChangesAsync(); // Single save for all changes in the transaction
+                        await _context.SaveChangesAsync();
                         await dbTransaction.CommitAsync();
-                        return true;
                     }
                     catch (Exception ex)
                     {
-                        _logger.LogError(ex, "Error occurred during bulk stock transaction creation. Rolling back.");
+                        _logger.LogError(ex, "Error during stock transaction creation. Rolling back.");
                         await dbTransaction.RollbackAsync();
-                        // Optionally, rethrow a custom service exception or return a more detailed error object
-                        return false; // Or throw;
+                        throw;
                     }
                 }
             });

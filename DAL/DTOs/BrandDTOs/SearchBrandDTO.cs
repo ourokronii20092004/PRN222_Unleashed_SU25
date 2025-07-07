@@ -10,12 +10,5 @@ namespace DAL.DTOs.BrandDTOs
     {
         public string? BrandName { get; set; }
         public string? BrandDescription { get; set; }
-
-        // Constructor can be added if desired, but often not necessary for DTOs in C#
-        // public SearchBrandDTO(string? brandName, string? brandDescription)
-        // {
-        //     BrandName = brandName;
-        //     BrandDescription = brandDescription;
-        // }
     }
 }

@@ -9,7 +9,7 @@ namespace DAL.DTOs.TransactionDTOs
     public class SimplifiedTransactionCardDTO
     {
         public int TransactionId { get; set; }
-        public Guid ProductId { get; set; } // Changed from String to Guid to match Product entity
+        public Guid ProductId { get; set; }
         public string? VariationImage { get; set; }
         public string? ProductName { get; set; }
         public string? StockName { get; set; }
@@ -23,31 +23,5 @@ namespace DAL.DTOs.TransactionDTOs
         public DateOnly? TransactionDate { get; set; }
         public string? InchargeEmployeeUsername { get; set; }
         public string? ProviderName { get; set; }
-
-        // Constructor can be useful if you plan to use it with EF Core's .Select(x => new DTO(...))
-        // or if you want to maintain the Java style.
-        // public SimplifiedTransactionCardDTO(
-        //     int transactionId, Guid productId, string? variationImage, string? productName,
-        //     string? stockName, string? transactionTypeName, string? brandName,
-        //     string? sizeName, string? colorName, string? colorHexCode,
-        //     decimal? transactionProductPrice, int? transactionQuantity, DateOnly? transactionDate,
-        //     string? inchargeEmployeeUsername, string? providerName)
-        // {
-        //     TransactionId = transactionId;
-        //     ProductId = productId;
-        //     VariationImage = variationImage;
-        //     ProductName = productName;
-        //     StockName = stockName;
-        //     TransactionTypeName = transactionTypeName;
-        //     BrandName = brandName;
-        //     SizeName = sizeName;
-        //     ColorName = colorName;
-        //     ColorHexCode = colorHexCode;
-        //     TransactionProductPrice = transactionProductPrice;
-        //     TransactionQuantity = transactionQuantity;
-        //     TransactionDate = transactionDate;
-        //     InchargeEmployeeUsername = inchargeEmployeeUsername;
-        //     ProviderName = providerName;
-        // }
     }
 }

@@ -13,7 +13,6 @@ namespace BLL.Services.Interfaces
         Task<List<BrandDTO>> GetAllBrandsWithQuantityAsync();
         Task<BrandDTO?> GetBrandByIdAsync(int id);
         Task<List<SearchBrandDTO>> SearchBrandsAsync();
-
         Task<BrandDTO> CreateBrandAsync(BrandCreateDTO brandDto);
         Task<BrandDTO?> UpdateBrandAsync(int brandId, BrandUpdateDTO brandDto);
         Task<bool> DeleteBrandAsync(int brandId);
