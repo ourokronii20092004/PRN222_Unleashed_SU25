@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Unleashed.Shared.UI.ViewModels;
+using Unleashed_Shared_UI.ViewModels;
 
-namespace Unleashed.Shared.UI.ViewComponents
+namespace Unleashed_Shared_UI.ViewComponents
 {
     public class RegisterViewComponent : ViewComponent
     {
