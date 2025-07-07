@@ -21,9 +21,6 @@ namespace DAL
 
             var optionsBuilder = new DbContextOptionsBuilder<UnleashedContext>();
 
-            // Get the connection string from the configuration.
-            // Using "Cloudflared" here, but you can change it to "Local" or "ZeroTierOne"
-            // if you need to for design-time tasks.
             var connectionString = configuration.GetConnectionString("Cloudflared");
 
             optionsBuilder.UseSqlServer(connectionString);
