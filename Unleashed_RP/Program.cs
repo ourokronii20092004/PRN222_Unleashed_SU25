@@ -27,6 +27,16 @@ public class Program
          *
          */
 
+
+        // --- Add Session services --- 
+        builder.Services.AddDistributedMemoryCache();
+        builder.Services.AddSession(options =>
+        {
+            options.IdleTimeout = TimeSpan.FromMinutes(30); // Set a timeout for the session
+            options.Cookie.HttpOnly = true; // Make the session cookie inaccessible to client-side script
+            options.Cookie.IsEssential = true; // Make the session cookie essential for GDPR compliance
+        });
+
         // --- Image Upload Services ---
         builder.Services.AddHttpClient<IImageUploader, ImgbbImageUploader>();
 
@@ -55,7 +65,11 @@ public class Program
         builder.Services.AddScoped<IProviderRepository, ProviderRepository>();
         builder.Services.AddScoped<ISizeRepository, SizeRepository>();
         builder.Services.AddScoped<IColorRepository, ColorRepository>();
+
         builder.Services.AddScoped<IOrderRepository, OrderRepository>();
+
+        builder.Services.AddScoped<IAuthenticationService, AuthenticationService>();
+
 
 
         // --- Services ---
@@ -85,6 +99,8 @@ public class Program
 
         app.UseHttpsRedirection();
         app.UseStaticFiles();
+
+        app.UseSession();
 
         app.UseRouting();
 

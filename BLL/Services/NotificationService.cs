@@ -43,7 +43,7 @@ namespace BLL.Services
                
                 await _notificationRepository.AddAsync(notification);
 
-                    IEnumerable<User> users = await _userRepository.FindAsync(u => u.RoleId == 3);
+                    IEnumerable<User> users = await _userRepository.FindAsync(u => u.RoleId == 2);
                     if (users != null && users.Any())
                     {
                         IEnumerable<NotificationUser> notificationUsers = users.Select(u => new NotificationUser
