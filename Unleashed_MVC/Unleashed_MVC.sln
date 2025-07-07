@@ -11,6 +11,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DAL", "..\DAL\DAL.csproj", 
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Unleashed_RP", "..\Unleashed_RP\Unleashed_RP.csproj", "{7EB77CD0-9065-4A3C-A954-00770B35321C}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Unleashed_Shared_UI", "..\Unleashed_Shared_UI\Unleashed_Shared_UI.csproj", "{37D797E7-F464-4CE9-AEFB-4F0500659A9D}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -33,6 +35,10 @@ Global
 		{7EB77CD0-9065-4A3C-A954-00770B35321C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7EB77CD0-9065-4A3C-A954-00770B35321C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7EB77CD0-9065-4A3C-A954-00770B35321C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{37D797E7-F464-4CE9-AEFB-4F0500659A9D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{37D797E7-F464-4CE9-AEFB-4F0500659A9D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{37D797E7-F464-4CE9-AEFB-4F0500659A9D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{37D797E7-F464-4CE9-AEFB-4F0500659A9D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

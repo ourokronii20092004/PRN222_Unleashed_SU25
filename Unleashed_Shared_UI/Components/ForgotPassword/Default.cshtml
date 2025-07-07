@@ -1,0 +1,16 @@
+@model Unleashed_Shared_UI.ViewModels.ForgotPasswordViewModel
+
+<div class="login-form-container">
+    <h2 class="font-poppins" style="font-size: 3rem; margin-bottom: 0.5rem; text-align: left;">Forgot password</h2>
+    <p class="font-poppins text-muted mb-4 text-left">
+        Please enter your email to reset the password.
+    </p>
+
+    <form asp-controller="Account" asp-action="ForgotPassword" method="post">
+        <form-input asp-for="Email" placeholder="Enter your email address"></form-input>
+        <div class="mt-4">
+            <btn text="Reset Password" variant="Primary" is-submit="true" style="width: 100%;"></btn>
+        </div>
+
+    </form>
+</div>
