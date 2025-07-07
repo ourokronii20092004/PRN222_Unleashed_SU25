@@ -128,6 +128,12 @@ namespace BLL.Services
                 .Take(pageSize)), totalAmount);
         }
 
+        public async Task<IEnumerable<UserDetailDTO>> GetAccountsAsync()
+        {
+            IEnumerable<User> users = users = await _userRepository.FindAsync(u => u.IsUserEnabled != null);
+            return _mapper
+                .Map<IEnumerable<UserDetailDTO>>(users);     
+        }
 
 
         public async Task<bool> ValidationUserAsync(string username)

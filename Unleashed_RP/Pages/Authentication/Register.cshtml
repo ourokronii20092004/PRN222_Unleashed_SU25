@@ -1,0 +1,70 @@
+﻿@page
+@model Unleashed_RP.Pages.Authentication.RegisterModel
+
+@{
+    ViewData["Title"] = "Register";
+}
+
+<h1>Register</h1>
+
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form method="post">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-group">
+                <label asp-for="RegisterUserDTO.UserUsername" class="control-label"></label>
+                <input asp-for="RegisterUserDTO.UserUsername" class="form-control" />
+                <span asp-validation-for="RegisterUserDTO.UserUsername" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="RegisterUserDTO.UserPassword" class="control-label"></label>
+                <input asp-for="RegisterUserDTO.UserPassword" class="form-control" />
+                <span asp-validation-for="RegisterUserDTO.UserPassword" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="RegisterUserDTO.UserFullname" class="control-label"></label>
+                <input asp-for="RegisterUserDTO.UserFullname" class="form-control" />
+                <span asp-validation-for="RegisterUserDTO.UserFullname" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="RegisterUserDTO.UserEmail" class="control-label"></label>
+                <input asp-for="RegisterUserDTO.UserEmail" class="form-control" />
+                <span asp-validation-for="RegisterUserDTO.UserEmail" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="RegisterUserDTO.UserPhone" class="control-label"></label>
+                <input asp-for="RegisterUserDTO.UserPhone" class="form-control" />
+                <span asp-validation-for="RegisterUserDTO.UserPhone" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="RegisterUserDTO.UserBirthdate" class="control-label"></label>
+                <input type="date" asp-for="RegisterUserDTO.UserBirthdate" class="form-control" />
+                <span asp-validation-for="RegisterUserDTO.UserBirthdate" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="RegisterUserDTO.UserAddress" class="control-label"></label>
+                <input asp-for="RegisterUserDTO.UserAddress" class="form-control" />
+                <span asp-validation-for="RegisterUserDTO.UserAddress" class="text-danger"></span>
+            </div>
+            <div class="d-flex">
+                <div class="form-check form-check-inline me-3">
+                    <input class="form-check-input" type="radio" value="false" asp-for="RegisterUserDTO.Gender" id="genderMale" />
+                    <label class="form-check-label" for="genderMale">Male</label>
+                </div>
+                <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="radio" value="true" asp-for="RegisterUserDTO.Gender" id="genderFemale" />
+                    <label class="form-check-label" for="genderFemale">Female</label>
+                </div>
+            </div>
+            <span asp-validation-for="RegisterUserDTO.Gender" class="text-danger"></span>
+            <div class="form-group">
+                <input type="submit" value="Create" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

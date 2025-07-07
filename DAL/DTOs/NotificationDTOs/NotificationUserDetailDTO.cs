@@ -13,6 +13,5 @@ namespace DAL.DTOs.NotificationDTOs
         public Guid UserId { get; set; }
         public bool? IsViewed { get; set; } = false;
         public bool? IsDeleted { get; set; } = false;
-        public virtual NotificationDetailDTO Notification { get; set; } = null!;
     }
 }
