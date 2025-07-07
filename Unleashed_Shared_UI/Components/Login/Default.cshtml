@@ -1,0 +1,47 @@
+@model Unleashed_Shared_UI.ViewModels.LoginViewModel
+
+<div class="login-form-container">
+    <h2 class="font-poppins" style="font-size: 3rem; margin-bottom: 1.5rem; text-align: left;">Login</h2>
+
+    <form asp-controller="Account" asp-action="Login" method="post" class="space-y-6">
+
+        <form-input asp-for="Username" placeholder="Enter your username"></form-input>
+
+        <div>
+            <div class="d-flex justify-content-between align-items-center mb-2">
+                <label class="form-label">Password</label>
+                <button type="button" class="btn btn-link text-muted" id="togglePasswordBtn">
+                    <i class="fa-solid fa-eye me-1"></i> <span id="togglePasswordText">Show</span>
+                </button>
+            </div>
+            <input asp-for="Password" class="form-control" placeholder="Enter your password" />
+            <span asp-validation-for="Password" class="text-danger"></span>
+        </div>
+
+        <div class="mt-4">
+            <btn text="Login" variant="Primary" is-submit="true" style="width: 100%;"></btn>
+        </div>
+
+    </form>
+
+    <div class="text-center pt-4">
+        <a asp-controller="Account" asp-action="ForgotPassword" class="font-semibold underline">Forgot password?</a>
+    </div>
+
+    <div class="text-center pt-3">
+        <p>
+            Don't have an account?
+            <a asp-controller="Account" asp-action="Register" class="underline font-medium">Sign up</a>
+        </p>
+    </div>
+
+    <div class="py-4">
+        <hr data-content="Or continue with">
+    </div>
+
+    <div class="text-center">
+        <button id="google-login-btn" class="btn btn-outline">
+            <i class="fab fa-google icon"></i> Continue with Google
+        </button>
+    </div>
+</div>

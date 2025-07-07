@@ -1,0 +1,72 @@
+/* --- Base Button Style --- */
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.6rem 1.5rem;
+    font-family: 'Poppins', sans-serif; /* Using Poppins from your example */
+    font-size: 1rem;
+    font-weight: 600;
+    text-transform: none;
+    text-decoration: none;
+    border-radius: 50px; /* Rounded style is common in your examples */
+    border: 1px solid transparent;
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+}
+
+    .btn:hover {
+        opacity: 0.9;
+        transform: translateY(-1px);
+    }
+
+    .btn .icon {
+        margin-right: 0.5rem;
+    }
+
+/* --- Primary Button Style (e.g., AuthCommonBtn) --- */
+.btn-primary {
+    background-color: #648DDB;
+    color: #ffffff;
+    border-color: #648DDB;
+}
+
+    .btn-primary:hover {
+        background-color: #5078c2;
+        color: #ffffff;
+    }
+
+/* --- Outline Button Style (e.g., LoginBtn, ShowMore) --- */
+.btn-outline {
+    background-color: #ffffff;
+    color: #000000;
+    border-color: #000000;
+}
+
+    .btn-outline:hover {
+        background-color: #f5f5f5; /* Light grey from your examples */
+        color: #000000;
+    }
+
+/* --- Danger Button Style (e.g., Delete actions) --- */
+.btn-danger {
+    background-color: #dc3545;
+    color: #ffffff;
+    border-color: #dc3545;
+}
+
+    .btn-danger:hover {
+        background-color: #c82333;
+        color: #ffffff;
+    }
+
+/* --- Transparent/Subtle Button Style (e.g., Share) --- */
+.btn-subtle {
+    background-color: rgba(90, 90, 90, 0.2);
+    color: #ffffff;
+    border-color: transparent;
+}
+
+    .btn-subtle:hover {
+        background-color: rgba(90, 90, 90, 0.4);
+    }

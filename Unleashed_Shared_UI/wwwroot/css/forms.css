@@ -1,0 +1,36 @@
+.login-form-container {
+    max-width: 450px;
+    margin: 2rem auto;
+    padding: 2rem;
+}
+
+.form-label {
+    font-size: 1.1rem;
+    color: #6c757d;
+}
+
+.form-control {
+    padding: 0.75rem 1rem;
+    border-radius: 0.5rem;
+    border: 1px solid #ced4da;
+}
+
+/* Divider with text style */
+hr {
+    position: relative;
+    border: none;
+    height: 1px;
+    background: #dee2e6;
+}
+
+    hr[data-content]::after {
+        content: attr(data-content);
+        display: inline-block;
+        position: absolute;
+        top: -0.7em;
+        left: 50%;
+        transform: translateX(-50%);
+        background: white;
+        padding: 0 0.8em;
+        color: #6c757d;
+    }
