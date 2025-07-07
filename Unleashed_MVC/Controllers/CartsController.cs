@@ -52,7 +52,7 @@ namespace Unleashed_MVC.Controllers
         // GET: Carts/Create
         public async Task<IActionResult> CreateAsync()
         {
-            ViewData["UserId"] = new SelectList(await _accountService.GetAccountsAsync(), "UserId", "Username");
+            //ViewData["UserId"] = new SelectList(await _accountService.GetAccountsAsync(), "UserId", "Username");
             //var variations =  _cartService.GetCartByIdAsync(); // thêm method này vào interface nếu chưa có
             //ViewData["VariationId"] = new SelectList(variations, "VariationId", "VariationId");
             return View();
@@ -70,7 +70,7 @@ namespace Unleashed_MVC.Controllers
                 await _cartService.CreateCartAsync(cart);
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["UserId"] = new SelectList(await _accountService.GetAccountsAsync(), "UserId", "Username");
+            //ViewData["UserId"] = new SelectList(await _accountService.GetAccountsAsync(), "UserId", "Username");
             //var variations = await _cartService.GetAllCartAsync();
             //ViewData["VariationId"] = new SelectList(variations, "VariationId", "VariationId");
             return View(cart);

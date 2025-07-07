@@ -15,7 +15,7 @@ namespace Unleashed_MVC
             var builder = WebApplication.CreateBuilder(args);
 
             // --- Database Services ---  
-            builder.Services.ConnectUnleashedDatabase(builder.Configuration, "Cloudflared");
+            builder.Services.ConnectUnleashedDatabase(builder.Configuration, "ZeroTierOne");
             /*
              * Configurations:
              * 
@@ -65,6 +65,7 @@ namespace Unleashed_MVC
             builder.Services.AddScoped<IProviderRepository, ProviderRepository>();
             builder.Services.AddScoped<ISizeRepository, SizeRepository>();
             builder.Services.AddScoped<IColorRepository, ColorRepository>();
+            builder.Services.AddScoped<IOrderRepository, OrderRepository>();
 
             // --- Services ---  
             builder.Services.AddScoped<IBrandService, BrandService>();
@@ -76,7 +77,7 @@ namespace Unleashed_MVC
             builder.Services.AddScoped<IStockTransactionService, StockTransactionService>();
             builder.Services.AddScoped<IProductService, ProductService>();
             builder.Services.AddScoped<IAuthenticationService, AuthenticationService>();
-
+            builder.Services.AddScoped<IOrderService, OrderService>();
             builder.Services.AddScoped<IDiscountService, DiscountService>();
 
             // --- AutoMapper ---  

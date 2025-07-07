@@ -18,6 +18,7 @@ namespace BLL.Services
         }
         public async Task CreateOrder(Order order)
         {
+            order.OrderId = Guid.NewGuid();
             order.OrderCreatedAt = DateTime.Now;
             await _orderRepo.AddAsync(order);
         }

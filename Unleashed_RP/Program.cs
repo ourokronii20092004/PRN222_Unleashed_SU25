@@ -65,7 +65,11 @@ public class Program
         builder.Services.AddScoped<IProviderRepository, ProviderRepository>();
         builder.Services.AddScoped<ISizeRepository, SizeRepository>();
         builder.Services.AddScoped<IColorRepository, ColorRepository>();
+
+        builder.Services.AddScoped<IOrderRepository, OrderRepository>();
+
         builder.Services.AddScoped<IAuthenticationService, AuthenticationService>();
+
 
 
         // --- Services ---
@@ -78,6 +82,7 @@ public class Program
         builder.Services.AddScoped<IStockTransactionService, StockTransactionService>();
         builder.Services.AddScoped<IProductService, ProductService>();
         builder.Services.AddScoped<IDiscountService, DiscountService>();
+        builder.Services.AddScoped<IOrderService, OrderService>();
 
 
         // --- AutoMapper ---
