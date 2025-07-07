@@ -1,0 +1,53 @@
+/*
+ * This is the main container for the list, equivalent to
+ * "w-full max-w-screen-lg mx-auto"
+*/
+.product-list-container {
+    width: 100%;
+    max-width: 1280px; /* max-w-screen-lg */
+    margin-left: auto;
+    margin-right: auto;
+    padding: 1rem;
+}
+
+/*
+ * This is the grid itself, using Flexbox for responsiveness.
+ * Equivalent to "grid gap-6"
+*/
+.product-list-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.5rem; /* gap-6 */
+    justify-content: center; /* Center items if the row isn't full */
+}
+
+/*
+ * This is the item within the grid. It controls the column count.
+ * We set a flexible basis and a max-width to create the grid effect.
+ * By default, it takes up the full width on small screens.
+*/
+.product-list-item {
+    flex: 1 1 100%; /* Full width on smallest screens */
+    max-width: 350px; /* Matches the max-width of our product card */
+}
+
+/* 
+ * At medium screen sizes (md: ~768px), we want 2 columns.
+ * We can't do this perfectly without Bootstrap's col-* classes, but
+ * this provides a good approximation by setting a basis of ~45%.
+*/
+@media (min-width: 768px) {
+    .product-list-item {
+        flex-basis: 45%;
+    }
+}
+
+/* 
+ * At large screen sizes (lg: ~1024px), we want 3 columns.
+ * Setting a basis of ~30% achieves this.
+*/
+@media (min-width: 1024px) {
+    .product-list-item {
+        flex-basis: 30%;
+    }
+}

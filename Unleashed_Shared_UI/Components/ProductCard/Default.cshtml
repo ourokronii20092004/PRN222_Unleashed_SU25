@@ -1,0 +1,57 @@
+@model Unleashed_Shared_UI.ViewModels.Account.ProductCardViewModel
+
+<div class="product-card">
+    <a asp-controller="Shop" asp-action="ProductDetails" asp-route-id="@Model.ProductId">
+
+        <div class="product-card-image-wrapper">
+            <img class="product-card-image"
+                 src="@(string.IsNullOrEmpty(Model.ProductVariationImage) ? "/path/to/default_image.jpg" : Model.ProductVariationImage)"
+                 alt="@Model.ProductName" />
+        </div>
+
+        <div class="product-card-info">
+            <h3 class="product-card-name" title="@Model.ProductName">
+                @(Model.ProductName ?? "Unnamed Product")
+            </h3>
+
+            <p class="product-card-price">
+                @ViewBag.DisplayPrice
+            </p>
+
+            @if (Model.Sale != null && Model.Sale.SaleValue > 0)
+            {
+                <p class="product-card-original-price">
+                    @ViewBag.OriginalPrice
+                </p>
+            }
+
+            <div class="d-flex align-items-center product-card-rating">
+                <div class="stars">
+                    @for (int i = 1; i <= 5; i++)
+                    {
+                        if (Model.AverageRating >= i)
+                        {
+                            <i class="fa-solid fa-star"></i>
+                        }
+                        else if (Model.AverageRating >= i - 0.5)
+                        {
+                            <i class="fa-solid fa-star-half-alt"></i>
+                        }
+                        else
+                        {
+                            <i class="fa-regular fa-star"></i>
+                        }
+                    }
+                </div>
+                <span class="ms-2 text-muted small">(@Model.TotalRatings)</span>
+            </div>
+
+            @if (!string.IsNullOrEmpty(ViewBag.SaleText))
+            {
+                <div class="product-card-sale-badge">
+                    @ViewBag.SaleText
+                </div>
+            }
+        </div>
+    </a>
+</div>

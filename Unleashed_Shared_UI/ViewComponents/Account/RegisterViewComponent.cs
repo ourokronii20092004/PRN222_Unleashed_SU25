@@ -1,13 +1,13 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Unleashed_Shared_UI.ViewModels;
 
-namespace Unleashed_Shared_UI.ViewComponents
+namespace Unleashed_Shared_UI.ViewComponents.Account
 {
-    public class LoginViewComponent : ViewComponent
+    public class RegisterViewComponent : ViewComponent
     {
         public IViewComponentResult Invoke()
         {
-            var model = new LoginViewModel();
+            var model = new RegisterViewModel();
             return View(model);
         }
     }
