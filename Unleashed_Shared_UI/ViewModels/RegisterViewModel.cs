@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace Unleashed.Shared.UI.ViewModels
+namespace Unleashed_Shared_UI.ViewModels
 {
     public class RegisterViewModel
     {

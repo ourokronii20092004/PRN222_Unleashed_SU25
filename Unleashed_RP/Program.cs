@@ -69,7 +69,7 @@ public class Program
         builder.Services.AddScoped<IDiscountService, DiscountService>();
 
 
-        // --- AutoMapper (Copied from MVC project) ---
+        // --- AutoMapper ---
         builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
 
@@ -86,7 +86,8 @@ public class Program
 
         app.UseRouting();
 
-        // app.UseAuthentication();
+        app.UseAuthentication();
+        
         app.UseAuthorization();
 
         app.MapRazorPages(); 
