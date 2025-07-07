@@ -8,35 +8,24 @@
     <thead>
         <tr>
             <th>
-                @Html.DisplayNameFor(model => model.NotificationUser[0].IsNotificationViewed)
+                @Html.DisplayNameFor(model => model.NotificationUsers[0].NotificationTitle)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.NotificationUser[0].IsNotificationDeleted)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.NotificationUser[0].Notification)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.NotificationUser[0].User)
+                @Html.DisplayNameFor(model => model.NotificationUsers[0].IsViewed)
             </th>
             <th></th>
         </tr>
     </thead>
     <tbody>
-@foreach (var item in Model.NotificationUser) {
+@foreach (var item in Model.NotificationUsers) {
         <tr>
             <td>
-                @Html.DisplayFor(modelItem => item.IsNotificationViewed)
+                @Html.DisplayFor(modelItem => item.NotificationTitle)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.IsNotificationDeleted)
+                @Html.DisplayFor(modelItem => item.IsViewed)
             </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Notification.NotificationId)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.User.UserId)
-            </td>
+
             <td>
                 @Html.ActionLink("Edit", "Edit", new { /* id=item.PrimaryKey */ }) |
                 @Html.ActionLink("Details", "Details", new { /* id=item.PrimaryKey */ }) |

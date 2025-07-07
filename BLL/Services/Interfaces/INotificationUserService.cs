@@ -9,8 +9,8 @@ namespace BLL.Services.Interfaces
 {
     public interface INotificationUserService
     {
-        Task<(IEnumerable<NotificationUserDetailDTO>, int total)> GetNotificationUserListAsync(string username);
-        Task SetViewedUserNotification(int notificationId);
-        Task DeleteUserNotification(int notificationId);
+        Task<IEnumerable<NotificationUserDetailDTO>> GetNotificationUserListAsync(string username);
+        Task SetViewedUserNotification(string username, int notificationId);
+        Task DeleteUserNotification(string username, int notificationId);
     }
 }
