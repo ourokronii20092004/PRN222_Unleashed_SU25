@@ -33,9 +33,9 @@
                                 <label asp-for="ProductCode" class="control-label">Product Code*</label>
                                 <input asp-for="ProductCode" class="form-control" />
                                 <span asp-validation-for="ProductCode" class="text-danger"></span>
-                                @if (ViewData.ModelState["ProductCode"]?.Errors.Count > 0)
+                                @if (ViewData.ModelState.TryGetValue("ProductCode", out var entry) && entry?.Errors?.Count > 0)
                                 {
-                                    <span class="text-danger">@ViewData.ModelState["ProductCode"].Errors.First().ErrorMessage</span>
+                                    <span class="text-danger">@entry.Errors[0].ErrorMessage</span>
                                 }
                             </div>
                         </div>
@@ -51,7 +51,9 @@
                         <div class="col-md-6">
                             <div class="form-group">
                                 <label asp-for="BrandId" class="control-label">Brand*</label>
-                                <select asp-for="BrandId" class="form-control" asp-items="ViewBag.BrandId">
+                                <!-- For Brand dropdown -->
+                                <select asp-for="BrandId" class="form-control"
+                                        asp-items="@(ViewBag.BrandId as SelectList ?? new SelectList(Enumerable.Empty<SelectListItem>()))">
                                     <option value="">-- Select Brand --</option>
                                 </select>
                                 <span asp-validation-for="BrandId" class="text-danger"></span>
@@ -60,7 +62,9 @@
                         <div class="col-md-6">
                             <div class="form-group">
                                 <label asp-for="ProductStatusId" class="control-label">Status*</label>
-                                <select asp-for="ProductStatusId" class="form-control" asp-items="ViewBag.ProductStatusId">
+                                <!-- For Status dropdown -->
+                                <select asp-for="ProductStatusId" class="form-control"
+                                        asp-items="@(ViewBag.ProductStatusId as SelectList ?? new SelectList(Enumerable.Empty<SelectListItem>()))">
                                     <option value="">-- Select Status --</option>
                                 </select>
                                 <span asp-validation-for="ProductStatusId" class="text-danger"></span>
@@ -85,7 +89,9 @@
                                     <div class="col-md-4">
                                         <div class="form-group">
                                             <label asp-for="Variations[i].SizeId" class="control-label">Size*</label>
-                                            <select asp-for="Variations[i].SizeId" class="form-control" asp-items="ViewBag.SizeId">
+                                            <!-- For Size dropdown in variations -->
+                                            <select asp-for="Variations[i].SizeId" class="form-control"
+                                                    asp-items="@(ViewBag.SizeId as SelectList ?? new SelectList(Enumerable.Empty<SelectListItem>()))">
                                                 <option value="">-- Select Size --</option>
                                             </select>
                                             <span asp-validation-for="Variations[i].SizeId" class="text-danger"></span>
@@ -94,7 +100,9 @@
                                     <div class="col-md-4">
                                         <div class="form-group">
                                             <label asp-for="Variations[i].ColorId" class="control-label">Color*</label>
-                                            <select asp-for="Variations[i].ColorId" class="form-control" asp-items="ViewBag.ColorId">
+                                            <!-- For Color dropdown in variations -->
+                                            <select asp-for="Variations[i].ColorId" class="form-control"
+                                                    asp-items="@(ViewBag.ColorId as SelectList ?? new SelectList(Enumerable.Empty<SelectListItem>()))">
                                                 <option value="">-- Select Color --</option>
                                             </select>
                                             <span asp-validation-for="Variations[i].ColorId" class="text-danger"></span>
