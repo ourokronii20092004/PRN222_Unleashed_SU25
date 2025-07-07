@@ -1,31 +1,30 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.RazorPages;
-using Microsoft.EntityFrameworkCore;
-using DAL.Data;
-using DAL.Models;
+﻿using Microsoft.AspNetCore.Mvc.RazorPages;
+using BLL.Services.Interfaces;
+using DAL.DTOs.NotificationDTOs;
 
 namespace Unleashed_RP.Pages.Notifications
 {
     public class IndexModel : PageModel
     {
-        private readonly DAL.Data.UnleashedContext _context;
+        private readonly INotificationUserService _notificationUserService;
 
-        public IndexModel(DAL.Data.UnleashedContext context)
+        public IndexModel(INotificationUserService notificationUserService)
         {
-            _context = context;
+            _notificationUserService = notificationUserService;
         }
 
-        public IList<NotificationUser> NotificationUser { get;set; } = default!;
+        public IList<NotificationUserDetailDTO> NotificationUsers { get;set; } = default!;
 
         public async Task OnGetAsync()
         {
-            NotificationUser = await _context.NotificationUsers
-                .Include(n => n.Notification)
-                .Include(n => n.User).ToListAsync();
+            try
+            {
+                string? username = HttpContext.Session.GetString("username");
+                ArgumentNullException.ThrowIfNullOrEmpty(username, nameof(username));
+                NotificationUser = [.. await _notificationUserService.GetNotificationUserListAsync(username)];
+            } catch (ArgumentNullException ex) {
+                NotificationUser = null;
+            }
         }
     }
 }
