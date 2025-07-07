@@ -11,7 +11,6 @@
 <div class="row">
     <div class="col-md-8">
         <form asp-action="Edit" asp-route-id="@Model.ProductId" enctype="multipart/form-data">
-
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <input type="hidden" asp-for="ProductId" />
             <input type="hidden" asp-for="CreatedAt" />
@@ -26,7 +25,7 @@
                         <div class="col-md-6">
                             <div class="form-group">
                                 <label asp-for="ProductName" class="control-label"></label>
-                                <input asp-for="ProductName" class="form-control" />
+                                <input asp-for="ProductName" class="form-control" placeholder="Enter product name" />
                                 <span asp-validation-for="ProductName" class="text-danger"></span>
                             </div>
                         </div>
@@ -109,14 +108,45 @@
                                         </div>
                                     </div>
                                 </div>
+
                                 <div class="form-group">
-                                    <label asp-for="Variations[i].ProductVariationImage" class="control-label"></label>
-                                    <input asp-for="Variations[i].ProductVariationImage" class="form-control-file" type="file" />
-                                    <span asp-validation-for="Variations[i].ProductVariationImage" class="text-danger"></span>
+                                    <!-- Display current image if exists -->
+                                    @if (!string.IsNullOrEmpty(Model.Variations[i].ProductVariationImageUrl))
+                                    {
+                                        <div class="mb-3">
+                                            <label class="control-label">Current Image</label>
+                                            <div class="d-flex align-items-center">
+                                                <img src="@Model.Variations[i].ProductVariationImageUrl" alt="Variation Image" class="img-thumbnail mr-3" style="max-height: 100px;" />
+                                                <div class="flex-grow-1">
+                                                    <div class="input-group">
+                                                        <input type="text" class="form-control form-control-sm" value="@Model.Variations[i].ProductVariationImageUrl" readonly>
+                                                        <div class="input-group-append">
+                                                            <button class="btn btn-outline-secondary btn-sm" type="button" onclick="copyToClipboard('@Model.Variations[i].ProductVariationImageUrl')">
+                                                                <i class="fas fa-copy"></i>
+                                                            </button>
+                                                            <a href="@Model.Variations[i].ProductVariationImageUrl" target="_blank" class="btn btn-outline-primary btn-sm">
+                                                                <i class="fas fa-external-link-alt"></i>
+                                                            </a>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    }
+
+                                    <div class="form-group">
+                                        <label class="control-label">@(string.IsNullOrEmpty(Model.Variations[i].ProductVariationImageUrl) ? "Upload Image" : "Change Image")</label>
+                                        <input name="Variations[@i].ProductVariationFile" class="form-control-file" type="file" accept="image/*" />
+                                        <small class="form-text text-muted">JPEG, PNG or GIF, max 5MB</small>
+                                        <span asp-validation-for="Variations[i].ProductVariationFile" class="text-danger small"></span>
+                                    </div>
                                 </div>
+
                                 @if (i > 0)
                                 {
-                                    <button type="button" class="btn btn-sm btn-danger remove-variation">Remove</button>
+                                    <button type="button" class="btn btn-sm btn-danger remove-variation">
+                                        <i class="fas fa-trash"></i> Remove
+                                    </button>
                                 }
                             </div>
                         </div>
@@ -125,17 +155,19 @@
             </div>
 
             <div class="form-group">
-                <button type="submit" class="btn btn-primary">Save Changes</button>
-                <a asp-action="Index" class="btn btn-secondary">Cancel</a>
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-save"></i> Save Changes
+                </button>
+                <a asp-action="Index" class="btn btn-secondary">
+                    <i class="fas fa-times"></i> Cancel
+                </a>
             </div>
         </form>
     </div>
 </div>
 
 @section Scripts {
-    @{
-        await Html.RenderPartialAsync("_ValidationScriptsPartial");
-    }
+    @await Html.PartialAsync("_ValidationScriptsPartial")
 
     <script>
         $(document).ready(function() {
@@ -175,11 +207,16 @@
                                 </div>
                             </div>
                         </div>
+
                         <div class="form-group">
-                            <label class="control-label">Variation Image</label>
-                            <input name="Variations[${index}].ProductVariationImage" class="form-control-file" type="file" />
+                            <label class="control-label">Upload Image</label>
+                            <input name="Variations[${index}].ProductVariationFile" class="form-control-file" type="file" accept="image/*" />
+                            <small class="form-text text-muted">JPEG, PNG or GIF, max 5MB</small>
                         </div>
-                        <button type="button" class="btn btn-sm btn-danger remove-variation">Remove</button>
+
+                        <button type="button" class="btn btn-sm btn-danger remove-variation">
+                            <i class="fas fa-trash"></i> Remove
+                        </button>
                     </div>
                 </div>`;
                 $('#variationsContainer').append(html);
@@ -197,5 +234,28 @@
                 });
             });
         });
+
+        function copyToClipboard(text) {
+            navigator.clipboard.writeText(text).then(function() {
+                toastr.success('Image URL copied to clipboard!');
+            }, function(err) {
+                toastr.error('Could not copy text: ' + err);
+            });
+        }
     </script>
+
+    <style>
+        .variation-card {
+            border-left: 4px solid #6c757d;
+        }
+
+            .variation-card:hover {
+                border-left-color: #007bff;
+            }
+
+        .img-thumbnail {
+            background-color: #f8f9fa;
+            border: 1px solid #dee2e6;
+        }
+    </style>
 }

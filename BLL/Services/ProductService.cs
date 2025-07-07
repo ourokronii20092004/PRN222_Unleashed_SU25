@@ -1,4 +1,5 @@
-﻿using BLL.Services.Interfaces;
+﻿using AutoMapper;
+using BLL.Services.Interfaces;
 using DAL.Data;
 using DAL.DTOs.ProductDTOs;
 using DAL.Models;
@@ -61,7 +62,7 @@ namespace BLL.Services
                         SizeId = size.SizeId,
                         ColorId = color.ColorId,
                         VariationPrice = dto.ProductPrice ?? 0,
-                        VariationImage = dto.ProductVariationImage,
+                        VariationImage = dto.ProductVariationImageUrl,
                     };
 
                     newVariations.Add(variation);
@@ -90,43 +91,43 @@ namespace BLL.Services
 
         public async Task<Product> CreateProductAsync(ProductDTO productDTO)
         {
-            // Chuyển đổi ProductDTO thành Product và thiết lập các trường cơ bản
+
             var product = productDTO.ToProduct();
             product.ProductCreatedAt = DateTimeOffset.UtcNow;
             product.ProductUpdatedAt = DateTimeOffset.UtcNow;
 
-            // Thêm sản phẩm vào cơ sở dữ liệu
+
             await _productRepository.AddAsync(product);
             await _productRepository.SaveChangesAsync();
 
-            // Thêm danh mục vào sản phẩm nếu có
+
             if (productDTO.Categories != null && productDTO.Categories.Any())
             {
                 foreach (var category in productDTO.Categories)
                 {
-                    // Thêm CategoryId vào sản phẩm
+
                     await _productRepository.AddProductCategoryAsync(product.ProductId, category.CategoryId);
                 }
             }
 
-            // Tạo danh sách biến thể sản phẩm từ dữ liệu DTO
+
             var variations = new List<Variation>();
             foreach (var variationDTO in productDTO.Variations)
             {
-                // Lấy thông tin Size và Color từ repositories
+
                 var size = await _sizeRepository.GetByIdAsync(variationDTO.SizeId);
                 var color = await _colorRepository.GetByIdAsync(variationDTO.ColorId);
 
                 if (size != null && color != null)
                 {
-                    // Tạo mới biến thể sản phẩm
+
                     var variation = new Variation
                     {
                         ProductId = product.ProductId,
                         SizeId = size.SizeId,
                         ColorId = color.ColorId,
                         VariationPrice = variationDTO.ProductPrice ?? 0,
-                        VariationImage = variationDTO.ProductVariationImage
+                        VariationImage = variationDTO.ProductVariationImageUrl
                     };
 
                     variations.Add(variation);
@@ -166,6 +167,13 @@ namespace BLL.Services
         {
             var products = await _productRepository.GetAllAsync();
 
+
+            var variations = await _variationRepository.GetAllAsync();
+
+            var variationsByProductId = variations
+                .GroupBy(v => v.ProductId)
+                .ToDictionary(g => g.Key, g => g.ToList());
+
             var productListDTOs = new List<ProductListDTO>();
 
             foreach (var product in products)
@@ -181,19 +189,34 @@ namespace BLL.Services
                     ProductDescription = product.ProductDescription,
                     BrandId = product.BrandId ?? 0,
                     BrandName = product.Brand?.BrandName,
+
                     CategoryList = product.Categories.Select(c => new Category
                     {
                         CategoryId = c.CategoryId,
                         CategoryName = c.CategoryName
                     }).ToList(),
-                    //Variations = await _variationRepository.FindProductVariationByProductIdAsync(product.ProductId)
                 };
+
+                // Kiểm tra xem có variations cho sản phẩm này không
+                if (variationsByProductId.ContainsKey(product.ProductId))
+                {
+                    // Lấy variations từ dictionary
+                    productDTO.Variations = variationsByProductId[product.ProductId]
+                        .Select(v => new ProductListDTO.ProductVariationDTO
+                        {
+                            SizeId = v.SizeId,
+                            ColorId = v.ColorId,
+                            ProductPrice = v.VariationPrice,
+                            ProductVariationImage = v.VariationImage
+                        }).ToList();
+                }
 
                 productListDTOs.Add(productDTO);
             }
 
             return productListDTOs;
         }
+
 
         public async Task<Product?> GetProductByIdAsync(Guid id)
         {
@@ -282,7 +305,7 @@ namespace BLL.Services
                 {
                     // Update existing variation
                     variation.VariationPrice = dto.ProductPrice ?? 0;
-                    variation.VariationImage = dto.ProductVariationImage;
+                    variation.VariationImage = dto.ProductVariationImageUrl;
                 }
                 else
                 {
@@ -311,7 +334,7 @@ namespace BLL.Services
                             SizeId = size.SizeId,
                             ColorId = color.ColorId,
                             VariationPrice = dto.ProductPrice ?? 0,
-                            VariationImage = dto.ProductVariationImage
+                            VariationImage = dto.ProductVariationImageUrl
                         };
                         await _variationRepository.AddAsync(newVariation);
                         product.Variations.Add(newVariation);

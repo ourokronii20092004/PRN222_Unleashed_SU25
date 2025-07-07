@@ -1,142 +1,185 @@
 ﻿@model DAL.DTOs.ProductDTOs.ProductDTO
 
 @{
-    ViewData["Title"] = "Create Product";
+    ViewData["Title"] = "Create New Product";
 }
 
-<h1>Create Product</h1>
+@section Styles {
+    <style>
+        .image-placeholder {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 160px;
+            width: 100%;
+            background-color: #f8f9fa;
+            border: 1px dashed #ced4da;
+            border-radius: .25rem;
+            color: #6c757d;
+            font-size: 0.9rem;
+        }
 
-<h4>Product Information</h4>
-<hr />
-<div class="row">
-    <div class="col-md-8">
-        <form asp-action="Create" enctype="multipart/form-data" id="productForm">
-            <!-- Display all validation errors at the top -->
-            <div asp-validation-summary="All" class="alert alert-danger"></div>
+        .variation-card {
+            position: relative;
+            border: 1px solid #dee2e6;
+            border-radius: 0.25rem;
+            margin-bottom: 1rem;
+        }
 
-            <!-- Main Product Info Section -->
-            <div class="card mb-4">
-                <div class="card-header">
-                    <h5>Basic Information</h5>
+        .remove-variation {
+            position: absolute;
+            top: 0.5rem;
+            right: 0.5rem;
+        }
+
+        .card-header h5 {
+            margin-bottom: 0;
+        }
+    </style>
+}
+
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-10">
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0"><i class="bi bi-plus-circle-fill"></i> @ViewData["Title"]</h4>
                 </div>
                 <div class="card-body">
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label asp-for="ProductName" class="control-label">Product Name*</label>
-                                <input asp-for="ProductName" class="form-control" />
-                                <span asp-validation-for="ProductName" class="text-danger"></span>
+                    <form asp-action="Create" enctype="multipart/form-data" id="productForm">
+                        <div asp-validation-summary="All" class="alert alert-danger" role="alert" style="@(ViewData.ModelState.IsValid ? "display: none;" : "")"></div>
+
+                        <!-- Basic Information Section -->
+                        <div class="mb-4">
+                            <h5 class="mb-3"><i class="bi bi-info-circle"></i> Basic Information</h5>
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label asp-for="ProductName" class="form-label fw-bold">Product Name*</label>
+                                        <input asp-for="ProductName" class="form-control" placeholder="Enter product name" />
+                                        <span asp-validation-for="ProductName" class="text-danger small"></span>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label asp-for="ProductCode" class="form-label fw-bold">Product Code*</label>
+                                        <input asp-for="ProductCode" class="form-control" placeholder="Enter product code" />
+                                        <span asp-validation-for="ProductCode" class="text-danger small"></span>
+                                        @if (ViewData.ModelState.TryGetValue("ProductCode", out var entry) && entry?.Errors?.Count > 0)
+                                        {
+                                            <span class="text-danger small">@entry.Errors[0].ErrorMessage</span>
+                                        }
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="form-group mt-3">
+                                <label asp-for="ProductDescription" class="form-label fw-bold">Description</label>
+                                <textarea asp-for="ProductDescription" class="form-control" rows="3" placeholder="Enter product description"></textarea>
+                                <span asp-validation-for="ProductDescription" class="text-danger small"></span>
+                            </div>
+
+                            <div class="row g-3 mt-2">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label asp-for="BrandId" class="form-label fw-bold">Brand*</label>
+                                        <select asp-for="BrandId" class="form-control"
+                                                asp-items="@(ViewBag.BrandId as SelectList ?? new SelectList(Enumerable.Empty<SelectListItem>()))">
+                                            <option value="">-- Select Brand --</option>
+                                        </select>
+                                        <span asp-validation-for="BrandId" class="text-danger small"></span>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label asp-for="ProductStatusId" class="form-label fw-bold">Status*</label>
+                                        <select asp-for="ProductStatusId" class="form-control"
+                                                asp-items="@(ViewBag.ProductStatusId as SelectList ?? new SelectList(Enumerable.Empty<SelectListItem>()))">
+                                            <option value="">-- Select Status --</option>
+                                        </select>
+                                        <span asp-validation-for="ProductStatusId" class="text-danger small"></span>
+                                    </div>
+                                </div>
                             </div>
                         </div>
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label asp-for="ProductCode" class="control-label">Product Code*</label>
-                                <input asp-for="ProductCode" class="form-control" />
-                                <span asp-validation-for="ProductCode" class="text-danger"></span>
-                                @if (ViewData.ModelState.TryGetValue("ProductCode", out var entry) && entry?.Errors?.Count > 0)
+
+                        <hr />
+
+                        <!-- Variations Section -->
+                        <div class="mb-4">
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <h5 class="mb-0"><i class="bi bi-collection"></i> Product Variations</h5>
+                                <button type="button" class="btn btn-sm btn-success" id="addVariationBtn">
+                                    <i class="bi bi-plus-circle"></i> Add Variation
+                                </button>
+                            </div>
+
+                            <div id="variationsContainer">
+                                @for (var i = 0; i < Model.Variations.Count; i++)
                                 {
-                                    <span class="text-danger">@entry.Errors[0].ErrorMessage</span>
+                                    <div class="variation-card card mb-3">
+                                        <div class="card-body">
+                                            <div class="row g-3">
+                                                <div class="col-md-4">
+                                                    <div class="form-group">
+                                                        <label asp-for="Variations[i].SizeId" class="form-label fw-bold">Size*</label>
+                                                        <select asp-for="Variations[i].SizeId" class="form-control"
+                                                                asp-items="@(ViewBag.SizeId as SelectList ?? new SelectList(Enumerable.Empty<SelectListItem>()))">
+                                                            <option value="">-- Select Size --</option>
+                                                        </select>
+                                                        <span asp-validation-for="Variations[i].SizeId" class="text-danger small"></span>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-4">
+                                                    <div class="form-group">
+                                                        <label asp-for="Variations[i].ColorId" class="form-label fw-bold">Color*</label>
+                                                        <select asp-for="Variations[i].ColorId" class="form-control"
+                                                                asp-items="@(ViewBag.ColorId as SelectList ?? new SelectList(Enumerable.Empty<SelectListItem>()))">
+                                                            <option value="">-- Select Color --</option>
+                                                        </select>
+                                                        <span asp-validation-for="Variations[i].ColorId" class="text-danger small"></span>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-4">
+                                                    <div class="form-group">
+                                                        <label asp-for="Variations[i].ProductPrice" class="form-label fw-bold">Price*</label>
+                                                        <input asp-for="Variations[i].ProductPrice" class="form-control" type="number" step="0.01" min="0" placeholder="0.00" />
+                                                        <span asp-validation-for="Variations[i].ProductPrice" class="text-danger small"></span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="form-group mt-3">
+                                                <label asp-for="Variations[i].ProductVariationFile" class="form-label fw-bold">Variation Image</label>
+                                                <input asp-for="Variations[i].ProductVariationFile" class="form-control" type="file" accept="image/*" />
+                                                <span asp-validation-for="Variations[i].ProductVariationFile" class="text-danger small"></span>
+                                            </div>
+                                            @if (i > 0)
+                                            {
+                                                <button type="button" class="btn btn-sm btn-danger remove-variation">
+                                                    <i class="bi bi-trash"></i> Remove
+                                                </button>
+                                            }
+                                        </div>
+                                    </div>
                                 }
                             </div>
                         </div>
-                    </div>
 
-                    <div class="form-group">
-                        <label asp-for="ProductDescription" class="control-label">Description</label>
-                        <textarea asp-for="ProductDescription" class="form-control" rows="3"></textarea>
-                        <span asp-validation-for="ProductDescription" class="text-danger"></span>
-                    </div>
+                        <hr />
 
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label asp-for="BrandId" class="control-label">Brand*</label>
-                                <!-- For Brand dropdown -->
-                                <select asp-for="BrandId" class="form-control"
-                                        asp-items="@(ViewBag.BrandId as SelectList ?? new SelectList(Enumerable.Empty<SelectListItem>()))">
-                                    <option value="">-- Select Brand --</option>
-                                </select>
-                                <span asp-validation-for="BrandId" class="text-danger"></span>
-                            </div>
+                        <!-- Form Actions -->
+                        <div class="d-flex justify-content-end">
+                            <a asp-action="Index" class="btn btn-outline-secondary me-2">
+                                <i class="bi bi-arrow-left"></i> Back to List
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-save"></i> Create Product
+                            </button>
                         </div>
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label asp-for="ProductStatusId" class="control-label">Status*</label>
-                                <!-- For Status dropdown -->
-                                <select asp-for="ProductStatusId" class="form-control"
-                                        asp-items="@(ViewBag.ProductStatusId as SelectList ?? new SelectList(Enumerable.Empty<SelectListItem>()))">
-                                    <option value="">-- Select Status --</option>
-                                </select>
-                                <span asp-validation-for="ProductStatusId" class="text-danger"></span>
-                            </div>
-                        </div>
-                    </div>
+                    </form>
                 </div>
             </div>
-
-            <!-- Variations Section -->
-            <div class="card mb-4">
-                <div class="card-header d-flex justify-content-between align-items-center">
-                    <h5>Product Variations</h5>
-                    <button type="button" class="btn btn-sm btn-success" id="addVariationBtn">Add Variation</button>
-                </div>
-                <div class="card-body" id="variationsContainer">
-                    @for (var i = 0; i < Model.Variations.Count; i++)
-                    {
-                        <div class="variation-card card mb-3">
-                            <div class="card-body">
-                                <div class="row">
-                                    <div class="col-md-4">
-                                        <div class="form-group">
-                                            <label asp-for="Variations[i].SizeId" class="control-label">Size*</label>
-                                            <!-- For Size dropdown in variations -->
-                                            <select asp-for="Variations[i].SizeId" class="form-control"
-                                                    asp-items="@(ViewBag.SizeId as SelectList ?? new SelectList(Enumerable.Empty<SelectListItem>()))">
-                                                <option value="">-- Select Size --</option>
-                                            </select>
-                                            <span asp-validation-for="Variations[i].SizeId" class="text-danger"></span>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-4">
-                                        <div class="form-group">
-                                            <label asp-for="Variations[i].ColorId" class="control-label">Color*</label>
-                                            <!-- For Color dropdown in variations -->
-                                            <select asp-for="Variations[i].ColorId" class="form-control"
-                                                    asp-items="@(ViewBag.ColorId as SelectList ?? new SelectList(Enumerable.Empty<SelectListItem>()))">
-                                                <option value="">-- Select Color --</option>
-                                            </select>
-                                            <span asp-validation-for="Variations[i].ColorId" class="text-danger"></span>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-4">
-                                        <div class="form-group">
-                                            <label asp-for="Variations[i].ProductPrice" class="control-label">Price*</label>
-                                            <input asp-for="Variations[i].ProductPrice" class="form-control" type="number" step="0.01" min="0" max="999999999999.99" />
-                                            <span asp-validation-for="Variations[i].ProductPrice" class="text-danger"></span>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="form-group">
-                                    <label asp-for="Variations[i].ProductVariationImage" class="control-label">Variation Image</label>
-                                    <input asp-for="Variations[i].ProductVariationImage" class="form-control-file" type="file" />
-                                    <span asp-validation-for="Variations[i].ProductVariationImage" class="text-danger"></span>
-                                </div>
-                                @if (i > 0)
-                                {
-                                    <button type="button" class="btn btn-sm btn-danger remove-variation">Remove</button>
-                                }
-                            </div>
-                        </div>
-                    }
-                </div>
-            </div>
-
-            <!-- Form Actions -->
-            <div class="form-group">
-                <button type="submit" class="btn btn-primary">Create Product</button>
-                <a asp-action="Index" class="btn btn-secondary">Back to List</a>
-            </div>
-        </form>
+        </div>
     </div>
 </div>
 
@@ -153,10 +196,10 @@
                 var html = `
                 <div class="variation-card card mb-3">
                     <div class="card-body">
-                        <div class="row">
+                        <div class="row g-3">
                             <div class="col-md-4">
                                 <div class="form-group">
-                                    <label class="control-label">Size*</label>
+                                    <label class="form-label fw-bold">Size*</label>
                                     <select name="Variations[${index}].SizeId" class="form-control">
                                         @foreach (var item in (SelectList)ViewBag.SizeId)
                                         {
@@ -167,7 +210,7 @@
                             </div>
                             <div class="col-md-4">
                                 <div class="form-group">
-                                    <label class="control-label">Color*</label>
+                                    <label class="form-label fw-bold">Color*</label>
                                     <select name="Variations[${index}].ColorId" class="form-control">
                                         @foreach (var item in (SelectList)ViewBag.ColorId)
                                         {
@@ -178,16 +221,18 @@
                             </div>
                             <div class="col-md-4">
                                 <div class="form-group">
-                                    <label class="control-label">Price*</label>
-                                    <input name="Variations[${index}].ProductPrice" class="form-control" type="number" step="0.01" min="0.01" max="999999999999.99" />
+                                    <label class="form-label fw-bold">Price*</label>
+                                    <input name="Variations[${index}].ProductPrice" class="form-control" type="number" step="0.01" min="0.01" placeholder="0.00" />
                                 </div>
                             </div>
                         </div>
-                        <div class="form-group">
-                            <label class="control-label">Variation Image</label>
-                            <input name="Variations[${index}].ProductVariationImage" class="form-control-file" type="file" />
+                        <div class="form-group mt-3">
+                            <label class="form-label fw-bold">Variation Image</label>
+                            <input name="Variations[${index}].ProductVariationFile" class="form-control" type="file" accept="image/*" />
                         </div>
-                        <button type="button" class="btn btn-sm btn-danger remove-variation">Remove</button>
+                        <button type="button" class="btn btn-sm btn-danger remove-variation">
+                            <i class="bi bi-trash"></i> Remove
+                        </button>
                     </div>
                 </div>`;
                 $('#variationsContainer').append(html);
@@ -203,6 +248,14 @@
                         $(this).attr('name', name);
                     });
                 });
+            });
+
+            // Form submission handler
+            $('#productForm').on('submit', function() {
+                if ($(this).valid()) {
+                    $('button[type="submit"]').prop('disabled', true);
+                    $('button[type="submit"]').html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Creating...');
+                }
             });
         });
     </script>
