@@ -11,9 +11,9 @@ namespace DAL.Data;
 
 public partial class UnleashedContext : DbContext
 {
-    public UnleashedContext()
-    {
-    }
+    //public UnleashedContext()
+    //{
+    //}
 
     public UnleashedContext(DbContextOptions<UnleashedContext> options)
         : base(options)
