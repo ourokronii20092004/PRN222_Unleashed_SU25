@@ -1,15 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using DAL.Data;
-using DAL.Models;
 using DAL.DTOs.NotificationDTOs;
 using BLL.Services.Interfaces;
-using DAL.DTOs.UserDTOs;
 
 namespace Unleashed_MVC.Controllers
 {
@@ -52,7 +44,6 @@ namespace Unleashed_MVC.Controllers
         // GET: Notifications/Create
         public async Task<IActionResult> Create()
         {
-            ViewData["Receivers"] = new SelectList(await _accountService.GetAccountsAsync(), "UserUsername", "UserUsername");
             return View();
         }
 
@@ -84,7 +75,6 @@ namespace Unleashed_MVC.Controllers
             {
                 return NotFound();
             }
-            ViewData["Receivers"] = new SelectList(await _accountService.GetAccountsAsync(), "Username", "Username");
             return View(notification);
         }
 
@@ -103,8 +93,7 @@ namespace Unleashed_MVC.Controllers
 
                     if (!await _notificationService.EditNotificationAsync(id, usernames))
                     {
-                        ViewData["Receivers"] = new SelectList(await _accountService.GetAccountsAsync(), "Username", "Username");
-                        return View(notification);
+                       return View(notification);
                     }
                 }
                 catch (DbUpdateConcurrencyException)
@@ -112,8 +101,7 @@ namespace Unleashed_MVC.Controllers
                     return NotFound();
                 }
                 return RedirectToAction(nameof(Index));
-            }
-            ViewData["Receivers"] = new SelectList(await _accountService.GetAccountsAsync(), "Username", "Username");
+            } 
             return View(notification);
         }
 

@@ -18,8 +18,7 @@ namespace DAL.DTOs.UserDTOs
         [Display(Name = "Fullname")]
         public string? UserFullname { get; set; }
         public bool? Gender { get; set; }
-
-        public Role? Role { get; set; }
+        public Role Role { get; set; }
 
         [Required(ErrorMessage = "Email cannot be empty.")]
         [EmailAddress(ErrorMessage = "Invalid Email Address format.")]

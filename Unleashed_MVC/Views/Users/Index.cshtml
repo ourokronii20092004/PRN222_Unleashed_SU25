@@ -2,48 +2,98 @@
 @model IEnumerable<UserDetailDTO>
 
 @{
-    ViewData["Title"] = "Accounts";
+    ViewData["Title"] = "Account Management";
 }
 
-<div class="container mt-4">
-    <h1 class="mb-4">Account Management</h1>
+<style>
+    /* Custom styles for table layout and readability */
+    .table-fixed-header th,
+    .table-fixed-header td {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        padding: 0.75rem; /* Slightly more padding for better spacing */
+    }
 
-    <p>
-        <a asp-action="Create" class="btn btn-primary">Create New Account</a>
-    </p>
+    /* Specific column widths for better visual balance */
+    .table-fixed-header .col-status {
+        width: 80px;
+    }
+
+    .table-fixed-header .col-username {
+        width: 120px;
+    }
+
+    .table-fixed-header .col-fullname {
+        width: 180px;
+    }
+
+    .table-fixed-header .col-email {
+        width: 220px;
+    }
+    /* Slightly wider for emails */
+    .table-fixed-header .col-image {
+        width: 80px;
+        text-align: center;
+    }
+    /* Center image */
+    .table-fixed-header .col-date {
+        width: 160px;
+    }
+
+    .table-fixed-header .col-gender {
+        width: 100px;
+    }
+
+    .table-fixed-header .col-role {
+        width: 120px;
+    }
+
+    .table-fixed-header .col-actions {
+        width: 180px;
+        text-align: center;
+    }
+    /* Wider for action buttons, center them */
+
+    .img-thumbnail.rounded-circle {
+        border: 1px solid #dee2e6; /* Add a subtle border to image */
+    }
+</style>
+
+<div class="container mt-4">
+    <h1 class="mb-4 text-center text-primary">Accounts Management</h1>
+    <hr class="mb-4" />
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <a asp-action="Create" class="btn btn-success d-flex align-items-center">
+            <i class="bi bi-person-plus-fill me-2"></i> Create New Account
+        </a>
+        <form method="get" class="d-flex w-50">
+            <input type="text" name="SearchString" value="@ViewData["SearchString"]"
+                   class="form-control me-2" placeholder="Search by Full name..." aria-label="Search accounts" />
+            <button type="submit" class="btn btn-outline-primary">
+                <i class="bi bi-search"></i> Search
+            </button>
+            <a href="/Users/Index" class="btn btn-outline-secondary ms-2">
+                <i class="bi bi-arrow-counterclockwise"></i> Clear
+            </a>
+        </form>
+    </div>
 
     <div class="table-responsive">
-        <table class="table table-striped table-hover table-bordered">
+        <table class="table table-striped table-hover table-bordered table-fixed-header shadow-sm">
             <thead class="table-dark">
                 <tr>
-                    <th>
-                        @Html.DisplayNameFor(model => model.IsUserEnabled)
-                    </th>
-                    <th>
-                        @Html.DisplayNameFor(model => model.UserUsername)
-                    </th>
-                    <th>
-                        @Html.DisplayNameFor(model => model.UserFullname)
-                    </th>
-                    <th>
-                        @Html.DisplayNameFor(model => model.UserEmail)
-                    </th>
-                    <th>
-                        @Html.DisplayNameFor(model => model.UserImage)
-                    </th>
-                    <th>
-                        @Html.DisplayNameFor(model => model.UserCreatedAt)
-                    </th>
-                    <th>
-                        @Html.DisplayNameFor(model => model.UserUpdatedAt)
-                    </th>
-                    <th>
-                        @Html.DisplayNameFor(model => model.Gender)
-                    </th>
-                    <th>
-                        @Html.DisplayNameFor(model => model.Role)
-                    </th>
-                    <th>Actions</th>
+                    <th class="col-status">Status</th>
+                    <th class="col-username">Username</th>
+                    <th class="col-fullname">Full Name</th>
+                    <th class="col-email">Email</th>
+                    <th class="col-image">Image</th>
+                    <th class="col-date">Created At</th>
+                    <th class="col-date">Last Updated</th>
+                    <th class="col-gender">Gender</th>
+                    <th class="col-role">Role</th>
+                    <th class="col-actions">Actions</th>
                 </tr>
             </thead>
             <tbody>
@@ -60,54 +110,78 @@
                                 <span class="badge bg-danger">Disabled</span>
                             }
                         </td>
-                        <td>
+                        <td class="col-username">
                             @Html.DisplayFor(modelItem => item.UserUsername)
                         </td>
-                        <td>
+                        <td class="col-fullname">
                             @Html.DisplayFor(modelItem => item.UserFullname)
                         </td>
-                        <td>
+                        <td class="col-email">
                             @Html.DisplayFor(modelItem => item.UserEmail)
                         </td>
-                        <td>
+                        <td class="col-image">
                             @if (!string.IsNullOrEmpty(item.UserImage))
                             {
-                                <img src="@item.UserImage" alt="User Image" class="img-thumbnail" style="width: 50px; height: 50px; object-fit: cover;" />
+                                <img src="@item.UserImage" alt="User Image" class="img-thumbnail rounded-circle" style="width: 40px; height: 40px; object-fit: cover;" />
                             }
                             else
                             {
-                                <span>No Image</span>
+                                <span class="text-muted fst-italic">No Image</span>
                             }
                         </td>
-                        <td>
-                            @Html.DisplayFor(modelItem => item.UserCreatedAt)
+                        <td class="col-date">
+                            @item.UserCreatedAt?.ToString("yyyy-MM-dd HH:mm")
                         </td>
-                        <td>
-                            @Html.DisplayFor(modelItem => item.UserUpdatedAt)
+                        <td class="col-date">
+                            @item.UserUpdatedAt?.ToString("yyyy-MM-dd HH:mm")
                         </td>
-                        <td>
+                        <td class="col-gender">
                             @if (item.Gender.HasValue)
                             {
                                 @(item.Gender.Value ? "Female" : "Male")
                             }
                             else
                             {
-                                @:Unknown
+                                <span class="text-muted fst-italic">Unknown</span>
                             }
                         </td>
-                        <td>
-                                @Html.DisplayFor(modelItem => item.Role.RoleName)
+                        <td class="col-role">
+                            @Html.DisplayFor(modelItem => item.Role.RoleName)
                         </td>
-                        <td>
+                        <td class="col-actions">
                             <div class="btn-group" role="group" aria-label="Account Actions">
-                                <a asp-action="Edit" asp-route-username="@item.UserUsername" class="btn btn-sm btn-outline-primary">Edit</a>
-                                <a asp-action="Details" asp-route-username="@item.UserUsername" class="btn btn-sm btn-outline-info">Details</a>
-                                <a asp-action="Delete" asp-route-username="@item.UserUsername" class="btn btn-sm btn-outline-danger">Delete</a>
+                                <a asp-action="Edit" asp-route-username="@item.UserUsername" class="btn btn-sm btn-outline-primary" title="Edit">
+                                    <i class="bi bi-pencil"></i>
+                                </a>
+                                <a asp-action="Details" asp-route-username="@item.UserUsername" class="btn btn-sm btn-outline-info" title="Details">
+                                    <i class="bi bi-info-circle"></i>
+                                </a>
+                                <a asp-action="Delete" asp-route-username="@item.UserUsername" class="btn btn-sm btn-outline-danger" title="Delete">
+                                    <i class="bi bi-trash"></i>
+                                </a>
                             </div>
                         </td>
                     </tr>
                 }
             </tbody>
         </table>
+    </div>
+
+    <div class="d-flex justify-content-center mt-4">
+        <form method="get" class="me-2">
+            <input type="hidden" name="pageIndex" value="@((int)ViewData["CurrentPage"] - 1)" />
+            <input type="hidden" name="SearchString" value="@ViewData["SearchString"]" />
+            <button type="submit" class="btn btn-primary px-4" @(!(bool)ViewData["HasPreviousPage"] ? "disabled" : "")>
+                <i class="bi bi-arrow-left-circle me-2"></i> Previous
+            </button>
+        </form>
+
+        <form method="get">
+            <input type="hidden" name="pageIndex" value="@((int)ViewData["CurrentPage"] + 1)" />
+            <input type="hidden" name="SearchString" value="@ViewData["SearchString"]" />
+            <button type="submit" class="btn btn-primary px-4" @(!(bool)ViewData["HasNextPage"] ? "disabled" : "")>
+                Next <i class="bi bi-arrow-right-circle ms-2"></i>
+            </button>
+        </form>
     </div>
 </div>

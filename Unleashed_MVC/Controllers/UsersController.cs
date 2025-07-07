@@ -2,16 +2,21 @@
 using DAL.DTOs.UserDTOs;
 using BLL.Services.Interfaces;
 using Microsoft.IdentityModel.Tokens;
-using System.Diagnostics;
 
 namespace Unleashed_MVC.Controllers
 {
-    [Filter.Filter]
+    [Filter.Filter(RequiredRoles = new []{"ADMIN"})]
     public class UsersController : Controller
     {
         private readonly IUserService _service;
 
+        [BindProperty(SupportsGet = true)]
+        public string? SearchString { get; set; }
 
+        [BindProperty(SupportsGet = true)]
+        public int? pageIndex { get; set; }
+
+        public int pageSize = 5;
         public UsersController(IUserService service)
         {
             _service = service;
@@ -20,7 +25,12 @@ namespace Unleashed_MVC.Controllers
         // GET: Users
         public async Task<IActionResult> Index()
         {
-            var accountList = await _service.GetAccountsAsync();
+            int currentPage = pageIndex ?? 1;
+            var (accountList,totalAmount) = await _service.GetAccountsAsync(SearchString,currentPage,pageSize);
+            ViewData["HasPreviousPage"] = (currentPage > 1);
+            ViewData["HasNextPage"] = (currentPage * pageSize < totalAmount);
+            ViewData["CurrentPage"] = currentPage;
+            ViewData["SearchString"] = SearchString;
             return View(accountList);
         }
 
@@ -59,7 +69,7 @@ namespace Unleashed_MVC.Controllers
                 ModelState.AddModelError(string.Empty, "Username has been existed, Please use a new username.");
                 return View(user);
             }
-            if (await _service.AddUserAsync(user, 2, profileImageFile))
+            if (await _service.AddUserAsync(user, 3, profileImageFile))
             {            
                 return RedirectToAction(nameof(Index));
             }
