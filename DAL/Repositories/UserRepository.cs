@@ -25,7 +25,7 @@ namespace DAL.Repositories
 
         public async Task<IEnumerable<User>> GetAllAsync()
         {
-            return await _unleashedContext.Users.ToListAsync();
+            return await _unleashedContext.Users.Include(u => u.Role).ToListAsync();
         }
 
         public async Task Update(User entity, CancellationToken cancellationToken = default)
@@ -37,20 +37,20 @@ namespace DAL.Repositories
         public async Task<User?> GetByUsernameAsync(string username, CancellationToken cancellationToken = default)
         {
             ArgumentNullException.ThrowIfNull(username);
-            return await _unleashedContext.Users
+            return await _unleashedContext.Users.Include(u => u.Role)
                                           .FirstOrDefaultAsync(u => u.UserUsername == username, cancellationToken);
         }
 
         public async Task<User> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
         {
             ArgumentNullException.ThrowIfNull(id);
-            return await _unleashedContext.Users
+            return await _unleashedContext.Users.Include(u => u.Role)
                                           .FirstOrDefaultAsync(u => u.UserId == id,cancellationToken);
         }
 
         public async Task<IEnumerable<User>> FindAsync(Expression<Func<User, bool>> predicate, CancellationToken cancellationToken = default)
         {
-            return await _unleashedContext.Users
+            return await _unleashedContext.Users.Include(u => u.Role)
                   .Where(predicate)
                   .ToListAsync(cancellationToken);
         }

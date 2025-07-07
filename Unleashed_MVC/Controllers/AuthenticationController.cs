@@ -9,10 +9,12 @@ namespace Unleashed_MVC.Controllers
     public class AuthenticationController : Controller
     {
         private readonly IAuthenticationService _authenticationService;
+        private readonly ILogger<AuthenticationController> _logger;
 
-        public AuthenticationController(IAuthenticationService authenticationService)
+        public AuthenticationController(IAuthenticationService authenticationService, ILogger<AuthenticationController> logger)
         {
             _authenticationService = authenticationService;
+            _logger = logger;
         }
         // GET: AuthenticationController
         public ActionResult Login()
@@ -30,9 +32,11 @@ namespace Unleashed_MVC.Controllers
                 if (ModelState.IsValid)
                 {
                     var user = await _authenticationService.Login(loginInfor);
+                    _logger.LogInformation("user: " + (user == null? null : user.Role.RoleName));
                     if (user != null)
                     {
                         HttpContext.Session.SetString("username", user.UserUsername);
+                        HttpContext.Session.SetString("role", user.Role.RoleName);
                         return RedirectToAction("Index", "Home");
                     }
                 }
@@ -43,46 +47,5 @@ namespace Unleashed_MVC.Controllers
            
         }
 
-        // GET: AuthenticationController/Edit/5
-        public ActionResult Edit(int id)
-        {
-            return View();
-        }
-
-        // POST: AuthenticationController/Edit/5
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public ActionResult Edit(int id, IFormCollection collection)
-        {
-            try
-            {
-                return RedirectToAction(nameof(Index));
-            }
-            catch
-            {
-                return View();
-            }
-        }
-
-        // GET: AuthenticationController/Delete/5
-        public ActionResult Delete(int id)
-        {
-            return View();
-        }
-
-        // POST: AuthenticationController/Delete/5
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public ActionResult Delete(int id, IFormCollection collection)
-        {
-            try
-            {
-                return RedirectToAction(nameof(Index));
-            }
-            catch
-            {
-                return View();
-            }
-        }
     }
 }

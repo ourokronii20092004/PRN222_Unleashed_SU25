@@ -109,10 +109,23 @@ namespace BLL.Services
             }
         }
 
-        public async Task<IEnumerable<UserDetailDTO>> GetAccountsAsync()
+        public async Task<(IEnumerable<UserDetailDTO>, int totalAmount)> GetAccountsAsync(string? search, int pageIndex, int pageSize)
         {
-            IEnumerable<User> users = await _userRepository.FindAsync(u => u.IsUserEnabled != null);
-            return _mapper.Map<IEnumerable<UserDetailDTO>>(users);
+            IEnumerable<User> users;
+            if (!string.IsNullOrEmpty(search)) 
+            {
+                users = await _userRepository.FindAsync(u => u.IsUserEnabled != null && u.UserFullname.Contains(search));
+            }
+            else
+            {
+                users = await _userRepository.FindAsync(u => u.IsUserEnabled != null);
+            }
+            int totalAmount = users.Count();
+            return (_mapper
+                .Map<IEnumerable<UserDetailDTO>>
+                (users
+                .Skip((pageIndex - 1) * pageSize)
+                .Take(pageSize)), totalAmount);
         }
 
 
