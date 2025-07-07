@@ -1,0 +1,42 @@
+/* A container for the label, input, and validation message to control spacing */
+.input-group {
+    margin-bottom: 1.25rem;
+}
+
+/* Styles for the <label> element */
+.input-label {
+    display: block;
+    color: #6B7280; /* text-gray-500 */
+    font-size: 1.1rem;
+    margin-bottom: 0.5rem;
+}
+
+/*
+ * Styles for the <input> element itself.
+ * This class will be applied by our Tag Helper.
+*/
+.input-field-control {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid #D1D5DB; /* border-gray-300 */
+    border-radius: 0.5rem; /* rounded-lg */
+    font-size: 1rem;
+    outline: none;
+    transition: all 0.2s ease-in-out;
+}
+
+    /* Style for when the input is focused */
+    .input-field-control:focus {
+        border-color: #3B82F6; /* focus:border-blue-500 */
+        box-shadow: 0 0 0 1px #3B82F6; /* focus:ring-1 focus:ring-blue-500 */
+    }
+
+/* 
+ * This is the default class ASP.NET Core adds to validation messages.
+ * We just need to style it to match the React component.
+*/
+.field-validation-error {
+    color: #EF4444; /* text-red-500 */
+    font-size: 0.875rem; /* text-sm */
+    margin-top: 0.25rem;
+}

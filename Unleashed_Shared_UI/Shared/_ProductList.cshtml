@@ -1,0 +1,21 @@
+﻿@model IEnumerable<Unleashed_Shared_UI.ViewModels.Product.ProductCardViewModel>
+
+@if (Model != null && Model.Any())
+{
+    <div class="product-list-container">
+        <div class="product-list-grid">
+            @foreach (var product in Model)
+            {
+                <div class="product-list-item">
+                    <vc:product-card product="@product"></vc:product-card>
+                </div>
+            }
+        </div>
+    </div>
+}
+else
+{
+    <div class="product-list-container text-center">
+        <p class="text-muted">No products found.</p>
+    </div>
+}

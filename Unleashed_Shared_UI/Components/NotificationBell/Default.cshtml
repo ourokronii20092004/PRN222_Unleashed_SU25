@@ -1,0 +1,31 @@
+@model Unleashed_Shared_UI.ViewModels.NotificationBellViewModel
+
+<div class="notification-container" id="notification-container">
+    <button class="notification-bell-button @(Model.HasUnread ? "has-unread" : "")" id="notification-bell-button">
+        <span class="badge"></span>
+        <i class="fa-regular fa-bell bell-icon"></i>
+    </button>
+
+    <div class="notification-popup" id="notification-popup">
+        <div class="notification-header">
+            <h2 class="h6 fw-bold m-0">Notifications</h2>
+            <button class="btn-close btn-sm" id="notification-close-button"></button>
+        </div>
+        <div class="notification-list" id="notification-list">
+            @foreach (var notification in Model.Notifications)
+            {
+                    <div class="notification-item @(notification.IsViewed ? "is-viewed" : "")" data-notification-id="@notification.Id">
+                        <div class="notification-item-content">
+                            <h3>@notification.Title</h3>
+                            <p class="small m-0 text-muted">@notification.TimeAgo</p>
+                        </div>
+                        <div class="notification-item-actions">
+                            <button class="btn btn-sm btn-outline-danger" data-action="delete">
+                                 <i class="fa-solid fa-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+            }
+        </div>
+    </div>
+</div>

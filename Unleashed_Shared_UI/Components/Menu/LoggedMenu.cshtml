@@ -1,0 +1,37 @@
+@model Unleashed_Shared_UI.ViewModels.LoggedMenuViewModel
+
+<div class="menu-container">
+    <button class="menu-trigger-button" aria-haspopup="true" aria-controls="logged-menu">
+        <img src="@Model.ProfilePictureUrl"
+             class="profile-picture"
+             alt="Profile"
+             onerror="this.onerror=null; this.src='/images/userdefault.webp';" />
+    </button>
+
+    <div class="menu-dropdown" id="logged-menu">
+        <div class="px-4 py-2 border-bottom">
+            <div class="fw-bold">@Model.DisplayName</div>
+            <div class="text-muted small">Welcome back!</div>
+        </div>
+
+        <a asp-controller="User" asp-action="Information" class="menu-item">
+            <i class="icon fa-regular fa-user-circle"></i>
+            <span>Account Settings</span>
+        </a>
+        <a asp-controller="User" asp-action="Orders" class="menu-item">
+            <i class="icon fa-solid fa-box"></i>
+            <span>My Orders</span>
+        </a>
+        <a asp-controller="User" asp-action="WishList" class="menu-item">
+            <i class="icon fa-regular fa-heart"></i>
+            <span>Wish List</span>
+        </a>
+
+        <div class="dropdown-divider"></div>
+
+        <a asp-controller="Account" asp-action="Logout" class="menu-item">
+            <i class="icon fa-solid fa-right-from-bracket"></i>
+            <span>Sign out</span>
+        </a>
+    </div>
+</div>

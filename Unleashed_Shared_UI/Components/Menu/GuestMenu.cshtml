@@ -1,0 +1,20 @@
+<div class="menu-container">
+    <button class="menu-trigger-button" aria-haspopup="true" aria-controls="guess-menu">
+        <i class="fa-regular fa-user"></i>
+    </button>
+
+    <div class="menu-dropdown" id="guess-menu">
+        <a asp-controller="Account" asp-action="Login" class="menu-item">
+            <i class="icon fa-regular fa-user"></i>
+            <span>Login</span>
+        </a>
+        <a asp-controller="Account" asp-action="Register" class="menu-item">
+            <i class="icon fa-solid fa-users"></i>
+            <span>Register</span>
+        </a>
+        <a asp-controller="Account" asp-action="ForgotPassword" class="menu-item">
+            <i class="icon fa-solid fa-lock"></i>
+            <span>Forgot Password</span>
+        </a>
+    </div>
+</div>
