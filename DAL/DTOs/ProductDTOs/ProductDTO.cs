@@ -1,4 +1,5 @@
 ﻿using DAL.Models;
+using Microsoft.AspNetCore.Http;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -28,7 +29,6 @@ namespace DAL.DTOs.ProductDTOs
 
         public DateTimeOffset? CreatedAt { get; set; }
         public DateTimeOffset? UpdatedAt { get; set; }
-
         public List<ProductVariationDTO>? Variations { get; set; }
 
         public string? SaleType { get; set; }
@@ -39,7 +39,6 @@ namespace DAL.DTOs.ProductDTOs
         public virtual ICollection<Review> Reviews { get; set; } = new List<Review>();
         public virtual ICollection<Category> Categories { get; set; } = new List<Category>();
         public virtual ICollection<Sale> Sales { get; set; } = new List<Sale>();
-
         public class ProductVariationDTO
         {
             [Required(ErrorMessage = "Size is required.")]
@@ -52,7 +51,8 @@ namespace DAL.DTOs.ProductDTOs
             [Column(TypeName = "decimal(18,2)")]
             public decimal? ProductPrice { get; set; }
 
-            public string? ProductVariationImage { get; set; }
+            public IFormFile ProductVariationFile { get; set; }
+            public string? ProductVariationImageUrl { get; set; }
         }
 
         public Product ToProduct()

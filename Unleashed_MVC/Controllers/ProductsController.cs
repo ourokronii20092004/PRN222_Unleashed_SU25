@@ -1,14 +1,15 @@
 ﻿using BLL.Services.Interfaces;
+using BLL.Utilities.Interfaces;
 using DAL.DTOs.ProductDTOs;
 using DAL.Models;
 using DAL.Repositories.Interfaces;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using System;
-using System.Threading.Tasks;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc.Rendering;
+using System.Threading.Tasks;
 
 namespace Unleashed_MVC.Controllers
 {
@@ -21,8 +22,10 @@ namespace Unleashed_MVC.Controllers
         private readonly IVariationRepository _variationRepository;
         private readonly IColorRepository _colorRepository;
         private readonly ISizeRepository _sizeRepository;
+        private readonly IImageUploader _imageUploader;
+        private readonly ILogger<ProductsController> _logger;
 
-        public ProductsController(IProductService productService, IBrandRepository brandRepository, IProductStatusRepository productStatusRepository, IVariationRepository variationRepository, IColorRepository colorRepository, ISizeRepository sizeRepository)
+        public ProductsController(ILogger<ProductsController> logger,IProductService productService, IBrandRepository brandRepository, IProductStatusRepository productStatusRepository, IVariationRepository variationRepository, IColorRepository colorRepository, ISizeRepository sizeRepository, IImageUploader imageUploader)
         {
             _productService = productService;
             _brandRepository = brandRepository;
@@ -30,23 +33,25 @@ namespace Unleashed_MVC.Controllers
             _variationRepository = variationRepository;
             _colorRepository = colorRepository;
             _sizeRepository = sizeRepository;
+            _imageUploader = imageUploader;
+            _logger = logger;
         }
 
-        public async Task<IActionResult> Index(int page = 1, int pageSize = 10)
-        {
-            int skip = (page - 1) * pageSize;
+public async Task<IActionResult> Index(int page = 1, int pageSize = 10)
+{
+    int skip = (page - 1) * pageSize;
 
-            var products = await _productService.GetAllProductsAsync(); 
-            var pagedProducts = products.Skip(skip).Take(pageSize).ToList(); 
+    var products = await _productService.GetAllProductsAsync(); 
+    var pagedProducts = products.Skip(skip).Take(pageSize).ToList(); 
 
-            var totalCount = products.Count();
+    var totalCount = products.Count();
+     
+    ViewBag.TotalCount = totalCount;
+    ViewBag.Page = page;
+    ViewBag.PageSize = pageSize;
 
-            ViewBag.TotalCount = totalCount;
-            ViewBag.Page = page;
-            ViewBag.PageSize = pageSize;
-
-            return View(pagedProducts); 
-        }
+    return View(pagedProducts);
+}
 
         // GET: Products/Details/5
         public async Task<IActionResult> Details(Guid? id)
@@ -108,6 +113,7 @@ namespace Unleashed_MVC.Controllers
         }
 
         // GET: Products/Create
+
         public async Task<IActionResult> Create()
         {
             ViewBag.BrandId = new SelectList(await _brandRepository.GetAllAsync(), "BrandId", "BrandName");
@@ -136,7 +142,7 @@ namespace Unleashed_MVC.Controllers
                 if (!string.IsNullOrWhiteSpace(productDTO.ProductCode))
                 {
                     var existingProduct = await _productService.GetProductByCodeAsync(productDTO.ProductCode);
-                    if (existingProduct != null) 
+                    if (existingProduct != null)
                     {
                         return NotFound($"Product code {productDTO.ProductCode} already exists.");
                     }
@@ -146,22 +152,49 @@ namespace Unleashed_MVC.Controllers
                     ModelState.AddModelError("ProductCode", "Product code is required");
                 }
 
+
+                foreach (var variation in productDTO.Variations)
+                {
+                    if (variation.ProductVariationFile != null && variation.ProductVariationFile.Length > 0)
+                    {
+                        var uploadResult = await _imageUploader.UploadImageAsync(variation.ProductVariationFile);
+                        if (uploadResult != null)
+                        {
+                            variation.ProductVariationImageUrl = uploadResult.Url; 
+                        }
+                        else
+                        {
+                            ModelState.AddModelError("ProductVariationFile", "Variation image upload failed. Please try again.");
+                            return View(productDTO); 
+                        }
+                    }
+                }
+
+
                 if (ModelState.IsValid)
                 {
                     productDTO.ProductId = Guid.NewGuid();
                     await _productService.CreateProductAsync(productDTO);
                     return RedirectToAction(nameof(Index));
                 }
+                else
+                {
+                    foreach (var error in ModelState.Values.SelectMany(v => v.Errors))
+                    {
+                        _logger.LogError(error.ErrorMessage);
+                    }
+                }
             }
             catch (Exception ex)
             {
-                ModelState.AddModelError("", "An error occurred while creating the product");
+                _logger.LogError($"Error occurred while creating product: {ex.Message}");
+                ModelState.AddModelError("", "An error occurred while creating the product.");
             }
 
-            // Ensure dropdowns are never null
             await ReloadDropdowns(productDTO);
             return View(productDTO);
         }
+
 
         private async Task ReloadDropdowns(ProductDTO productDTO)
         {
@@ -186,54 +219,57 @@ namespace Unleashed_MVC.Controllers
 
 
         // GET: Products/Edit/5
+
         public async Task<IActionResult> Edit(Guid? id)
         {
-                var product = await _productService.GetProductByIdAsync(id.Value);
-                if (product == null)
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            var product = await _productService.GetProductByIdAsync(id.Value);
+            if (product == null)
+            {
+                return NotFound();
+            }
+
+            // Load related data for dropdowns
+            var brands = await _brandRepository.GetAllAsync() ?? new List<Brand>();
+            var statuses = await _productStatusRepository.GetAllAsync() ?? new List<ProductStatus>();
+            var sizes = await _sizeRepository.GetAllAsync() ?? new List<Size>();
+            var colors = await _colorRepository.GetAllAsync() ?? new List<Color>();
+
+            ViewBag.BrandId = new SelectList(brands, "BrandId", "BrandName", product.BrandId);
+            ViewBag.ProductStatusId = new SelectList(statuses, "ProductStatusId", "ProductStatusName", product.ProductStatusId);
+            ViewBag.SizeId = new SelectList(sizes, "SizeId", "SizeName");
+            ViewBag.ColorId = new SelectList(colors, "ColorId", "ColorName");
+
+            var productDTO = new ProductDTO
+            {
+                ProductId = product.ProductId,
+                ProductName = product.ProductName,
+                ProductCode = product.ProductCode,
+                ProductDescription = product.ProductDescription,
+                BrandId = product.BrandId,
+                ProductStatusId = product.ProductStatusId,
+                CreatedAt = product.ProductCreatedAt,
+                UpdatedAt = product.ProductUpdatedAt,
+                Variations = product.Variations?.Select(v => new ProductDTO.ProductVariationDTO
                 {
-                    return NotFound();
-                }
+                    SizeId = v.SizeId,
+                    ColorId = v.ColorId,
+                    ProductPrice = v.VariationPrice,
+                    ProductVariationImageUrl = v.VariationImage
+                }).ToList() ?? new List<ProductDTO.ProductVariationDTO>()
+            };
 
-                // Load dropdown data with null checks
-                var brands = await _brandRepository.GetAllAsync() ?? new List<Brand>();
-                var statuses = await _productStatusRepository.GetAllAsync() ?? new List<ProductStatus>();
-                var sizes = await _sizeRepository.GetAllAsync() ?? new List<Size>();
-                var colors = await _colorRepository.GetAllAsync() ?? new List<Color>();
+            if (!productDTO.Variations.Any())
+            {
+                productDTO.Variations.Add(new ProductDTO.ProductVariationDTO());
+            }
 
-                ViewBag.BrandId = new SelectList(brands, "BrandId", "BrandName", product.BrandId);
-                ViewBag.ProductStatusId = new SelectList(statuses, "ProductStatusId", "ProductStatusName", product.ProductStatusId);
-                ViewBag.SizeId = new SelectList(sizes, "SizeId", "SizeName");
-                ViewBag.ColorId = new SelectList(colors, "ColorId", "ColorName");
-
-                var productDTO = new ProductDTO
-                {
-                    ProductId = product.ProductId,
-                    ProductName = product.ProductName,
-                    ProductCode = product.ProductCode,
-                    ProductDescription = product.ProductDescription,
-                    BrandId = product.BrandId,
-                    ProductStatusId = product.ProductStatusId,
-                    CreatedAt = product.ProductCreatedAt,
-                    UpdatedAt = product.ProductUpdatedAt,
-                    Variations = product.Variations?.Select(v => new ProductDTO.ProductVariationDTO
-                    {
-                        SizeId = v.SizeId,
-                        ColorId = v.ColorId,
-                        ProductPrice = v.VariationPrice,
-                        ProductVariationImage = v.VariationImage
-                    }).ToList() ?? new List<ProductDTO.ProductVariationDTO>()
-                };
-
-                // Ensure at least one variation exists
-                if (!productDTO.Variations.Any())
-                {
-                    productDTO.Variations.Add(new ProductDTO.ProductVariationDTO());
-                }
-
-                return View(productDTO);
-            
+            return View(productDTO);
         }
-
         // POST: Products/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -253,7 +289,6 @@ namespace Unleashed_MVC.Controllers
             {
                 if (ModelState.IsValid)
                 {
-                    // Ensure ProductCode is not null or empty before calling GetProductByCodeAsync
                     if (!string.IsNullOrWhiteSpace(productDTO.ProductCode))
                     {
                         var existingProduct = await _productService.GetProductByCodeAsync(productDTO.ProductCode);
@@ -263,8 +298,27 @@ namespace Unleashed_MVC.Controllers
                         }
                         else
                         {
+                            foreach (var variation in productDTO.Variations)
+                            {
+                                if (variation.ProductVariationFile != null && variation.ProductVariationFile.Length > 0)
+                                {
+                                    var uploadResult = await _imageUploader.UploadImageAsync(variation.ProductVariationFile);
+                                    if (uploadResult != null)
+                                    {
+                                        variation.ProductVariationImageUrl = uploadResult.Url; 
+                                    }
+                                    else
+                                    {
+                                        ModelState.AddModelError("ProductVariationFile", "Variation image upload failed. Please try again.");
+                                        return View(productDTO);  
+                                    }
+                                }
+                            }
+
+
                             productDTO.UpdatedAt = DateTimeOffset.UtcNow;
-                            productDTO.CreatedAt ??= DateTimeOffset.UtcNow;
+                            productDTO.CreatedAt ??= DateTimeOffset.UtcNow; 
+
 
                             await _productService.UpdateProductAsync(id, productDTO);
                             return RedirectToAction(nameof(Index));
@@ -276,32 +330,31 @@ namespace Unleashed_MVC.Controllers
                     }
                 }
 
-                // If validation fails, reload dropdowns
+
                 ViewBag.BrandId = new SelectList(brands, "BrandId", "BrandName", productDTO.BrandId);
                 ViewBag.ProductStatusId = new SelectList(statuses, "ProductStatusId", "ProductStatusName", productDTO.ProductStatusId);
                 ViewBag.SizeId = new SelectList(sizes, "SizeId", "SizeName");
                 ViewBag.ColorId = new SelectList(colors, "ColorId", "ColorName");
 
-                // Ensure variations exist
+
                 productDTO.Variations ??= new List<ProductDTO.ProductVariationDTO>();
                 if (!productDTO.Variations.Any())
                 {
                     productDTO.Variations.Add(new ProductDTO.ProductVariationDTO());
                 }
 
-                return View("Edit", productDTO); 
+                return View("Edit", productDTO);
             }
             catch (Exception ex)
             {
                 ModelState.AddModelError("", "An error occurred while updating the product. Please try again.");
 
-                // Reload ViewBag on error
                 ViewBag.BrandId = new SelectList(brands, "BrandId", "BrandName", productDTO.BrandId);
                 ViewBag.ProductStatusId = new SelectList(statuses, "ProductStatusId", "ProductStatusName", productDTO.ProductStatusId);
                 ViewBag.SizeId = new SelectList(sizes, "SizeId", "SizeName");
                 ViewBag.ColorId = new SelectList(colors, "ColorId", "ColorName");
 
-                return View("Edit", productDTO); 
+                return View("Edit", productDTO);
             }
         }
 
@@ -322,12 +375,12 @@ namespace Unleashed_MVC.Controllers
             // Handle nullable DateTime properties for the view
             if (product.ProductCreatedAt == null)
             {
-                product.ProductCreatedAt = DateTimeOffset.MinValue; // Or some default value
+                product.ProductCreatedAt = DateTimeOffset.MinValue; 
             }
 
             if (product.ProductUpdatedAt == null)
             {
-                product.ProductUpdatedAt = DateTimeOffset.MinValue; // Or some default value
+                product.ProductUpdatedAt = DateTimeOffset.MinValue; 
             }
 
             return View(product);

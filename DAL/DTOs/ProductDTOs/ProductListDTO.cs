@@ -1,6 +1,8 @@
 ﻿using DAL.Models;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace DAL.DTOs.ProductDTOs
 {
@@ -15,7 +17,6 @@ namespace DAL.DTOs.ProductDTOs
 
         public List<Category>? CategoryList { get; set; }
 
-        public string? ProductVariationImage { get; set; }
         public decimal ProductPrice { get; set; }
 
         public Sale? Sale { get; set; }
@@ -26,7 +27,7 @@ namespace DAL.DTOs.ProductDTOs
 
         public int Quantity { get; set; }
 
-        public List<Variation>? Variations { get; set; }
+        public List<ProductVariationDTO>? Variations { get; set; }
 
 
         public string? ProductCode { get; set; } 
@@ -34,5 +35,14 @@ namespace DAL.DTOs.ProductDTOs
         public DateTimeOffset? ProductUpdatedAt { get; set; }  
         public int? ProductStatusId { get; set; }
         public string? ProductStatusName { get; set; }
+        public class ProductVariationDTO
+        {
+            public int SizeId { get; set; }
+  
+            public int ColorId { get; set; }
+            public decimal? ProductPrice { get; set; }
+
+            public string? ProductVariationImage { get; set; }
+        }
     }
 }
