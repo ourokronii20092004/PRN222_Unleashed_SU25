@@ -19,5 +19,7 @@ namespace DAL.DTOs.UserDTOs
         [MinLength(8, ErrorMessage = "Password must be at least 8 characters long.")]
         [DataType(DataType.Password)]
         public string? UserPassword { get; set; }
+        [Display(Name =" Remember me")]
+        public bool RememberMe { get; set; } = false;
     }
 }

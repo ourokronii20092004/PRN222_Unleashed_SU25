@@ -12,18 +12,18 @@
             <hr />
             <form id="account" method="post">
                 <div asp-validation-summary="All" class="text-danger text-center mb-3"></div>
-
-                <form-input asp-for="UserLoginDTO.UserUsername" placeholder="Username"></form-input>
-
-                <form-input asp-for="UserLoginDTO.UserPassword" type="password" placeholder="Password"></form-input>
-
-                <div class="mb-3 form-check">
-                    <input type="checkbox" name="Remember" class="form-check-input" id="rememberMe" />
-                    <label class="form-check-label" for="rememberMe">Remember me</label>
+                <span asp-validation-for="UserLoginDTO.UserUsername" class="text-danger"></span>
+                <form-input asp-for="UserLoginDTO.UserUsername" placeholder="Your username"></form-input>
+                
+                <span asp-validation-for="UserLoginDTO.UserPassword" class="text-danger"></span>
+                <form-input asp-for="UserLoginDTO.UserPassword" type="password" placeholder="Your password"></form-input>
+               
+                <div class="mb-3">
+                    <animated-checkbox asp-for="UserLoginDTO.RememberMe"></animated-checkbox>
                 </div>
 
                 <div class="d-grid gap-2 mb-3">
-                    <button type="submit" class="btn btn-primary btn-lg">Log In</button>
+                    <btn Text="Log In" is-submit=true Variant="Primary" class="btn-lg"></btn>
                 </div>
 
                 <p class="text-center">
