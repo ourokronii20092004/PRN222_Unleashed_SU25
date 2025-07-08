@@ -197,10 +197,10 @@ namespace BLL.Services
                     }).ToList(),
                 };
 
-                // Kiểm tra xem có variations cho sản phẩm này không
+
                 if (variationsByProductId.ContainsKey(product.ProductId))
                 {
-                    // Lấy variations từ dictionary
+
                     productDTO.Variations = variationsByProductId[product.ProductId]
                         .Select(v => new ProductListDTO.ProductVariationDTO
                         {
