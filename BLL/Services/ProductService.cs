@@ -309,7 +309,6 @@ namespace BLL.Services
                 }
                 else
                 {
-                    // Remove variation not in DTO
                     await _variationRepository.DeleteAsync(variation.VariationId);
                 }
             }

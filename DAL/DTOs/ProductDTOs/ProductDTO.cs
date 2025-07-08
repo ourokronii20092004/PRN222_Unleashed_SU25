@@ -40,7 +40,9 @@ namespace DAL.DTOs.ProductDTOs
         public virtual ICollection<Category> Categories { get; set; } = new List<Category>();
         public virtual ICollection<Sale> Sales { get; set; } = new List<Sale>();
         public class ProductVariationDTO
+
         {
+            public Guid? ProductVariationId { get; set; }
             [Required(ErrorMessage = "Size is required.")]
             public int SizeId { get; set; }
             [Required(ErrorMessage = "Color is required.")]
