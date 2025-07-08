@@ -31,13 +31,13 @@ namespace DAL.Repositories
         }
 
         // Delete a Variation from the database - Changed to take id
-        public async Task DeleteAsync(int id) // Renamed from Delete, takes id
+        public async Task DeleteAsync(int id)
         {
-            var entity = await GetByIdAsync(id); // Fetch first
+            var entity = await _context.Variations.FirstOrDefaultAsync(v => v.VariationId == id);
             if (entity != null)
             {
                 _context.Variations.Remove(entity);
-                // await _context.SaveChangesAsync();
+                await _context.SaveChangesAsync();
             }
         }
 

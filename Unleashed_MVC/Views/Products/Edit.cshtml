@@ -4,165 +4,217 @@
     ViewData["Title"] = "Edit Product";
 }
 
-<h1>Edit Product</h1>
+<style>
+    .image-placeholder {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 100px;
+        width: 100%;
+        background-color: #f8f9fa;
+        border: 1px dashed #ced4da;
+        border-radius: .25rem;
+        color: #6c757d;
+        font-size: 0.9rem;
+    }
 
-<h4>Product</h4>
-<hr />
-<div class="row">
-    <div class="col-md-8">
-        <form asp-action="Edit" asp-route-id="@Model.ProductId" enctype="multipart/form-data">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <input type="hidden" asp-for="ProductId" />
-            <input type="hidden" asp-for="CreatedAt" />
+    .img-preview-container {
+        border: 1px solid #dee2e6;
+        padding: 10px;
+        margin-bottom: 15px;
+        background-color: #f8f9fa;
+        border-radius: .25rem;
+    }
+</style>
 
-            <!-- Main Product Info -->
-            <div class="card mb-4">
-                <div class="card-header">
-                    <h5>Basic Information</h5>
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-10">
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0"><i class="bi bi-pencil-square"></i> @ViewData["Title"]</h4>
                 </div>
                 <div class="card-body">
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label asp-for="ProductName" class="control-label"></label>
-                                <input asp-for="ProductName" class="form-control" placeholder="Enter product name" />
-                                <span asp-validation-for="ProductName" class="text-danger"></span>
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label asp-for="ProductCode" class="control-label"></label>
-                                <input asp-for="ProductCode" class="form-control" readonly />
-                                <span asp-validation-for="ProductCode" class="text-danger"></span>
-                            </div>
-                        </div>
-                    </div>
+                    <form asp-action="Edit" asp-route-id="@Model.ProductId" enctype="multipart/form-data">
+                        <div asp-validation-summary="All" class="alert alert-danger" role="alert" style="@(ViewData.ModelState.IsValid ? "display: none;" : "")"></div>
 
-                    <div class="form-group">
-                        <label asp-for="ProductDescription" class="control-label"></label>
-                        <textarea asp-for="ProductDescription" class="form-control" rows="3"></textarea>
-                        <span asp-validation-for="ProductDescription" class="text-danger"></span>
-                    </div>
+                        <input type="hidden" asp-for="ProductId" />
+                        <input type="hidden" asp-for="CreatedAt" />
 
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label asp-for="BrandId" class="control-label"></label>
-                                <select asp-for="BrandId" class="form-control" asp-items="ViewBag.BrandId">
-                                    <option value="">-- Select Brand --</option>
-                                </select>
-                                <span asp-validation-for="BrandId" class="text-danger"></span>
+                        <!-- Main Product Info -->
+                        <div class="card mb-4">
+                            <div class="card-header">
+                                <h5>Basic Information</h5>
                             </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label asp-for="ProductStatusId" class="control-label"></label>
-                                <select asp-for="ProductStatusId" class="form-control" asp-items="ViewBag.ProductStatusId">
-                                    <option value="">-- Select Status --</option>
-                                </select>
-                                <span asp-validation-for="ProductStatusId" class="text-danger"></span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Variations Section -->
-            <div class="card mb-4">
-                <div class="card-header d-flex justify-content-between align-items-center">
-                    <h5>Product Variations</h5>
-                    <button type="button" class="btn btn-sm btn-success" id="addVariationBtn">Add Variation</button>
-                </div>
-                <div class="card-body" id="variationsContainer">
-                    @for (var i = 0; i < Model.Variations.Count; i++)
-                    {
-                        <div class="variation-card card mb-3">
                             <div class="card-body">
-                                <input type="hidden" asp-for="Variations[i].SizeId" />
-                                <input type="hidden" asp-for="Variations[i].ColorId" />
-
                                 <div class="row">
-                                    <div class="col-md-4">
+                                    <div class="col-md-6">
                                         <div class="form-group">
-                                            <label asp-for="Variations[i].SizeId" class="control-label"></label>
-                                            <select asp-for="Variations[i].SizeId" class="form-control" asp-items="ViewBag.SizeId">
-                                                <option value="">-- Select Size --</option>
-                                            </select>
-                                            <span asp-validation-for="Variations[i].SizeId" class="text-danger"></span>
+                                            <label asp-for="ProductName" class="form-label fw-bold"></label>
+                                            <input asp-for="ProductName" class="form-control" placeholder="Enter product name" />
+                                            <span asp-validation-for="ProductName" class="text-danger small"></span>
                                         </div>
                                     </div>
-                                    <div class="col-md-4">
+                                    <div class="col-md-6">
                                         <div class="form-group">
-                                            <label asp-for="Variations[i].ColorId" class="control-label"></label>
-                                            <select asp-for="Variations[i].ColorId" class="form-control" asp-items="ViewBag.ColorId">
-                                                <option value="">-- Select Color --</option>
-                                            </select>
-                                            <span asp-validation-for="Variations[i].ColorId" class="text-danger"></span>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-4">
-                                        <div class="form-group">
-                                            <label asp-for="Variations[i].ProductPrice" class="control-label"></label>
-                                            <input asp-for="Variations[i].ProductPrice" class="form-control" type="number" step="0.01" min="0.01" />
-                                            <span asp-validation-for="Variations[i].ProductPrice" class="text-danger"></span>
+                                            <label asp-for="ProductCode" class="form-label fw-bold"></label>
+                                            <input asp-for="ProductCode" class="form-control" readonly />
+                                            <span asp-validation-for="ProductCode" class="text-danger small"></span>
                                         </div>
                                     </div>
                                 </div>
 
-                                <div class="form-group">
-                                    <!-- Display current image if exists -->
-                                    @if (!string.IsNullOrEmpty(Model.Variations[i].ProductVariationImageUrl))
-                                    {
-                                        <div class="mb-3">
-                                            <label class="control-label">Current Image</label>
-                                            <div class="d-flex align-items-center">
-                                                <img src="@Model.Variations[i].ProductVariationImageUrl" alt="Variation Image" class="img-thumbnail mr-3" style="max-height: 100px;" />
-                                                <div class="flex-grow-1">
-                                                    <div class="input-group">
-                                                        <input type="text" class="form-control form-control-sm" value="@Model.Variations[i].ProductVariationImageUrl" readonly>
-                                                        <div class="input-group-append">
-                                                            <button class="btn btn-outline-secondary btn-sm" type="button" onclick="copyToClipboard('@Model.Variations[i].ProductVariationImageUrl')">
-                                                                <i class="fas fa-copy"></i>
-                                                            </button>
-                                                            <a href="@Model.Variations[i].ProductVariationImageUrl" target="_blank" class="btn btn-outline-primary btn-sm">
-                                                                <i class="fas fa-external-link-alt"></i>
-                                                            </a>
-                                                        </div>
+                                <div class="form-group mb-3">
+                                    <label asp-for="ProductDescription" class="form-label fw-bold"></label>
+                                    <textarea asp-for="ProductDescription" class="form-control" rows="3"></textarea>
+                                    <span asp-validation-for="ProductDescription" class="text-danger small"></span>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label asp-for="BrandId" class="form-label fw-bold"></label>
+                                            <select asp-for="BrandId" class="form-control" asp-items="ViewBag.BrandId">
+                                                <option value="">-- Select Brand --</option>
+                                            </select>
+                                            <span asp-validation-for="BrandId" class="text-danger small"></span>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label asp-for="ProductStatusId" class="form-label fw-bold"></label>
+                                            <select asp-for="ProductStatusId" class="form-control" asp-items="ViewBag.ProductStatusId">
+                                                <option value="">-- Select Status --</option>
+                                            </select>
+                                            <span asp-validation-for="ProductStatusId" class="text-danger small"></span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Variations Section -->
+                        <div class="card mb-4">
+                            <div class="card-header d-flex justify-content-between align-items-center">
+                                <h5>Product Variations</h5>
+                                <button type="button" class="btn btn-sm btn-success" id="addVariationBtn">
+                                    <i class="bi bi-plus-circle"></i> Add Variation
+                                </button>
+                            </div>
+                            <div class="card-body" id="variationsContainer">
+                                @for (var i = 0; i < Model.Variations.Count; i++)
+                                {
+                                    <div class="variation-card card mb-3">
+                                        <div class="card-body">
+                                            <input type="hidden" asp-for="Variations[i].ProductVariationId" />
+                                            <input type="hidden" asp-for="Variations[i].ProductVariationImageUrl" />
+
+                                            <div class="row">
+                                                <div class="col-md-4">
+                                                    <div class="form-group">
+                                                        <label asp-for="Variations[i].SizeId" class="form-label fw-bold"></label>
+                                                        <select asp-for="Variations[i].SizeId" class="form-control" asp-items="ViewBag.SizeId">
+                                                            <option value="">-- Select Size --</option>
+                                                        </select>
+                                                        <span asp-validation-for="Variations[i].SizeId" class="text-danger small"></span>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-4">
+                                                    <div class="form-group">
+                                                        <label asp-for="Variations[i].ColorId" class="form-label fw-bold"></label>
+                                                        <select asp-for="Variations[i].ColorId" class="form-control" asp-items="ViewBag.ColorId">
+                                                            <option value="">-- Select Color --</option>
+                                                        </select>
+                                                        <span asp-validation-for="Variations[i].ColorId" class="text-danger small"></span>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-4">
+                                                    <div class="form-group">
+                                                        <label asp-for="Variations[i].ProductPrice" class="form-label fw-bold"></label>
+                                                        <input asp-for="Variations[i].ProductPrice" class="form-control" type="number" step="0.01" min="0.01" />
+                                                        <span asp-validation-for="Variations[i].ProductPrice" class="text-danger small"></span>
                                                     </div>
                                                 </div>
                                             </div>
+
+                                            <!-- Image Section -->
+                                            <div class="form-group mt-3">
+                                                <label class="form-label fw-bold">Product Image</label>
+
+                                                <!-- Current Image Display -->
+                                                @if (!string.IsNullOrEmpty(Model.Variations[i].ProductVariationImageUrl))
+                                                {
+                                                    <div class="mb-3">
+                                                        <label class="form-label">Current Image</label>
+                                                        <div class="img-preview-container text-center">
+                                                            <img src="@Model.Variations[i].ProductVariationImageUrl"
+                                                                 alt="Current Variation Image"
+                                                                 class="img-fluid rounded"
+                                                                 style="max-height: 150px;"
+                                                                 onerror="this.style.display='none'; document.getElementById('placeholder-@i').style.display='flex';" />
+                                                            <div id="placeholder-@i" class="image-placeholder" style="display: none;">No Image Available</div>
+                                                        </div>
+                                                    </div>
+                                                }
+                                                else if (!Model.Variations[i].ProductVariationId.HasValue)
+                                                {
+                                                    <div class="alert alert-warning small">
+                                                        <i class="bi bi-exclamation-triangle"></i> Image is required for new variations
+                                                    </div>
+                                                }
+                                                else
+                                                {
+                                                    <div class="mb-3">
+                                                        <div class="image-placeholder">No Image Available</div>
+                                                    </div>
+                                                }
+
+                                            <!-- Image Upload -->
+                                            <div class="mb-3">
+                                                <label asp-for="Variations[i].ProductVariationFile" class="form-label">
+                                                    @(string.IsNullOrEmpty(Model.Variations[i].ProductVariationImageUrl) ?
+                                                                                                        "Upload Image" : "Change Image (Optional)")
+                                                </label>
+                                                <input asp-for="Variations[i].ProductVariationFile" class="form-control" type="file" accept="image/*"
+                                                       data-is-new="@(Model.Variations[i].ProductVariationId.HasValue ? "false" : "true")" />
+                                                <div class="form-text">JPEG, PNG or GIF, max 5MB</div>
+                                                <span asp-validation-for="Variations[i].ProductVariationFile" class="text-danger small"></span>
+                                            </div>
+
+                                                <!-- Image Preview -->
+                                                <div class="mb-3 text-center">
+                                                    <label class="form-label">New Image Preview</label>
+                                                    <div class="border rounded p-2" style="height: 160px; display: flex; align-items: center; justify-content: center; background-color: #f8f9fa;">
+                                                        <img id="newImagePreview-@i" src="" alt="New Image Preview" class="img-fluid" style="max-height: 150px; display: none;" />
+                                                        <span id="newImagePreviewText-@i" class="text-muted">No new image selected</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                        @if (i > 0)
+                                            {
+                                                <button type="button" class="btn btn-sm btn-danger remove-variation">
+                                                    <i class="bi bi-trash"></i> Remove
+                                                </button>
+                                            }
                                         </div>
-                                    }
-
-                                    <div class="form-group">
-                                        <label class="control-label">@(string.IsNullOrEmpty(Model.Variations[i].ProductVariationImageUrl) ? "Upload Image" : "Change Image")</label>
-                                        <input name="Variations[@i].ProductVariationFile" class="form-control-file" type="file" accept="image/*" />
-                                        <small class="form-text text-muted">JPEG, PNG or GIF, max 5MB</small>
-                                        <span asp-validation-for="Variations[i].ProductVariationFile" class="text-danger small"></span>
                                     </div>
-                                </div>
-
-                                @if (i > 0)
-                                {
-                                    <button type="button" class="btn btn-sm btn-danger remove-variation">
-                                        <i class="fas fa-trash"></i> Remove
-                                    </button>
                                 }
                             </div>
                         </div>
-                    }
+
+                        <div class="d-flex justify-content-end">
+                            <a asp-action="Index" class="btn btn-outline-secondary me-2">
+                                <i class="bi bi-x-circle"></i> Cancel
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-save"></i> Save Changes
+                            </button>
+                        </div>
+                    </form>
                 </div>
             </div>
-
-            <div class="form-group">
-                <button type="submit" class="btn btn-primary">
-                    <i class="fas fa-save"></i> Save Changes
-                </button>
-                <a asp-action="Index" class="btn btn-secondary">
-                    <i class="fas fa-times"></i> Cancel
-                </a>
-            </div>
-        </form>
+        </div>
     </div>
 </div>
 
@@ -171,16 +223,50 @@
 
     <script>
         $(document).ready(function() {
+            // Initialize image preview for existing variations
+            @for (var i = 0; i < Model.Variations.Count; i++)
+            {
+                    <text>
+                    $('#Variations_@(i)__ProductVariationFile').change(function(e) {
+                        var previewId = 'newImagePreview-@i';
+                        var previewTextId = 'newImagePreviewText-@i';
+                        var isNewVariation = $(this).data('is-new') === 'true';
+
+                        if (e.target.files && e.target.files[0]) {
+                            var reader = new FileReader();
+                            reader.onload = function(event) {
+                                $('#' + previewId).attr('src', event.target.result);
+                                $('#' + previewId).show();
+                                $('#' + previewTextId).hide();
+                            }
+                            reader.readAsDataURL(e.target.files[0]);
+                        } else {
+                            $('#' + previewId).hide();
+                            $('#' + previewTextId).show();
+                        }
+
+                        // Clear validation error when file is selected for new variation
+                        if (isNewVariation && e.target.files && e.target.files[0]) {
+                            $(this).removeClass('is-invalid');
+                            $(this).siblings('.text-danger').hide();
+                        }
+                    });
+                    </text>
+            }
+
             // Add new variation
             $('#addVariationBtn').click(function() {
                 var index = $('#variationsContainer .variation-card').length;
                 var html = `
                 <div class="variation-card card mb-3">
                     <div class="card-body">
+                        <input type="hidden" name="Variations[${index}].ProductVariationId" value="" />
+                        <input type="hidden" name="Variations[${index}].ProductVariationImageUrl" value="" />
+
                         <div class="row">
                             <div class="col-md-4">
                                 <div class="form-group">
-                                    <label class="control-label">Size</label>
+                                    <label class="form-label fw-bold">Size</label>
                                     <select name="Variations[${index}].SizeId" class="form-control">
                                         @foreach (var item in (SelectList)ViewBag.SizeId)
                                         {
@@ -191,7 +277,7 @@
                             </div>
                             <div class="col-md-4">
                                 <div class="form-group">
-                                    <label class="control-label">Color</label>
+                                    <label class="form-label fw-bold">Color</label>
                                     <select name="Variations[${index}].ColorId" class="form-control">
                                         @foreach (var item in (SelectList)ViewBag.ColorId)
                                         {
@@ -202,20 +288,36 @@
                             </div>
                             <div class="col-md-4">
                                 <div class="form-group">
-                                    <label class="control-label">Price</label>
+                                    <label class="form-label fw-bold">Price</label>
                                     <input name="Variations[${index}].ProductPrice" class="form-control" type="number" step="0.01" min="0.01" />
                                 </div>
                             </div>
                         </div>
 
-                        <div class="form-group">
-                            <label class="control-label">Upload Image</label>
-                            <input name="Variations[${index}].ProductVariationFile" class="form-control-file" type="file" accept="image/*" />
-                            <small class="form-text text-muted">JPEG, PNG or GIF, max 5MB</small>
+                        <div class="form-group mt-3">
+                            <label class="form-label fw-bold">Product Image</label>
+                            <div class="alert alert-warning small">
+                                <i class="bi bi-exclamation-triangle"></i> Image is required for new variations
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label">Upload Image</label>
+                                <input name="Variations[${index}].ProductVariationFile" class="form-control" type="file" accept="image/" data-is-new="true" required />
+                                <div class="form-text">JPEG, PNG or GIF, max 5MB</div>
+                                <span class="text-danger small field-validation-valid" data-valmsg-for="Variations[${index}].ProductVariationFile" data-valmsg-replace="true"></span>
+                            </div>
+
+                            <div class="mb-3 text-center">
+                                <label class="form-label">Image Preview</label>
+                                <div class="border rounded p-2" style="height: 160px; display: flex; align-items: center; justify-content: center; background-color: #f8f9fa;">
+                                    <img id="newImagePreview-${index}" src="" alt="New Image Preview" class="img-fluid" style="max-height: 150px; display: none;" />
+                                    <span id="newImagePreviewText-${index}" class="text-muted">No image selected</span>
+                                </div>
+                            </div>
                         </div>
 
                         <button type="button" class="btn btn-sm btn-danger remove-variation">
-                            <i class="fas fa-trash"></i> Remove
+                            <i class="bi bi-trash"></i> Remove
                         </button>
                     </div>
                 </div>`;
@@ -233,29 +335,25 @@
                     });
                 });
             });
-        });
 
-        function copyToClipboard(text) {
-            navigator.clipboard.writeText(text).then(function() {
-                toastr.success('Image URL copied to clipboard!');
-            }, function(err) {
-                toastr.error('Could not copy text: ' + err);
+            // Form submission handling
+            $('form').on('submit', function() {
+                if ($(this).valid()) {
+                    $('button[type="submit"]').prop('disabled', true)
+                        .html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Saving...');
+                }
             });
-        }
+        });
     </script>
 
     <style>
         .variation-card {
             border-left: 4px solid #6c757d;
+            transition: border-left-color 0.3s ease;
         }
 
             .variation-card:hover {
-                border-left-color: #007bff;
+                border-left-color: #0d6efd;
             }
-
-        .img-thumbnail {
-            background-color: #f8f9fa;
-            border: 1px solid #dee2e6;
-        }
     </style>
 }
