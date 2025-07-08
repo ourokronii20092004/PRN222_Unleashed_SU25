@@ -17,6 +17,7 @@ namespace Unleashed_RP.Pages.Notifications
 
         public async Task OnGetAsync()
         {
+            try
             {
                 string? username = HttpContext.Session.GetString("username");
                 ArgumentNullException.ThrowIfNullOrEmpty(username, nameof(username));

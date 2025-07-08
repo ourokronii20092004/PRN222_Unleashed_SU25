@@ -1,6 +1,6 @@
 ﻿@page
 @model Unleashed_RP.Pages.Authentication.LoginModel
-
+@addTagHelper *, Unleashed_Shared_UI
 @{
     ViewData["Title"] = "Login";
 }
@@ -13,17 +13,9 @@
             <form id="account" method="post">
                 <div asp-validation-summary="All" class="text-danger text-center mb-3"></div>
 
-                <div class="mb-3">
-                    <label asp-for="UserLoginDTO.UserUsername" class="form-label"></label>
-                    <input asp-for="UserLoginDTO.UserUsername" class="form-control" placeholder="Your username" />
-                    <span asp-validation-for="UserLoginDTO.UserUsername" class="text-danger"></span>
-                </div>
+                <form-input asp-for="UserLoginDTO.UserUsername" placeholder="Username"></form-input>
 
-                <div class="mb-3">
-                    <label asp-for="UserLoginDTO.UserPassword" class="form-label"></label>
-                    <input asp-for="UserLoginDTO.UserPassword" class="form-control" type="password" placeholder="Your password" />
-                    <span asp-validation-for="UserLoginDTO.UserPassword" class="text-danger"></span>
-                </div>
+                <form-input asp-for="UserLoginDTO.UserPassword" type="password" placeholder="Password"></form-input>
 
                 <div class="mb-3 form-check">
                     <input type="checkbox" name="Remember" class="form-check-input" id="rememberMe" />
