@@ -90,6 +90,9 @@ public class Program
         builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
 
+        builder.Services.AddHttpContextAccessor();
+
+
         var app = builder.Build();
 
         if (!app.Environment.IsDevelopment())

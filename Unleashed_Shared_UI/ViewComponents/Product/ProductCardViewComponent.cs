@@ -5,9 +5,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Unleashed_Shared_UI.Utils;
-using Unleashed_Shared_UI.ViewModels;
+using Unleashed_Shared_UI.ViewModels.Product;
 
-namespace Unleashed_Shared_UI.ViewComponents
+namespace Unleashed_Shared_UI.ViewComponents.Product
 {
     public class ProductCardViewComponent : ViewComponent
     {
@@ -20,7 +20,7 @@ namespace Unleashed_Shared_UI.ViewComponents
             {
                 if (product.Sale.SaleTypeName == "PERCENTAGE")
                 {
-                    discountedPrice = product.ProductPrice - (product.ProductPrice * (product.Sale.SaleValue / 100));
+                    discountedPrice = product.ProductPrice - product.ProductPrice * (product.Sale.SaleValue / 100);
                     saleText = $"Save {product.Sale.SaleValue}%";
                 }
                 else if (product.Sale.SaleTypeName == "FIXED AMOUNT")

@@ -1,0 +1,67 @@
+/*
+ * The main container, which is hidden by default and covers the whole screen.
+ * We use visibility and opacity for smooth transitions.
+*/
+.modal-container {
+    position: fixed;
+    inset: 0;
+    z-index: 5000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    visibility: hidden;
+    opacity: 0;
+    transition: visibility 0s 0.2s, opacity 0.2s ease;
+}
+
+    /* The class our JavaScript toggles to show the modal */
+    .modal-container.is-visible {
+        visibility: visible;
+        opacity: 1;
+        transition: visibility 0s, opacity 0.2s ease;
+    }
+
+/* The semi-transparent black background overlay */
+.modal-overlay {
+    position: absolute;
+    inset: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+}
+
+/*
+ * The actual modal dialog content box.
+*/
+.modal-content {
+    position: relative; /* To be on top of the overlay */
+    background-color: white;
+    padding: 1.5rem 2rem;
+    border-radius: 16px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+    width: 90%;
+    max-width: 450px;
+    transform: scale(0.95);
+    transition: transform 0.2s ease;
+}
+
+.modal-container.is-visible .modal-content {
+    transform: scale(1);
+}
+
+.modal-header h2 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #1f2937;
+    margin: 0;
+}
+
+.modal-body {
+    margin-top: 0.75rem;
+    color: #4b5563;
+}
+
+.modal-footer {
+    margin-top: 1.5rem;
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.75rem;
+}

@@ -1,0 +1,16 @@
+@model List<Unleashed_Shared_UI.ViewModels.Menu.SideMenuItemViewModel>
+
+<nav class="side-menu-container">
+    <ul style="list-style-type: none; padding: 0; margin: 0;">
+        @foreach (var item in Model)
+        {
+            <li style="margin-bottom: 10px;">
+                <a class="side-menu-item @(item.IsActive ? "is-active" : "")"
+                   asp-controller="@item.Controller"
+                   asp-action="@item.Action">
+                    @item.Label
+                </a>
+            </li>
+        }
+    </ul>
+</nav>

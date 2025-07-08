@@ -1,5 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Unleashed_Shared_UI.ViewModels;
+using Unleashed_Shared_UI.ViewModels.Account;
 
 namespace Unleashed_Shared_UI.ViewComponents.Account
 {

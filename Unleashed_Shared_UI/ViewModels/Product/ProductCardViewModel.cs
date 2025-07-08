@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Unleashed_Shared_UI.ViewModels
+namespace Unleashed_Shared_UI.ViewModels.Product
 {
     public class ProductCardViewModel
     {
