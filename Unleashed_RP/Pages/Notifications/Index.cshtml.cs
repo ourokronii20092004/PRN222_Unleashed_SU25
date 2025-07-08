@@ -22,10 +22,8 @@ namespace Unleashed_RP.Pages.Notifications
                 string? username = HttpContext.Session.GetString("username");
                 ArgumentNullException.ThrowIfNullOrEmpty(username, nameof(username));
                 NotificationUsers = [.. await _notificationUserService.GetNotificationUserListAsync(username)];
-
             } catch (ArgumentNullException ex) {
                 RedirectToPage("../Index");
-
             }
         }
     }

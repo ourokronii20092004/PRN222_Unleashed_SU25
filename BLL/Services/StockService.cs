@@ -71,14 +71,7 @@ namespace BLL.Services
                     return null;
                 }
 
-                var filteredDetails = stockDetails.Where(sd => sd.Quantity.HasValue && sd.Quantity >= 0).ToList();
-
-                if (!filteredDetails.Any())
-                {
-                    return null;
-                }
-
-                return filteredDetails;
+                return stockDetails;
             }
             catch (Exception ex)
             {

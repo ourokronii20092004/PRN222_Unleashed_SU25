@@ -1,0 +1,77 @@
+﻿@page
+@model DAL.Models.ViewModels.ProductImportViewModel
+
+@{
+    ViewData["Title"] = $"Import into {Model.StockName}";
+}
+
+<div class="container mt-4">
+    <div class="card shadow-sm">
+        <div class="card-header bg-primary text-white">
+            <h1 class="h3 mb-0">Import Products into Stock: @Model.StockName</h1>
+        </div>
+        <div class="card-body">
+            <form asp-action="Create" method="post">
+
+                <input type="hidden" asp-for="StockId" />
+
+                <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+
+                <div class="form-group mb-4">
+                    <label asp-for="ProviderId" class="font-weight-bold"></label>
+                    <select asp-for="ProviderId" asp-items="Model.Providers" class="form-control">
+                        <option value="">-- Select a Provider --</option>
+                    </select>
+                    <span asp-validation-for="ProviderId" class="text-danger"></span>
+                </div>
+
+                <h4 class="mt-4">Products in Stock</h4>
+                <p class="text-muted">Enter the quantity you wish to import for each product. Leave as 0 to ignore.</p>
+
+                <div class="table-responsive">
+                    <table class="table table-bordered table-striped">
+                        <thead class="thead-light">
+                            <tr>
+                                <th>Product Details</th>
+                                <th>Current Quantity</th>
+                                <th style="width: 150px;">Import Quantity</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @for (var i = 0; i < Model.VariationsToImport.Count; i++)
+                            {
+                                <tr>
+                                    <input type="hidden" asp-for="VariationsToImport[i].VariationId" />
+
+                                    <td>
+                                        <strong>@Model.VariationsToImport[i].ProductName</strong><br />
+                                        <small class="text-muted">
+                                            @Model.VariationsToImport[i].BrandName -
+                                            Size: @Model.VariationsToImport[i].SizeName,
+                                            Color: @Model.VariationsToImport[i].ColorName
+                                        </small>
+                                    </td>
+                                    <td>
+                                        @Model.VariationsToImport[i].CurrentQuantity
+                                    </td>
+                                    <td>
+                                        <div class="form-group mb-0">
+                                            <input asp-for="VariationsToImport[i].ImportQuantity" class="form-control" type="number" min="0" />
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+
+                <hr />
+                <div class="form-group mt-4 text-right">
+                    <a asp-action="Details" asp-controller="Stocks" asp-route-id="@Model.StockId" class="btn btn-secondary">Cancel</a>
+                    <button type="submit" class="btn btn-primary">Import Selected Quantities</button>
+                </div>
+
+            </form>
+        </div>
+    </div>
+</div>

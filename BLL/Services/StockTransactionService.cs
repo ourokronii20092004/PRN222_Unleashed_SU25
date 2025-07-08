@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using BLL.Services.Interfaces;
 using DAL.Data;
+using DAL.DTOs.ProductDTOs;
 using DAL.DTOs.StockDTOs;
 using DAL.DTOs.TransactionDTOs;
 using DAL.Models;
@@ -16,6 +17,7 @@ namespace BLL.Services
 {
     public class StockTransactionService : IStockTransactionService
     {
+        private const int OutOfStockStatusId = 1;
         private const int AvailableProductStatusId = 3;
         private const string DefaultTransactionTypeName = "IN";
 
@@ -58,6 +60,126 @@ namespace BLL.Services
             _mapper = mapper;
             _logger = logger;
             _context = context;
+        }
+
+        public async Task CreateStockTransactionsAsync(StockTransactionDTO stockTransactionDto)
+        {
+            if (stockTransactionDto == null) throw new ArgumentNullException(nameof(stockTransactionDto));
+            if (stockTransactionDto.StockId == null || stockTransactionDto.ProviderId == null ||
+                string.IsNullOrWhiteSpace(stockTransactionDto.Username) ||
+                stockTransactionDto.Variations == null || !stockTransactionDto.Variations.Any())
+            {
+                throw new ArgumentException("Invalid StockTransactionDTO data provided for creation.");
+            }
+
+            var strategy = _context.Database.CreateExecutionStrategy();
+            await strategy.ExecuteAsync(async () =>
+            {
+                using (var dbTransaction = await _context.Database.BeginTransactionAsync())
+                {
+                    try
+                    {
+                        var provider = await _providerRepository.GetByIdAsync(stockTransactionDto.ProviderId.Value)
+                            ?? throw new KeyNotFoundException($"Provider not found with ID: {stockTransactionDto.ProviderId.Value}.");
+                        var stock = await _stockRepository.GetByIdAsync(stockTransactionDto.StockId.Value)
+                            ?? throw new KeyNotFoundException($"Stock not found with ID: {stockTransactionDto.StockId.Value}.");
+                        var inchargeEmployee = await _userRepository.GetByUsernameAsync(stockTransactionDto.Username)
+                            ?? throw new KeyNotFoundException($"Incharge employee not found with username: {stockTransactionDto.Username}.");
+                        var transactionTypeName = stockTransactionDto.TransactionType ?? DefaultTransactionTypeName;
+                        var transactionType = await _transactionTypeRepository.FindByNameAsync(transactionTypeName)
+                            ?? throw new KeyNotFoundException($"TransactionType '{transactionTypeName}' not found.");
+
+                        foreach (var variationQuantity in stockTransactionDto.Variations)
+                        {
+                            if (variationQuantity.ProductVariationId == null || variationQuantity.Quantity <= 0)
+                            {
+                                _logger.LogWarning("Invalid ProductVariationQuantity in DTO, skipping item.");
+                                continue;
+                            }
+                            await UpdateStockAndLogTransactionAsync(
+                                variationId: variationQuantity.ProductVariationId.Value,
+                                stockId: stock.StockId,
+                                quantityDelta: variationQuantity.Quantity.Value,
+                                transactionType: transactionType,
+                                inchargeEmployee: inchargeEmployee,
+                                provider: provider
+                            );
+                        }
+
+                        await _context.SaveChangesAsync();
+                        await dbTransaction.CommitAsync();
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.LogError(ex, "Error during bulk stock transaction creation. Rolling back.");
+                        await dbTransaction.RollbackAsync();
+                        throw;
+                    }
+                }
+            });
+        }
+
+        private async Task UpdateStockAndLogTransactionAsync(int variationId, int stockId, int quantityDelta, TransactionType transactionType, User inchargeEmployee, Provider provider)
+        {
+            if (quantityDelta == 0) return;
+
+            var variation = await _variationRepository.GetByIdAsync(variationId)
+                ?? throw new KeyNotFoundException($"Variation not found with ID: {variationId}.");
+
+            var stockVariation = await _stockVariationRepository.GetByIdAsync(variationId, stockId);
+
+            if (quantityDelta < 0 && (stockVariation == null || stockVariation.StockQuantity < -quantityDelta))
+            {
+                throw new InvalidOperationException($"Insufficient stock for variation ID {variationId} in stock ID {stockId}.");
+            }
+
+            if (stockVariation != null)
+            {
+                stockVariation.StockQuantity = (stockVariation.StockQuantity ?? 0) + quantityDelta;
+                await _stockVariationRepository.UpdateAsync(stockVariation);
+            }
+            else
+            {
+                stockVariation = new StockVariation
+                {
+                    StockId = stockId,
+                    VariationId = variationId,
+                    StockQuantity = quantityDelta
+                };
+                await _stockVariationRepository.AddAsync(stockVariation);
+            }
+
+            var transaction = new Transaction
+            {
+                StockId = stockId,
+                VariationId = variationId,
+                ProviderId = provider.ProviderId,
+                InchargeEmployeeId = inchargeEmployee.UserId,
+                TransactionTypeId = transactionType.TransactionTypeId,
+                TransactionQuantity = quantityDelta,
+                TransactionDate = DateOnly.FromDateTime(DateTime.UtcNow),
+                TransactionProductPrice = variation.VariationPrice
+            };
+            await _transactionRepository.AddAsync(transaction);
+
+            if (quantityDelta > 0)
+            {
+                if (variation.Product != null && variation.Product.ProductStatusId != AvailableProductStatusId)
+                {
+                    variation.Product.ProductStatusId = AvailableProductStatusId;
+                }
+            }
+            else
+            {
+                var totalStock = await _stockVariationRepository.GetTotalStockQuantityForVariationAsync(variationId) ?? 0;
+                if (totalStock <= 0)
+                {
+                    if (variation.Product != null)
+                    {
+                        variation.Product.ProductStatusId = OutOfStockStatusId;
+                    }
+                }
+            }
         }
 
         /// <summary>
@@ -160,20 +282,10 @@ namespace BLL.Services
             }
         }
 
-        /// <summary>
-        /// Creates a set of stock transactions in a single database transaction.
-        /// Throws exceptions on validation or database errors to ensure data integrity.
-        /// </summary>
-        public async Task CreateStockTransactionsAsync(StockTransactionDTO stockTransactionDto)
+        public async Task CreateProductImportTransactionAsync(ProductImportDTO importDto, string username)
         {
-            if (stockTransactionDto == null) throw new ArgumentNullException(nameof(stockTransactionDto));
-
-            if (stockTransactionDto.StockId == null || stockTransactionDto.ProviderId == null ||
-                string.IsNullOrWhiteSpace(stockTransactionDto.Username) ||
-                stockTransactionDto.Variations == null || !stockTransactionDto.Variations.Any())
-            {
-                throw new ArgumentException("Invalid StockTransactionDTO data provided for creation.");
-            }
+            if (importDto == null) throw new ArgumentNullException(nameof(importDto));
+            if (string.IsNullOrWhiteSpace(username)) throw new ArgumentException("Username cannot be empty.", nameof(username));
 
             var strategy = _context.Database.CreateExecutionStrategy();
             await strategy.ExecuteAsync(async () =>
@@ -182,70 +294,25 @@ namespace BLL.Services
                 {
                     try
                     {
-                        var provider = await _providerRepository.GetByIdAsync(stockTransactionDto.ProviderId.Value)
-                            ?? throw new KeyNotFoundException($"Provider not found with ID: {stockTransactionDto.ProviderId.Value}.");
+                        var provider = await _providerRepository.GetByIdAsync(importDto.ProviderId)
+                            ?? throw new KeyNotFoundException($"Provider not found with ID: {importDto.ProviderId}.");
 
-                        var stock = await _stockRepository.GetByIdAsync(stockTransactionDto.StockId.Value)
-                            ?? throw new KeyNotFoundException($"Stock not found with ID: {stockTransactionDto.StockId.Value}.");
+                        var inchargeEmployee = await _userRepository.GetByUsernameAsync(username)
+                            ?? throw new KeyNotFoundException($"Incharge employee not found with username: {username}.");
 
-                        var inchargeEmployee = await _userRepository.GetByUsernameAsync(stockTransactionDto.Username)
-                            ?? throw new KeyNotFoundException($"Incharge employee not found with username: {stockTransactionDto.Username}.");
+                        var transactionType = await _transactionTypeRepository.FindByNameAsync(DefaultTransactionTypeName)
+                            ?? throw new KeyNotFoundException($"Default transaction type '{DefaultTransactionTypeName}' not found.");
 
-                        var transactionTypeName = stockTransactionDto.TransactionType ?? DefaultTransactionTypeName;
-                        var transactionType = await _transactionTypeRepository.FindByNameAsync(transactionTypeName)
-                            ?? throw new KeyNotFoundException($"TransactionType '{transactionTypeName}' not found.");
-
-                        var productStatusActive = await _productStatusRepository.GetByIdAsync(AvailableProductStatusId)
-                             ?? throw new KeyNotFoundException($"ProductStatus with ID {AvailableProductStatusId} ('AVAILABLE') not found.");
-
-                        foreach (var variationQuantity in stockTransactionDto.Variations)
+                        foreach (var variationQuantity in importDto.Variations)
                         {
-                            if (variationQuantity.ProductVariationId == null || variationQuantity.Quantity <= 0)
-                            {
-                                _logger.LogWarning("Invalid ProductVariationQuantity in DTO, skipping item.");
-                                continue;
-                            }
-
-                            var variation = await _variationRepository.GetByIdAsync(variationQuantity.ProductVariationId.Value);
-                            if (variation == null || variation.Product == null)
-                            {
-                                throw new KeyNotFoundException($"Variation not found or product not loaded for Variation ID: {variationQuantity.ProductVariationId.Value}.");
-                            }
-
-                            var transaction = new Transaction
-                            {
-                                Stock = stock,
-                                Variation = variation,
-                                Provider = provider,
-                                InchargeEmployee = inchargeEmployee,
-                                TransactionType = transactionType,
-                                TransactionQuantity = variationQuantity.Quantity,
-                                TransactionDate = DateOnly.FromDateTime(DateTime.UtcNow),
-                                TransactionProductPrice = variation.VariationPrice
-                            };
-                            await _transactionRepository.AddAsync(transaction);
-
-                            var stockVariation = await _stockVariationRepository.GetByIdAsync(variation.VariationId, stock.StockId);
-                            if (stockVariation != null)
-                            {
-                                stockVariation.StockQuantity = (stockVariation.StockQuantity ?? 0) + variationQuantity.Quantity.Value;
-                                await _stockVariationRepository.UpdateAsync(stockVariation);
-                            }
-                            else
-                            {
-                                stockVariation = new StockVariation
-                                {
-                                    StockId = stock.StockId,
-                                    VariationId = variation.VariationId,
-                                    StockQuantity = variationQuantity.Quantity.Value
-                                };
-                                await _stockVariationRepository.AddAsync(stockVariation);
-                            }
-
-                            if (variation.Product.ProductStatusId != productStatusActive.ProductStatusId)
-                            {
-                                variation.Product.ProductStatusId = productStatusActive.ProductStatusId;
-                            }
+                            await UpdateStockAndLogTransactionAsync(
+                                variationId: variationQuantity.VariationId,
+                                stockId: importDto.StockId,
+                                quantityDelta: variationQuantity.Quantity,
+                                transactionType: transactionType,
+                                inchargeEmployee: inchargeEmployee,
+                                provider: provider
+                            );
                         }
 
                         await _context.SaveChangesAsync();
@@ -253,7 +320,7 @@ namespace BLL.Services
                     }
                     catch (Exception ex)
                     {
-                        _logger.LogError(ex, "Error during stock transaction creation. Rolling back.");
+                        _logger.LogError(ex, "Error during product import transaction. Rolling back.");
                         await dbTransaction.RollbackAsync();
                         throw;
                     }

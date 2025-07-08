@@ -80,6 +80,7 @@ namespace Unleashed_MVC
             builder.Services.AddScoped<IAuthenticationService, AuthenticationService>();
             builder.Services.AddScoped<IOrderService, OrderService>();
             builder.Services.AddScoped<IDiscountService, DiscountService>();
+            builder.Services.AddScoped<IProviderService, ProviderService>();
 
             // --- AutoMapper ---  
             // This scans all assemblies loaded in the current application domain for AutoMapper profiles.  
