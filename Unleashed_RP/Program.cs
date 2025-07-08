@@ -34,6 +34,7 @@ public class Program
         {
             options.IdleTimeout = TimeSpan.FromMinutes(30); // Set a timeout for the session
             options.Cookie.HttpOnly = true; // Make the session cookie inaccessible to client-side script
+            options.Cookie.Name = "Razor_Session";
             options.Cookie.IsEssential = true; // Make the session cookie essential for GDPR compliance
         });
 

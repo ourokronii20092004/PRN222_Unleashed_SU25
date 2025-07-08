@@ -23,7 +23,7 @@ namespace Unleashed_RP.Pages.Notifications
                 ArgumentNullException.ThrowIfNullOrEmpty(username, nameof(username));
                 NotificationUsers = [.. await _notificationUserService.GetNotificationUserListAsync(username)];
             } catch (ArgumentNullException ex) {
-                RedirectToPage("/Index");
+                RedirectToPage("../Index");
             }
         }
     }

@@ -1,6 +1,8 @@
 ﻿@page
 @model Unleashed_RP.Pages.Notifications.DetailsModel
-
+@{
+    ViewData["Title"] = "Notifications Details";
+}
 <div>
     <h4>Notification</h4>
     <hr />
@@ -29,8 +31,23 @@
         <dd class="col-sm-10">
             @Html.DisplayFor(model => model.NotificationDetailDTO.UserIdSenderNavigation.UserFullname)
         </dd>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.NotificationDetailDTO.UserIdSender)
+        </dd>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.NotificationDetailDTO.NotificationId)
+        </dd>
     </dl>
 </div>
 <div>
+    <form method="post">
+        <input type="hidden" name="notificationId" value="@Model.NotificationDetailDTO.NotificationId" />
+
+        <button type="submit" class="btn btn-danger"
+                onclick="return confirm('Are you sure you want to delete this notification?');">
+            Delete Notification
+        </button>
+    </form>
+   
     <a asp-page="./Index">Back to List</a>
 </div>
