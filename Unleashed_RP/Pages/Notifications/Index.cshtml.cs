@@ -17,12 +17,13 @@ namespace Unleashed_RP.Pages.Notifications
 
         public async Task OnGetAsync()
         {
+            try
             {
                 string? username = HttpContext.Session.GetString("username");
                 ArgumentNullException.ThrowIfNullOrEmpty(username, nameof(username));
                 NotificationUsers = [.. await _notificationUserService.GetNotificationUserListAsync(username)];
-            //} catch (ArgumentNullException ex) {
-            //    RedirectToPage("/Index");
+            } catch (ArgumentNullException ex) {
+                RedirectToPage("../Index");
             }
         }
     }

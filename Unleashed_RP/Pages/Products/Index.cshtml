@@ -1,0 +1,201 @@
+﻿@page
+@model Unleashed_RP.Pages.Products.IndexModel
+
+<div class="container-fluid product-showcase">
+    <!-- Header with search and create button -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="display-6">Our Products</h1>
+        <div>
+            <a asp-page="Create" class="btn btn-primary">
+                <i class="bi bi-plus-circle"></i> Add New Product
+            </a>
+        </div>
+    </div>
+
+    <!-- Search bar -->
+    <form method="get" class="mb-4">
+        <div class="input-group search-bar">
+            <input type="text" name="query" class="form-control form-control-lg"
+                   placeholder="Search products by name, category..." value="@Model.Query" />
+            <button class="btn btn-primary" type="submit">
+                <i class="bi bi-search"></i> Search
+            </button>
+        </div>
+        <div class="d-flex justify-content-between mt-2">
+            <small class="text-muted">Showing @Model.Product.Count of @Model.TotalCount products</small>
+            <div class="form-group">
+                <select class="form-select form-select-sm" onchange="window.location.href='?pageSize='+this.value+'&query=@Model.Query'">
+                    <option value="10" selected="@(Model.PageSize == 10)">10 per page</option>
+                    <option value="20" selected="@(Model.PageSize == 20)">20 per page</option>
+                    <option value="50" selected="@(Model.PageSize == 50)">50 per page</option>
+                </select>
+            </div>
+        </div>
+    </form>
+
+    <!-- Product Grid -->
+    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 row-cols-xl-4 g-4">
+        @foreach (var item in Model.Product)
+        {
+            <div class="col">
+                <div class="card h-100 product-card">
+                    <!-- Product Image -->
+                    @{
+                        var variationWithImage = item.Variations?.FirstOrDefault(v => !string.IsNullOrEmpty(v.ProductVariationImage));
+                        var imageUrl = variationWithImage?.ProductVariationImage ?? "/images/placeholder-image.png";
+                        var discountBadge = item.SaleValue > 0 ? $"<span class='badge bg-danger'>-{item.SaleValue}%</span>" : "";
+                    }
+
+                    <div class="product-image-container">
+                        <img src="@imageUrl" class="card-img-top" alt="@item.ProductName"
+                             onerror="this.src='/images/placeholder-image.png';" />
+                        @if (item.SaleValue > 0)
+                        {
+                            <span class="badge bg-danger discount-badge">-@item.SaleValue%</span>
+                        }
+                        <div class="quick-actions">
+                            <button class="btn btn-sm btn-outline-light quick-view"
+                                    onclick="location.href='./Details?id=@item.ProductId'">
+                                <i class="bi bi-eye"></i>
+                            </button>
+                            <button class="btn btn-sm btn-outline-light quick-cart">
+                                <i class="bi bi-cart-plus"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Product Body -->
+                    <div class="card-body">
+                        <h5 class="card-title">@item.ProductName</h5>
+  
+                        <!-- Price -->
+                        <div class="d-flex justify-content-between align-items-center">
+                            @if (item.SaleValue > 0)
+                            {
+                                <div>
+                                    <span class="text-danger fw-bold">
+                                        $@($"{item.ProductPrice * (100 - item.SaleValue) / 100:0.00}")
+                                    </span>
+                                    <span class="text-decoration-line-through text-muted small ms-2">$@item.ProductPrice.ToString("0.00")</span>
+                                </div>
+                            }
+                            else
+                            {
+                                <span class="fw-bold">$@item.ProductPrice.ToString("0.00")</span>
+                            }
+                            <button class="btn btn-sm btn-outline-primary">
+                                <i class="bi bi-cart-plus"></i> Add
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+
+    <!-- Pagination -->
+    @if (Model.TotalCount > Model.PageSize)
+    {
+        <nav aria-label="Product pagination" class="mt-4">
+            <ul class="pagination justify-content-center">
+                @if (Model.Page > 1)
+                {
+                    <li class="page-item">
+                        <a class="page-link" href="?page=@(Model.Page - 1)&pageSize=@Model.PageSize&query=@Model.Query">
+                            <i class="bi bi-chevron-left"></i> Previous
+                        </a>
+                    </li>
+                }
+
+                @for (int i = Math.Max(1, Model.Page - 2); i <= Math.Min(Model.Page + 2, (Model.TotalCount + Model.PageSize - 1) / Model.PageSize); i++)
+                {
+                    <li class="page-item @(i == Model.Page ? "active" : "")">
+                        <a class="page-link" href="?page=@i&pageSize=@Model.PageSize&query=@Model.Query">@i</a>
+                    </li>
+                }
+
+                @if (Model.Page * Model.PageSize < Model.TotalCount)
+                {
+                    <li class="page-item">
+                        <a class="page-link" href="?page=@(Model.Page + 1)&pageSize=@Model.PageSize&query=@Model.Query">
+                            Next <i class="bi bi-chevron-right"></i>
+                        </a>
+                    </li>
+                }
+            </ul>
+        </nav>
+    }
+</div>
+
+<style>
+    .product-showcase {
+        padding: 2rem 0;
+    }
+
+    .search-bar {
+        max-width: 600px;
+        margin: 0 auto;
+    }
+
+    .product-card {
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        border-radius: 10px;
+        overflow: hidden;
+    }
+
+        .product-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        }
+
+    .product-image-container {
+        position: relative;
+        height: 200px;
+        overflow: hidden;
+        background-color: #f8f9fa;
+    }
+
+        .product-image-container img {
+            object-fit: contain;
+            width: 100%;
+            height: 100%;
+            padding: 1rem;
+        }
+
+    .discount-badge {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        font-size: 0.9rem;
+        padding: 5px 10px;
+    }
+
+    .quick-actions {
+        position: absolute;
+        bottom: -50px;
+        right: 10px;
+        transition: bottom 0.3s ease;
+        display: flex;
+        gap: 5px;
+    }
+
+    .product-card:hover .quick-actions {
+        bottom: 10px;
+    }
+
+    .quick-actions button {
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0;
+    }
+
+    .card-title {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+</style>

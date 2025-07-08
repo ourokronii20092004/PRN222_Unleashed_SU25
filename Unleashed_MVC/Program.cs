@@ -15,7 +15,7 @@ namespace Unleashed_MVC
             var builder = WebApplication.CreateBuilder(args);
 
             // --- Database Services ---  
-            builder.Services.ConnectUnleashedDatabase(builder.Configuration, "ZeroTierOne");
+            builder.Services.ConnectUnleashedDatabase(builder.Configuration, "Cloudflared");
             /*
              * Configurations:
              * 
@@ -35,6 +35,7 @@ namespace Unleashed_MVC
             builder.Services.AddSession(options =>
             {
                 options.IdleTimeout = TimeSpan.FromMinutes(30); // Set a timeout for the session
+                options.Cookie.Name = "MVC_Session";
                 options.Cookie.HttpOnly = true; // Make the session cookie inaccessible to client-side script
                 options.Cookie.IsEssential = true; // Make the session cookie essential for GDPR compliance
             });

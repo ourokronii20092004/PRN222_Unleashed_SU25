@@ -1,6 +1,7 @@
 ﻿using BLL.Services.Interfaces;
 using DAL.Data;
 using DAL.Models;
+using DAL.Repositories.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -16,7 +17,8 @@ namespace Unleashed_MVC.Controllers
     {
         private readonly ICartService _cartService;
         private readonly IUserService _accountService;
-        //private readonly IVariationService _variationService;
+
+        private readonly IVariationRepository _variationRepo;
         //private Guid GetCurrentUserId()
         //{
         //    {
@@ -24,11 +26,11 @@ namespace Unleashed_MVC.Controllers
         //        return claim != null ? Guid.Parse(claim.Value) : throw new Exception("Not authenticated");
         //    }
         //}
-        public CartsController(ICartService cartService, IUserService accountService) //IVariationService variationService
+        public CartsController(ICartService cartService, IUserService accountService,IVariationRepository variationRepo)
         {
             _cartService = cartService;
             _accountService = accountService;
-            //_variationService = variationService;
+            _variationRepo = variationRepo;
         }
        
         // GET: Carts
