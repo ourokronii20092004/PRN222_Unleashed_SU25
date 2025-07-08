@@ -204,7 +204,6 @@ namespace DAL.Repositories
 
         public async Task<(List<ProductSearchResultDTO> Products, int TotalCount)> SearchProductsAsync(string? query, int skip, int take)
         {
-
             string searchQuery = string.IsNullOrWhiteSpace(query) ? "%" : $"%{query.ToLower()}%";
             var queryParam = new SqlParameter("@query", searchQuery);
             var skipParam = new SqlParameter("@skip", skip);
@@ -215,78 +214,77 @@ namespace DAL.Repositories
             // The subquery for first variation and rating aggregation needs careful construction.
             // This is a conceptual SQL structure. You'll need to refine it.
             string sql = $@"
-                WITH ProductRatings AS (
-                    SELECT
+        WITH ProductRatings AS (
+            SELECT
                         p.product_id,
                         COALESCE(AVG(CAST(r.review_rating AS FLOAT)), 0) AS AverageRating,
                         COUNT(r.review_id) AS TotalRatings
-                    FROM product p
-                    LEFT JOIN review r ON p.product_id = r.product_id
-                    GROUP BY p.product_id
-                ),
-                FirstVariation AS (
-                    SELECT
-                        v.product_id,
-                        v.variation_id,
-                        v.variation_image,
-                        v.variation_price,
-                        s.size_name,
-                        c.color_name,
-                        ROW_NUMBER() OVER(PARTITION BY v.product_id ORDER BY v.variation_id ASC) as rn
-                    FROM variation v
-                    LEFT JOIN size s ON v.size_id = s.size_id
-                    LEFT JOIN color c ON v.color_id = c.color_id
-                )
-                SELECT
-                    p.product_id AS ProductId,
-                    p.product_name AS ProductName,
-                    p.product_code AS ProductCode,
-                    p.product_description AS ProductDescription,
-                    p.brand_id AS BrandId,
-                    b.brand_name AS BrandName,
-                    p.product_status_id AS ProductStatusId,
-                    ps.product_status_name AS ProductStatusName,
-                    fv.variation_id AS FirstVariationId,
-                    fv.variation_image AS FirstVariationImage,
-                    fv.variation_price AS FirstVariationPrice,
-                    fv.size_name AS FirstVariationSizeName,
-                    fv.color_name AS FirstVariationColorName,
-                    pr.AverageRating,
-                    pr.TotalRatings
-                FROM product p
-                LEFT JOIN brand b ON p.brand_id = b.brand_id
-                LEFT JOIN product_status ps ON p.product_status_id = ps.product_status_id
-                LEFT JOIN ProductRatings pr ON p.product_id = pr.product_id
-                LEFT JOIN FirstVariation fv ON p.product_id = fv.product_id AND fv.rn = 1
-                WHERE (
-                        LOWER(p.product_name) LIKE @query OR
-                        LOWER(p.product_code) LIKE @query OR
-                        LOWER(p.product_description) LIKE @query
-                      )
-                  AND p.product_status_id IS NOT NULL
-                ORDER BY p.product_id ASC
-                OFFSET @skip ROWS FETCH NEXT @take ROWS ONLY;
-            ";
+            FROM product p
+            LEFT JOIN review r ON p.product_id = r.product_id
+            GROUP BY p.product_id
+        ),
+        FirstVariation AS (
+            SELECT
+                v.product_id,
+                v.variation_id,
+                v.variation_image,
+                v.variation_price,
+                s.size_name,
+                c.color_name,
+                ROW_NUMBER() OVER(PARTITION BY v.product_id ORDER BY v.variation_id ASC) as rn
+            FROM variation v
+            LEFT JOIN size s ON v.size_id = s.size_id
+            LEFT JOIN color c ON v.color_id = c.color_id
+        )
+        SELECT
+            p.product_id AS ProductId,
+            p.product_name AS ProductName,
+            p.product_code AS ProductCode,
+            p.product_description AS ProductDescription,
+            p.brand_id AS BrandId,
+            b.brand_name AS BrandName,
+            p.product_status_id AS ProductStatusId,
+            ps.product_status_name AS ProductStatusName,
+            fv.variation_id AS FirstVariationId,
+            fv.variation_image AS FirstVariationImage,
+            fv.variation_price AS FirstVariationPrice,
+            fv.size_name AS FirstVariationSizeName,
+            fv.color_name AS FirstVariationColorName,
+            pr.AverageRating,
+            pr.TotalRatings
+        FROM product p
+        LEFT JOIN brand b ON p.brand_id = b.brand_id
+        LEFT JOIN product_status ps ON p.product_status_id = ps.product_status_id
+        LEFT JOIN ProductRatings pr ON p.product_id = pr.product_id
+        LEFT JOIN FirstVariation fv ON p.product_id = fv.product_id AND fv.rn = 1
+        WHERE (
+                LOWER(p.product_name) LIKE @query OR
+                LOWER(p.product_code) LIKE @query OR
+                LOWER(p.product_description) LIKE @query
+              )
+          AND p.product_status_id IS NOT NULL
+        ORDER BY p.product_id ASC
+        OFFSET @skip ROWS FETCH NEXT @take ROWS ONLY;
+    ";
 
             string countSql = $@"
-                SELECT COUNT(DISTINCT p.product_id)
-                FROM product p
-                WHERE (
-                        LOWER(p.product_name) LIKE @query OR
-                        LOWER(p.product_code) LIKE @query OR
-                        LOWER(p.product_description) LIKE @query
-                      )
-                  AND p.product_status_id IS NOT NULL;
-            ";
+        SELECT COUNT(DISTINCT p.product_id)
+        FROM product p
+        WHERE (
+                LOWER(p.product_name) LIKE @query OR
+                LOWER(p.product_code) LIKE @query OR
+                LOWER(p.product_description) LIKE @query
+              )
+          AND p.product_status_id IS NOT NULL;
+    ";
 
             var products = await _context.Set<ProductSearchResultDTO>()
-                                         .FromSqlRaw(sql, queryParam, skipParam, takeParam)
-                                         .ToListAsync();
+                                        .FromSqlRaw(sql, queryParam, skipParam, takeParam)
+                                        .ToListAsync();
             // For count, ensure parameters are correctly passed if using ExecuteSqlInterpolated or similar for scalar
             var totalCount = await _context.Database
                                      .SqlQueryRaw<int>(countSql, queryParam)
                                      .SingleAsync();
-
 
             return (products, totalCount);
         }
@@ -378,6 +376,35 @@ namespace DAL.Repositories
         public async Task<Product?> GetProductByCodeAsync(string productCode)
         {
             return await _context.Products.FirstOrDefaultAsync(p => p.ProductCode == productCode);
+        }
+  
+    public async Task<int> CountAllProductsAsync()
+    {
+        return await _context.Products.CountAsync();
+    }
+
+    public async Task<int> CountSearchResultsAsync(string query)
+    {
+        if (string.IsNullOrWhiteSpace(query))
+            return await CountAllProductsAsync();
+
+        query = query.ToLower();
+        return await _context.Products
+            .Where(p => p.ProductName.ToLower().Contains(query) || 
+                       p.ProductCode.ToLower().Contains(query) ||
+                       p.Brand.BrandName.ToLower().Contains(query))
+            .CountAsync();
+    }
+        public async Task<List<Product>> GetAllWithPagingAsync(int skip, int take)
+        {
+            return await _context.Products
+                .Include(p => p.Brand)
+                .Include(p => p.ProductStatus)
+                .Include(p => p.Categories)
+                .OrderBy(p => p.ProductName)
+                .Skip(skip)
+                .Take(take)
+                .ToListAsync();
         }
     }
 }

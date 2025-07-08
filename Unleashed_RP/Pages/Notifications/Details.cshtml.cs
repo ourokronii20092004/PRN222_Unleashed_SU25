@@ -5,37 +5,61 @@ using DAL.Data;
 using DAL.Models;
 using BLL.Services.Interfaces;
 using DAL.DTOs.NotificationDTOs;
+using Microsoft.Extensions.Logging;
 
 namespace Unleashed_RP.Pages.Notifications
 {
     public class DetailsModel : PageModel
     {
         private readonly INotificationService _notificationService;
+        private readonly INotificationUserService _notificationUserService;
+        private readonly ILogger<DetailsModel> _logger;
 
-        public DetailsModel(INotificationService notificationService)
+        public DetailsModel(INotificationService notificationService, INotificationUserService notificationUserService, ILogger<DetailsModel> logger)
         {
             _notificationService = notificationService;
+            _notificationUserService = notificationUserService;
+            _logger = logger;
         }
 
         public NotificationDetailDTO NotificationDetailDTO { get; set; } = default!;
 
         public async Task<IActionResult> OnGetAsync(int? id)
         {
-            if (id == null)
+            try
             {
-                return NotFound();
-            }
+                if (id == null)
+                {
+                    return NotFound();
+                }
 
-            var notification = await _notificationService.GetNotificationByIdAsync(id.Value);
-            if (notification == null)
-            {
-                return NotFound();
+                var notification = await _notificationService.GetNotificationByIdAsync(id.Value);
+
+                if (notification == null)
+                {
+                    return NotFound();
+                }
+                else
+                {
+                    string? username = HttpContext.Session.GetString("username");
+                    ArgumentNullException.ThrowIfNullOrEmpty(username);
+                    await _notificationUserService.SetViewedUserNotification(username, id.Value);
+                    NotificationDetailDTO = notification;
+                }
+                return Page();
             }
-            else
+            catch (Exception ex)
             {
-                NotificationDetailDTO = notification;
+                return RedirectToPage("../Index");
             }
-            return Page();
+        }
+
+        public async Task<IActionResult> OnPostAsync(int NotificationId) {
+            string? username = HttpContext.Session.GetString("username");
+            ArgumentNullException.ThrowIfNullOrEmpty(username);
+
+            await _notificationUserService.DeleteUserNotification(username, NotificationId);
+            return RedirectToPage("./Index");
         }
     }
 }
