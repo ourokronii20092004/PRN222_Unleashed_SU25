@@ -52,7 +52,7 @@ namespace Unleashed_MVC.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Title,Content,IsDrafted")] NotificationCreateDTO notification)
+        public async Task<IActionResult> Create([Bind("NotificationTitle,NotificationContent,IsNotificationDraft")] NotificationCreateDTO notification)
         {
             notification.UsernameSender = HttpContext.Session.GetString("username");
             if (await _notificationService.AddNotificationAsync(notification))
