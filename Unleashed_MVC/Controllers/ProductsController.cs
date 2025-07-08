@@ -18,6 +18,7 @@ namespace Unleashed_MVC.Controllers
     public class ProductsController : Controller
     {
         private readonly IProductService _productService;
+        private readonly IProductRepository _productRepository;
         private readonly IBrandRepository _brandRepository;     
         private readonly IProductStatusRepository _productStatusRepository;
         private readonly IVariationRepository _variationRepository;
@@ -26,7 +27,7 @@ namespace Unleashed_MVC.Controllers
         private readonly IImageUploader _imageUploader;
         private readonly ILogger<ProductsController> _logger;
 
-        public ProductsController(ILogger<ProductsController> logger,IProductService productService, IBrandRepository brandRepository, IProductStatusRepository productStatusRepository, IVariationRepository variationRepository, IColorRepository colorRepository, ISizeRepository sizeRepository, IImageUploader imageUploader)
+        public ProductsController(ILogger<ProductsController> logger,IProductService productService,IProductRepository productRepository, IBrandRepository brandRepository, IProductStatusRepository productStatusRepository, IVariationRepository variationRepository, IColorRepository colorRepository, ISizeRepository sizeRepository, IImageUploader imageUploader)
         {
             _productService = productService;
             _brandRepository = brandRepository;
@@ -36,24 +37,22 @@ namespace Unleashed_MVC.Controllers
             _sizeRepository = sizeRepository;
             _imageUploader = imageUploader;
             _logger = logger;
+            _productRepository = productRepository;
         }
-
-public async Task<IActionResult> Index(int page = 1, int pageSize = 10)
-{
-    int skip = (page - 1) * pageSize;
+        public async Task<IActionResult> Index(string? query, int page = 1, int pageSize = 10)
+        {
+            int skip = (page - 1) * pageSize;
 
     var products = await _productService.GetAllProductsAsync(); 
     var pagedProducts = products.Skip(skip).Take(pageSize).ToList(); 
 
     var totalCount = products.Count();
-     
-    ViewBag.TotalCount = totalCount;
-    ViewBag.Page = page;
-    ViewBag.PageSize = pageSize;
+
+            ViewBag.Page = page;
+            ViewBag.PageSize = pageSize;
 
     return View(pagedProducts);
-}
-
+        }
         // GET: Products/Details/5
         public async Task<IActionResult> Details(Guid? id)
         {
@@ -409,15 +408,24 @@ public async Task<IActionResult> Index(int page = 1, int pageSize = 10)
         // POST: Products/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(Guid ProductId)
+        public async Task<IActionResult> DeleteConfirmed(Guid ProductId, string deleteType)
         {
-            var deleted = await _productService.DeleteProductAsync(ProductId);
-            if (deleted)
+            if (deleteType == "soft")
             {
-                return RedirectToAction(nameof(Index));
+                await _productRepository.SoftDeleteProductAsync(ProductId);
+                TempData["SuccessMessage"] = "Product has been deactivated successfully.";
+            }
+            else if (deleteType == "hard")
+            {
+                var deleted = await _productService.DeleteProductAsync(ProductId);
+                if (!deleted)
+                {
+                    return NotFound();
+                }
+                TempData["SuccessMessage"] = "Product has been permanently deleted successfully.";
             }
 
-            return NotFound();
+            return RedirectToAction(nameof(Index));
         }
     }
 }

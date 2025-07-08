@@ -34,6 +34,31 @@
             <i class="bi bi-plus-circle-fill"></i> Create New Product
         </a>
     </div>
+    <!-- Search Box -->
+    <div class="card shadow-sm mb-3">
+        <div class="card-body">
+            <form method="get" asp-action="Index" class="row g-3">
+                <div class="col-md-8">
+                    <div class="input-group">
+                        <input type="text" name="query" class="form-control" placeholder="Search products..." value="@ViewBag.Query">
+                        <button class="btn btn-outline-secondary" type="submit">
+                            <i class="bi bi-search"></i> Search
+                        </button>
+                    </div>
+                </div>
+                <div class="col-md-2">
+                    <select name="pageSize" class="form-select" onchange="this.form.submit()">
+                        <option value="10" selected="@(ViewBag.PageSize == 10)">10 per page</option>
+                        <option value="20" selected="@(ViewBag.PageSize == 20)">20 per page</option>
+                        <option value="50" selected="@(ViewBag.PageSize == 50)">50 per page</option>
+                    </select>
+                </div>
+                <div class="col-md-2 text-end">
+                    <a asp-action="Index" class="btn btn-outline-danger">Reset</a>
+                </div>
+            </form>
+        </div>
+    </div>
 
     <div class="card shadow-sm">
         <div class="card-body p-0">
