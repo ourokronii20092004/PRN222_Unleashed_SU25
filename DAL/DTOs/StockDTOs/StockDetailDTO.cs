@@ -11,11 +11,11 @@ namespace DAL.DTOs.StockDTOs
         public int StockId { get; set; }
         public string? StockName { get; set; }
         public string? StockAddress { get; set; }
-        public int VariationId { get; set; } // Assuming int, matches Variation.VariationId
+        public int? VariationId { get; set; } // Assuming int, matches Variation.VariationId
         public decimal? ProductPrice { get; set; } // Matches Variation.VariationPrice
         public string? ProductVariationImage { get; set; } // Matches Variation.VariationImage
         public string? ProductName { get; set; } // Matches Product.ProductName
-        public Guid ProductId { get; set; } // Matches Product.ProductId (which is Guid)
+        public Guid? ProductId { get; set; } // Matches Product.ProductId (which is Guid)
         public int? BrandId { get; set; } // Matches Product.BrandId
         public string? BrandName { get; set; } // From related Brand
         public int? CategoryId { get; set; } // Assuming from related Category (via Product)
