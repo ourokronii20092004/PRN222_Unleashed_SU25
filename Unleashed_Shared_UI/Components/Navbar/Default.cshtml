@@ -1,0 +1,59 @@
+@model Unleashed_Shared_UI.ViewModels.Menu.NavbarViewModel
+
+<header class="navbar-container">
+    <div class="navbar-backdrop"></div>
+    <div class="navbar-content">
+        <!-- Left Section: Logo -->
+        <div class="nav-left">
+            <a asp-controller="Home" asp-action="Index">
+                <img src="/images/logonavbar.webp" alt="Unleashed Logo" style="height: 40px;" />
+            </a>
+        </div>
+
+        <!-- Center Section: Navigation Links -->
+        <nav class="nav-center">
+            <ul class="nav-links">
+                @foreach (var link in Model.Links)
+                {
+                    <li>
+                        <a class="nav-link @(link.IsActive ? "is-active" : "")"
+                           asp-controller="@link.Controller" asp-action="@link.Action">
+                            @link.Label
+                        </a>
+                    </li>
+                }
+            </ul>
+        </nav>
+
+        <!-- Right Section: Actions and Menus -->
+        <div class="nav-right">
+            @if (Model.IsAuthenticated)
+            {
+                <vc:notification-bell></vc:notification-bell>
+            }
+
+            @if (Model.IsAuthenticated)
+            {
+                <vc:logged-menu></vc:logged-menu>
+            }
+            else
+            {
+                <vc:guest-menu></vc:guest-menu>
+            }
+
+            <a href="#" class="nav-action-icon" title="Search">
+                <i class="fa-solid fa-search"></i>
+            </a>
+
+            <a asp-controller="Cart" asp-action="Index" class="nav-action-icon" title="Cart">
+                <span class="fa-layers fa-fw">
+                    <i class="fa-solid fa-cart-shopping"></i>
+                    @if (Model.CartItemCount > 0)
+                    {
+                        <span class="fa-layers-counter" style="background:red;">@Model.CartItemCount</span>
+                    }
+                </span>
+            </a>
+        </div>
+    </div>
+</header>

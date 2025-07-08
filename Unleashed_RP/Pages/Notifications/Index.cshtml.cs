@@ -17,14 +17,14 @@ namespace Unleashed_RP.Pages.Notifications
 
         public async Task OnGetAsync()
         {
-            try
-            {
-                string? username = HttpContext.Session.GetString("username");
-                ArgumentNullException.ThrowIfNullOrEmpty(username, nameof(username));
-                NotificationUser = [.. await _notificationUserService.GetNotificationUserListAsync(username)];
-            } catch (ArgumentNullException ex) {
-                NotificationUser = null;
-            }
+            //try
+            //{
+            //    string? username = HttpContext.Session.GetString("username");
+            //    ArgumentNullException.ThrowIfNullOrEmpty(username, nameof(username));
+            //    NotificationUser = [.. await _notificationUserService.GetNotificationUserListAsync(username)];
+            //} catch (ArgumentNullException ex) {
+            //    NotificationUser = null;
+            //}
         }
     }
 }

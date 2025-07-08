@@ -1,0 +1,10 @@
+@model string
+@{
+    var returnUrl = Model;
+}
+<header class="minimal-nav">
+    <div class="minimal-nav-back-btn">
+        <a href="@returnUrl"><i class="fa-solid fa-arrow-left"></i></a>
+    </div>
+    <img src="/images/logonavbar.webp" alt="Logo" class="minimal-nav-logo" />
+</header>

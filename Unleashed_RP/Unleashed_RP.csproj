@@ -9,6 +9,7 @@
   <ItemGroup>
     <ProjectReference Include="..\BLL\BLL.csproj" />
     <ProjectReference Include="..\DAL\DAL.csproj" />
+    <ProjectReference Include="..\Unleashed_Shared_UI\Unleashed_Shared_UI.csproj" />
   </ItemGroup>
 
   <ItemGroup>
