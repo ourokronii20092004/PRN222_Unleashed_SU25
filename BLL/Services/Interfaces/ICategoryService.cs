@@ -1,4 +1,5 @@
-﻿using DAL.Models;
+﻿using DAL.DTOs.CategoryDTOs;
+using DAL.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,12 +10,12 @@ namespace BLL.Services.Interfaces
 {
     public interface ICategoryService
     {
-        Task<Category> GetCategoryByIdAsync(int id);
-        Task<IEnumerable<Category>> GetAllCategoriesAsync();
-        Task CreateCategoryAsync(Category category);
-        Task DeleteCategoryAsync(int id);
-        Task UpdateCategoryAsync(int id, Category category);
-
+        Task<CategoryDTO> GetCategoryByIdAsync(int id);
+        //Task<List<CategoryDTO>> GetAllCategoriesAsync();
+        Task<List<CategoryDTO>> GetAllCategoriesAsync();
+        Task<CategoryDTO> CreateCategoryAsync(CategoryCreateDTO categoryCreateDTO);
+        Task<bool> DeleteCategoryAsync(int id);
+        Task<CategoryDTO> UpdateCategoryAsync(int id, CategoryUpdateDTO categoryUpdateDTO);
 
     }
 }
