@@ -5,33 +5,45 @@
     ViewData["Title"] = "Login";
 }
 
-<h1>Login</h1>
+<div class="row justify-content-center">
+    <div class="col-md-6 col-lg-5">
+        <div class="card shadow-sm p-4">
+            <h1 class="card-title text-center mb-4">Welcome Back!</h1>
+            <hr />
+            <form id="account" method="post">
+                <div asp-validation-summary="All" class="text-danger text-center mb-3"></div>
 
-<div>
-    <form id="account" method="post">
-        <hr />
-        <div asp-validation-summary="All" class="text-danger"></div>
-        <div class="form-group">
-            <label asp-for="UserLoginDTO.UserUsername"></label>
-            <input asp-for="UserLoginDTO.UserUsername" class="form-control" />
-            <span asp-validation-for="UserLoginDTO.UserUsername" class="text-danger"></span>
+                <div class="mb-3">
+                    <label asp-for="UserLoginDTO.UserUsername" class="form-label"></label>
+                    <input asp-for="UserLoginDTO.UserUsername" class="form-control" placeholder="Your username" />
+                    <span asp-validation-for="UserLoginDTO.UserUsername" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="UserLoginDTO.UserPassword" class="form-label"></label>
+                    <input asp-for="UserLoginDTO.UserPassword" class="form-control" type="password" placeholder="Your password" />
+                    <span asp-validation-for="UserLoginDTO.UserPassword" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3 form-check">
+                    <input type="checkbox" name="Remember" class="form-check-input" id="rememberMe" />
+                    <label class="form-check-label" for="rememberMe">Remember me</label>
+                </div>
+
+                <div class="d-grid gap-2 mb-3">
+                    <button type="submit" class="btn btn-primary btn-lg">Log In</button>
+                </div>
+
+                <p class="text-center">
+                    Don't have an account? <a asp-page="./Register">Register here</a>.
+                </p>
+            </form>
         </div>
-        <div class="form-group">
-            <label asp-for="UserLoginDTO.UserPassword"></label>
-            <input asp-for="UserLoginDTO.UserPassword" class="form-control" />
-            <span asp-validation-for="UserLoginDTO.UserPassword" class="text-danger"></span>
-        </div>
-        <div class="form-group">
-            <div class="checkbox">
-                <label>
-                    Remember</>
-                    <input type="checkbox" name="Remember" />
-                </label>
-            </div>
-        </div>
-        <div><a class="nav-link text-dark" asp-area="" asp-page="./Register">Register</a></div>
-        <div class="form-group">
-            <button type="submit" class="btn btn-primary">Log in</button>
-        </div>
-    </form>
+    </div>
 </div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}
