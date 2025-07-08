@@ -83,15 +83,15 @@ namespace Unleashed_MVC.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, IEnumerable<string> usernames)
+        public async Task<IActionResult> Edit(NotificationDetailDTO notificationDTO)
         {
-            var notification = await _notificationService.GetNotificationByIdAsync(id);
+            var notification = await _notificationService.GetNotificationByIdAsync(notificationDTO.NotificationId);
             if ( notification != null)
             {
                 try
                 {
 
-                    if (!await _notificationService.EditNotificationAsync(id, usernames))
+                    if (!await _notificationService.EditNotificationAsync(notificationDTO))
                     {
                        return View(notification);
                     }
@@ -102,7 +102,7 @@ namespace Unleashed_MVC.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             } 
-            return View(notification);
+            return NotFound();
         }
 
         // GET: Notifications/Delete/5
@@ -125,10 +125,10 @@ namespace Unleashed_MVC.Controllers
         // POST: Notifications/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(int id)
+        public async Task<IActionResult> DeleteConfirmed(int NotificationId)
         {
             
-              await _notificationService.RemoveNotificationAsync(id);
+              await _notificationService.RemoveNotificationAsync(NotificationId);
             
 
             return RedirectToAction(nameof(Index));
