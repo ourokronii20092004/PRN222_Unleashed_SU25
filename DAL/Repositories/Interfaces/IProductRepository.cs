@@ -32,6 +32,9 @@ namespace DAL.Repositories.Interfaces
         Task UpdateAsync(Product product);
 
         Task<Product?> GetProductByCodeAsync(string productCode);
+        Task<List<Product>> GetAllWithPagingAsync(int skip, int take);
+        Task<int> CountAllProductsAsync();
+        Task<int> CountSearchResultsAsync(string query);
     }
 
 }
