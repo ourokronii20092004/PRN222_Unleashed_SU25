@@ -1,4 +1,4 @@
-﻿@model DAL.Models.Notification
+﻿@model DAL.DTOs.NotificationDTOs.NotificationDetailDTO
 
 @{
     ViewData["Title"] = "Edit";
@@ -14,11 +14,6 @@
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <input type="hidden" asp-for="NotificationId" />
             <div class="form-group">
-                <label asp-for="UserIdSender" class="control-label"></label>
-                <select asp-for="UserIdSender" class="form-control" asp-items="ViewBag.UserIdSender"></select>
-                <span asp-validation-for="UserIdSender" class="text-danger"></span>
-            </div>
-            <div class="form-group">
                 <label asp-for="NotificationTitle" class="control-label"></label>
                 <input asp-for="NotificationTitle" class="form-control" />
                 <span asp-validation-for="NotificationTitle" class="text-danger"></span>
@@ -28,20 +23,10 @@
                 <input asp-for="NotificationContent" class="form-control" />
                 <span asp-validation-for="NotificationContent" class="text-danger"></span>
             </div>
-            <div class="form-group">
-                <label asp-for="IsNotificationDraft" class="control-label"></label>
-                <input asp-for="IsNotificationDraft" class="form-control" />
+            <div class="form-group form-check">
+                <input class="form-check-input" asp-for="IsNotificationDraft" type="checkbox" />
+                <label class="form-check-label" asp-for="IsNotificationDraft">Is Drafted</label>
                 <span asp-validation-for="IsNotificationDraft" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="NotificationCreatedAt" class="control-label"></label>
-                <input asp-for="NotificationCreatedAt" class="form-control" />
-                <span asp-validation-for="NotificationCreatedAt" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="NotificationUpdatedAt" class="control-label"></label>
-                <input asp-for="NotificationUpdatedAt" class="form-control" />
-                <span asp-validation-for="NotificationUpdatedAt" class="text-danger"></span>
             </div>
             <div class="form-group">
                 <input type="submit" value="Save" class="btn btn-primary" />

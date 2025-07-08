@@ -1,4 +1,4 @@
-﻿@model DAL.Models.Notification
+﻿@model DAL.DTOs.NotificationDTOs.NotificationDetailDTO
 
 @{
     ViewData["Title"] = "Details";
@@ -10,6 +10,12 @@
     <h4>Notification</h4>
     <hr />
     <dl class="row">
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.UserIdSenderNavigation)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.UserIdSenderNavigation.UserFullname)
+        </dd>
         <dt class = "col-sm-2">
             @Html.DisplayNameFor(model => model.NotificationTitle)
         </dt>
@@ -39,12 +45,6 @@
         </dt>
         <dd class = "col-sm-10">
             @Html.DisplayFor(model => model.NotificationUpdatedAt)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.UserIdSenderNavigation)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.UserIdSenderNavigation.UserId)
         </dd>
     </dl>
 </div>
