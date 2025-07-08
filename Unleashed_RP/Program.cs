@@ -69,6 +69,7 @@ public class Program
         builder.Services.AddScoped<IOrderRepository, OrderRepository>();
 
         builder.Services.AddScoped<IAuthenticationService, AuthenticationService>();
+        builder.Services.AddScoped<INotificationUserService, NotificationUserService>();
 
 
 

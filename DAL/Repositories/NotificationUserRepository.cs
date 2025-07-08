@@ -39,14 +39,14 @@ namespace DAL.Repositories
 
         public async Task<IEnumerable<NotificationUser>> FindAsync(Expression<Func<NotificationUser, bool>> predicate, CancellationToken cancellationToken = default)
         {
-            return await _context.NotificationUsers
+            return await _context.NotificationUsers.Include(nu => nu.Notification)
                 .Where(predicate)
                 .ToListAsync(cancellationToken);
         }
 
         public async Task<IEnumerable<NotificationUser>> GetAllAsync()
         {
-            return await _context.NotificationUsers .ToListAsync();
+            return await _context.NotificationUsers.Include(nu => nu.Notification).ToListAsync();
         }
 
         public async Task<NotificationUser> GetByIdAsync((int, Guid) id, CancellationToken cancellationToken = default)
@@ -56,11 +56,11 @@ namespace DAL.Repositories
                 .FirstOrDefaultAsync(nu => nu.NotificationId == notificationId && nu.UserId == UserId,cancellationToken);
         }
 
-        public async Task<IEnumerable<Notification>> GetNotificationByUserId(Guid userId)
+        public async Task<IEnumerable<NotificationUser>> GetNotificationByUserId(Guid userId)
         {
             return await _context.NotificationUsers
+                .Include(nu=>nu.Notification)
                 .Where(nu => nu.UserId == userId)
-                .Select(nu => nu.Notification)
                 .ToListAsync(); 
         }
 

@@ -32,19 +32,21 @@ namespace DAL.Repositories
 
         public async Task<IEnumerable<Notification>> FindAsync(Expression<Func<Notification, bool>> predicate, CancellationToken cancellationToken = default)
         {
-           return await _context.Notifications
+           return await _context.Notifications.Include(noti => noti.UserIdSenderNavigation)
                 .Where(predicate)
                 .ToListAsync(cancellationToken);
         }
 
         public async Task<IEnumerable<Notification>> GetAllAsync()
         {
-            return await _context.Notifications.ToListAsync();
+            return await _context.Notifications.Include(noti => noti.UserIdSenderNavigation)
+                .ToListAsync();
         }
 
         public async Task<Notification> GetByIdAsync(int id, CancellationToken cancellationToken = default)
         {
-            return await _context.Notifications.FirstOrDefaultAsync(n => n.NotificationId == id);
+            return await _context.Notifications.Include(noti => noti.UserIdSenderNavigation)
+                .FirstOrDefaultAsync(n => n.NotificationId == id);
         }
 
         public async Task Update(Notification entity, CancellationToken cancellationToken = default)

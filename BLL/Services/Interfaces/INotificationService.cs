@@ -12,8 +12,8 @@ namespace BLL.Services.Interfaces
     {
         public Task<IEnumerable<NotificationDetailDTO>> GetAllNotificationsAsync();
         public Task<bool> AddNotificationAsync(NotificationCreateDTO notification);
-        public Task<bool> EditNotificationAsync(int id, IEnumerable<string> usernames);
+        public Task<bool> EditNotificationAsync(NotificationDetailDTO notificationDetailDTO);
         public Task<bool> RemoveNotificationAsync(int id);
-        public Task<Notification> GetNotificationByIdAsync(int id);
+        public Task<NotificationDetailDTO> GetNotificationByIdAsync(int id);
     }
 }

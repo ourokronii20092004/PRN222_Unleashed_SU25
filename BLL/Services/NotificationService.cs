@@ -30,68 +30,52 @@ namespace BLL.Services
 
         public async Task<bool> AddNotificationAsync(NotificationCreateDTO createNotification)
         {
-            
+
+            try
             {
                 var sender = await _userRepository.GetByUsernameAsync(createNotification.UsernameSender);
+                ArgumentNullException.ThrowIfNull(sender, nameof(sender));
                 ArgumentNullException.ThrowIfNull(createNotification, nameof(createNotification));
                 var notification = _mapper.Map<Notification>(createNotification);
                 notification.UserIdSender = sender.UserId;
                 notification.UserIdSenderNavigation = sender;
                 notification.NotificationCreatedAt = DateTimeOffset.UtcNow;
                 notification.NotificationUpdatedAt = DateTimeOffset.UtcNow;
-                notification.UserIdSenderNavigation = await _userRepository.GetByIdAsync(notification.UserIdSender);
-               
-                await _notificationRepository.AddAsync(notification);
 
-                    IEnumerable<User> users = await _userRepository.FindAsync(u => u.RoleId == 2);
-                    if (users != null && users.Any())
-                    {
-                        IEnumerable<NotificationUser> notificationUsers = users.Select(u => new NotificationUser
-                        {
-                            UserId = u.UserId,
-                            NotificationId = notification.NotificationId,
-                            User = u,
-                            Notification = notification,
-                        });
-                        await _notificationUserRepository.AddRangeAsync(notificationUsers);
-                    }   
-                
+                await _notificationRepository.AddAsync(notification);
+                if (!createNotification.IsNotificationDraft)
+                {
+                   await AddNotificationUsersForPublishedNotification(notification);
+                }
                 return true;
+            }
+            catch (Exception ex)
+            {
+                return false;
             }
            
         }
 
-        public async Task<bool> EditNotificationAsync(int id, IEnumerable<string> usernames)
+        public async Task<bool> EditNotificationAsync(NotificationDetailDTO notificationDetailDTO)
         {
             try
             {
-                ArgumentOutOfRangeException.ThrowIfNegative(id);
-                var notification = await _notificationRepository.GetByIdAsync(id);
-                if (usernames != null && usernames.Any() && notification != null)
-                {
-                    IEnumerable<User> users = await _userRepository.FindAsync(u => usernames.Contains(u.UserUsername));
-                    if (users != null && users.Any())
-                    {
-                        IEnumerable<NotificationUser> notificationUsers = users.Select(u => new NotificationUser
-                        {
-                            UserId = u.UserId,
-                            NotificationId = notification.NotificationId,
-                            User = u,
-                            Notification = notification,
-                        });
-                        await _notificationUserRepository.AddRangeAsync(notificationUsers);
-                        return true;
-                    }
-                    return false;
-                }
+                ArgumentNullException.ThrowIfNull(notificationDetailDTO, nameof(notificationDetailDTO));
+                var notification = await _notificationRepository.GetByIdAsync(notificationDetailDTO.NotificationId);
+                if (notification != null && notification.IsNotificationDraft.GetValueOrDefault(false)) {
+                    notification = _mapper.Map<Notification>(notificationDetailDTO);
+                    notification.NotificationUpdatedAt = DateTime.UtcNow;
+                    await _notificationRepository.Update(notification);
+                    if(!notification.IsNotificationDraft.GetValueOrDefault(true))
+                    await AddNotificationUsersForPublishedNotification(notification);
+                    }       
                 return false;
-               
             }
             catch (DBConcurrencyException)
             {
                 return false;
             }
-            catch (Exception)
+            catch (Exception) 
             {
                 return false;
             }
@@ -99,20 +83,25 @@ namespace BLL.Services
 
         public async Task<IEnumerable<NotificationDetailDTO>> GetAllNotificationsAsync()
         {
-            IEnumerable<Notification> notifications = await _notificationRepository.GetAllAsync();
-            return notifications.Select(n => NotificationDetailDTO.FromNotification(n));
+            IEnumerable<Notification> notifications = await _notificationRepository.FindAsync(noti => noti.IsNotificationDraft != null);
+            return _mapper.Map<IEnumerable<NotificationDetailDTO>>(notifications);
         }
 
-        public async Task<Notification> GetNotificationByIdAsync(int id)
+        public async Task<NotificationDetailDTO> GetNotificationByIdAsync(int id)
         {
-            return await _notificationRepository.GetByIdAsync(id);
+            var notification = await _notificationRepository.GetByIdAsync(id);
+            return _mapper.Map<NotificationDetailDTO>(notification);
         }
 
         public async Task<bool> RemoveNotificationAsync(int id)
         {
-            ArgumentOutOfRangeException.ThrowIfNegativeOrZero(id);
+            
             try
             {
+                ArgumentOutOfRangeException.ThrowIfNegativeOrZero(id);
+                var notication = await _notificationRepository.GetByIdAsync(id);
+                notication.IsNotificationDraft = null;
+                await _notificationRepository.Update(notication);
                 var notificationUsers = await _notificationUserRepository.GetNotificationUserByNotificationId(id);
                 if (notificationUsers != null && notificationUsers.Any())
                 {
@@ -134,5 +123,21 @@ namespace BLL.Services
                 return false;
             }
         }
+        private async Task AddNotificationUsersForPublishedNotification(Notification notification)
+        {
+            IEnumerable<User> users = await _userRepository.FindAsync(u => u.RoleId == 2);
+            if (users.Any()) 
+            {
+                IEnumerable<NotificationUser> notificationUsers = users.Select(u => new NotificationUser
+                {
+                    UserId = u.UserId,
+                    NotificationId = notification.NotificationId,
+                    // User = u, // Only set if you specifically need the navigation object to be tracked immediately
+                    // Notification = notification, // Only set if you specifically need the navigation object to be tracked immediately
+                });
+                await _notificationUserRepository.AddRangeAsync(notificationUsers);
+            }
+        }
     }
+
 }

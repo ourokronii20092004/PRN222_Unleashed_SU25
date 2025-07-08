@@ -1,9 +1,6 @@
 ﻿@page
 @model Unleashed_RP.Pages.Notifications.IndexModel
 
-<p>
-    <a asp-page="Create">Create New</a>
-</p>
 <table class="table">
     <thead>
         <tr>
@@ -17,21 +14,29 @@
         </tr>
     </thead>
     <tbody>
-@foreach (var item in Model.NotificationUsers) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.NotificationTitle)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.IsViewed)
-            </td>
+        @{
+            if (Model.NotificationUsers == null)
+            {
+                <div>No data</div>
+            }
+            else
+            {
+                foreach (var item in Model.NotificationUsers)
+                {
+                    <tr>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.NotificationTitle)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.IsViewed)
+                        </td>
 
-            <td>
-                @Html.ActionLink("Edit", "Edit", new { /* id=item.PrimaryKey */ }) |
-                @Html.ActionLink("Details", "Details", new { /* id=item.PrimaryKey */ }) |
-                @Html.ActionLink("Delete", "Delete", new { /* id=item.PrimaryKey */ })
-            </td>
-        </tr>
-}
+                        <td>
+                            <a asp-page="./Details" asp-route-id="@item.NotificationId">Details</a>
+                        </td>
+                    </tr>
+                }
+        }
+        }
     </tbody>
 </table>
