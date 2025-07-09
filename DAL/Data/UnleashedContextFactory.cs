@@ -21,7 +21,7 @@ namespace DAL
 
             var optionsBuilder = new DbContextOptionsBuilder<UnleashedContext>();
 
-            var connectionString = configuration.GetConnectionString("ZeroTierOne");
+            var connectionString = configuration.GetConnectionString("Cloudflared");
 
             optionsBuilder.UseSqlServer(connectionString);
 
