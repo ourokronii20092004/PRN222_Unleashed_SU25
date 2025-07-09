@@ -14,7 +14,8 @@ namespace BLL.Mappings
                 .ForMember(u => u.Role, opt => opt.Ignore())
                 .ForMember(u => u.UserGoogleId, opt => opt.Ignore())
                 .ForMember(u => u.UserEmail, opt => opt.Ignore())
-                .ForMember(u=> u.IsUserEnabled, opt => opt.Ignore());
+                .ForMember(u=> u.IsUserEnabled, opt => opt.Ignore())
+                .ForMember(u => u.UserImage, opt => opt.Ignore());
 
             CreateMap<UserLoginDTO, User>();
             

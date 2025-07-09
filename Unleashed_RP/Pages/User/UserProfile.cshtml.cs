@@ -1,17 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using Microsoft.EntityFrameworkCore;
-using DAL.Data;
-using DAL.Models;
 using DAL.DTOs.UserDTOs;
 using BLL.Services.Interfaces;
 
 namespace Unleashed_RP.Pages.User
 {
+
+    [Filter.Filter(RequiredRoles = new[] { "CUSTOMER" })]
     public class UserProfileModel : PageModel
     {
         private readonly IUserService _userService;
@@ -56,7 +51,7 @@ namespace Unleashed_RP.Pages.User
         {
             try
             {
-                if (await _userService.EditUserAsync(User, NewUserImage.Length > 0 ? NewUserImage : null))
+                if (await _userService.EditUserAsync(User, NewUserImage))
                 {
                     return await OnGetAsync();
                 }

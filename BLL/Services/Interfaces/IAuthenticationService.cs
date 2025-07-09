@@ -10,7 +10,7 @@ namespace BLL.Services.Interfaces
     public interface IAuthenticationService
     {
         Task<UserDetailDTO?> Login(UserLoginDTO loginInfor);
+        Task<bool> ChangePassword(string username, ChangePassswordUserDTO ChangePassswordUserDTO);
         Task<bool> ForgotPassword(UserLoginDTO loginInfor);
-        Task<bool> Register(UserLoginDTO loginInfor);
     }
 }

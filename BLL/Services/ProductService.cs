@@ -2,6 +2,7 @@
 using BLL.Services.Interfaces;
 using DAL.DTOs.ProductDTOs;
 using DAL.Models;
+using DAL.Repositories;
 using DAL.Repositories.Interfaces;
 using Microsoft.Extensions.Logging;
 using System;
@@ -18,9 +19,12 @@ namespace BLL.Services
         private readonly IVariationRepository _variationRepository;
         private readonly ISizeRepository _sizeRepository;
         private readonly IColorRepository _colorRepository;
+        private readonly IBrandRepository _brandRepository;
+        
         private readonly IMapper _mapper;
         private readonly ILogger<ProductService> _logger;
-
+        
+        
         public ProductService(
             IProductRepository productRepository,
             IProductStatusRepository productStatusRepository,
@@ -28,13 +32,15 @@ namespace BLL.Services
             ISizeRepository sizeRepository,
             IColorRepository colorRepository,
             IMapper mapper,
-            ILogger<ProductService> logger)
+            ILogger<ProductService> logger,
+            IBrandRepository brandRepository)
         {
             _productRepository = productRepository;
             _productStatusRepository = productStatusRepository;
             _variationRepository = variationRepository;
             _sizeRepository = sizeRepository;
             _colorRepository = colorRepository;
+            _brandRepository = brandRepository;
             _mapper = mapper;
             _logger = logger;
         }
@@ -104,7 +110,7 @@ namespace BLL.Services
                     await _productRepository.AddProductCategoryAsync(product.ProductId, category.CategoryId);
                 }
             }
-
+            
             var variations = new List<Variation>();
             foreach (var variationDTO in productDTO.Variations)
             {
@@ -136,6 +142,8 @@ namespace BLL.Services
             product.Variations = variations;
             return product;
         }
+
+
 
         public async Task<bool> DeleteProductAsync(Guid id)
         {
@@ -193,7 +201,21 @@ namespace BLL.Services
 
         public async Task<Product?> GetProductByIdAsync(Guid id)
         {
-            return await _productRepository.GetByIdAsync(id);
+            var product = await _productRepository.GetByIdAsync(id);
+
+            if (product?.Variations != null)
+            {
+                foreach (var variation in product.Variations)
+                {
+                    if (variation.SizeId != null && variation.Size == null)
+                        variation.Size = await _sizeRepository.GetByIdAsync(variation.SizeId);
+
+                    if (variation.ColorId != null && variation.Color == null)
+                        variation.Color = await _colorRepository.GetByIdAsync(variation.ColorId);
+                }
+            }
+
+            return product;
         }
 
         public async Task<List<ProductDetailDTO>> GetProductsInStockAsync()
@@ -245,6 +267,7 @@ namespace BLL.Services
             product.BrandId = productDTO.BrandId;
             product.ProductUpdatedAt = productDTO.UpdatedAt ?? DateTimeOffset.UtcNow;
             product.ProductCreatedAt = productDTO.CreatedAt ?? DateTimeOffset.UtcNow;
+
             await UpdateProductVariations(product, productDTO.Variations);
             await _productRepository.UpdateAsync(product);
             await _productRepository.SaveChangesAsync();
@@ -254,21 +277,7 @@ namespace BLL.Services
         private async Task UpdateProductVariations(Product product, List<ProductDTO.ProductVariationDTO> variationDTOs)
         {
             if (variationDTOs == null) return;
-            foreach (var variation in product.Variations.ToList())
-            {
-                var dto = variationDTOs.FirstOrDefault(v =>
-                    v.SizeId == variation.SizeId &&
-                    v.ColorId == variation.ColorId);
-                if (dto != null)
-                {
-                    variation.VariationPrice = dto.ProductPrice ?? 0;
-                    variation.VariationImage = dto.ProductVariationImageUrl;
-                }
-                else
-                {
-                    await _variationRepository.DeleteAsync(variation.VariationId);
-                }
-            }
+            
             foreach (var dto in variationDTOs)
             {
                 var exists = product.Variations.Any(v =>
@@ -294,6 +303,7 @@ namespace BLL.Services
                     }
                 }
             }
+            
             await _variationRepository.SaveChangesAsync();
         }
 
@@ -366,6 +376,7 @@ namespace BLL.Services
             return await _productRepository.CountSearchResultsAsync(query);
         }
 
+
         public async Task<List<ProductSelectionDTO>> GetProductsForImportSelectionAsync()
         {
             try
@@ -378,6 +389,26 @@ namespace BLL.Services
                 _logger.LogError(ex, "Fetch import select error");
                 throw;
             }
+
+        public async Task<ProductDropdownsDTO> GetProductDropdownsAsync()
+        {
+            var brands = await _brandRepository.GetAllAsync();
+            var statuses = await _productStatusRepository.GetAllAsync();
+            var sizes = await _sizeRepository.GetAllAsync();
+            var colors = await _colorRepository.GetAllAsync();
+
+            return new ProductDropdownsDTO
+            {
+                Brands = brands.ToList(),
+                Statuses = statuses.ToList(),
+                Sizes = sizes.ToList(),
+                Colors = colors.ToList()
+            };
+        }
+        public async Task<bool> SoftDeleteProductAsync(Guid productId)
+        {
+            await _productRepository.SoftDeleteProductAsync(productId);
+            return true;
         }
     }
 }
