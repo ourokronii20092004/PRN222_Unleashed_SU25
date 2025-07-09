@@ -49,7 +49,7 @@ namespace DAL.Repositories
                 return false;
             return await _context.Providers.AnyAsync(p => p.ProviderPhone == providerPhone);
         }
-
+        
         public async Task<List<Provider>> GetAllAsync()
         {
             return await _context.Providers.OrderBy(p => p.ProviderName).ToListAsync();

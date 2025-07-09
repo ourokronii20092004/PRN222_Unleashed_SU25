@@ -40,6 +40,7 @@ namespace Unleashed_MVC
                 options.Cookie.IsEssential = true; // Make the session cookie essential for GDPR compliance
             });
 
+
             // --- Image Upload Services ---  
             builder.Services.AddHttpClient<BLL.Utilities.Interfaces.IImageUploader, BLL.Utilities.ImgbbImageUploader>();
 
@@ -81,6 +82,7 @@ namespace Unleashed_MVC
             builder.Services.AddScoped<IOrderService, OrderService>();
             builder.Services.AddScoped<IDiscountService, DiscountService>();
             builder.Services.AddScoped<IProviderService, ProviderService>();
+            builder.Services.AddScoped<IVariationService, VariationService>();
 
             // --- AutoMapper ---  
             // This scans all assemblies loaded in the current application domain for AutoMapper profiles.  
