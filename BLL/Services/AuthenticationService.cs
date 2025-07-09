@@ -3,12 +3,6 @@ using BLL.Services.Interfaces;
 using BLL.Utilities;
 using DAL.DTOs.UserDTOs;
 using DAL.Repositories.Interfaces;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
 namespace BLL.Services
 {
     public class AuthenticationService : IAuthenticationService
@@ -19,6 +13,24 @@ namespace BLL.Services
         {
             _userRepository = userRepository;
             _mapper = mapper;
+        }
+
+        public async Task<bool> ChangePassword(string username, ChangePassswordUserDTO ChangePassswordUserDTO)
+        {
+            try
+            {
+                ArgumentNullException.ThrowIfNullOrEmpty( username );
+                ArgumentNullException.ThrowIfNull(ChangePassswordUserDTO);
+                var user = await _userRepository.GetByUsernameAsync( username );
+                if (user == null) return false;
+                if (!HashingPassword.VerifyPassword(ChangePassswordUserDTO.CurrentPassword, user.UserPassword)) return false;
+                user.UserPassword = HashingPassword.HashPassword(ChangePassswordUserDTO.NewPassword);
+                await _userRepository.Update( user );
+                return true;
+            }
+            catch (Exception ex) { 
+            return false;
+            }
         }
 
         public Task<bool> ForgotPassword(UserLoginDTO loginInfor)
