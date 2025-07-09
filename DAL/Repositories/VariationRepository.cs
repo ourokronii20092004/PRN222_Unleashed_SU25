@@ -190,5 +190,11 @@ namespace DAL.Repositories
                 await _context.SaveChangesAsync();
             }
         }
+        public async Task<List<Variation>> GetVariationsByProductIdsAsync(List<Guid> productIds)
+        {
+            return await _context.Variations
+                .Where(v => productIds.Contains(v.ProductId))
+                .ToListAsync();
+        }
     }
 }

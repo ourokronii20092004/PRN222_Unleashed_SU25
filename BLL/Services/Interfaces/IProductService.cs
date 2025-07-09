@@ -1,14 +1,16 @@
 ﻿using DAL.DTOs.ProductDTOs;
 using DAL.Models;
+using DAL.Models.ViewModels;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using DAL.Models.ViewModels;
 
 namespace BLL.Services.Interfaces
 {
     public interface IProductService
     {
-        Task<List<ProductListDTO>> GetAllProductsAsync();
+        Task<List<ProductListDTO>> GetAllProductsCustomerAsync();
         Task<Product?> GetProductByIdAsync(Guid id);
         Task<Product> CreateProductAsync(ProductDTO productDTO);
         Task<Product> UpdateProductAsync(Guid id, ProductDTO productDTO);
@@ -24,5 +26,7 @@ namespace BLL.Services.Interfaces
 
         Task<ProductDropdownsDTO> GetProductDropdownsAsync();
         Task<bool> SoftDeleteProductAsync(Guid productId);
+        Task<PagedResult<ProductListDTO>> GetProductsWithPagingAsync(int page, int pageSize, string query);
     }
 }
+

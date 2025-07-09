@@ -415,5 +415,41 @@ namespace DAL.Repositories
                 .Take(take)
                 .ToListAsync();
         }
+        public async Task<List<Product>> GetProductsWithPagingAsync(int skip, int take, string query)
+        {
+            var products = _context.Products
+             .Include(p => p.Brand)
+             .Include(p => p.ProductStatus)
+             .Include(p => p.Categories)
+             .AsQueryable();
+
+            if (!string.IsNullOrEmpty(query))
+            {
+                products = products.Where(p =>
+                    p.ProductName.Contains(query) ||
+                    p.ProductDescription.Contains(query) ||
+                    p.Categories.Any(c => c.CategoryName.Contains(query)));
+            }
+
+            return await products
+                .OrderBy(p => p.ProductName)
+                .Skip(skip)
+                .Take(take)
+                .ToListAsync();
+        }
+
+        public async Task<int> GetProductsCountAsync(string query)
+        {
+            var queryable = _context.Products.AsQueryable();
+
+            if (!string.IsNullOrEmpty(query))
+            {
+                queryable = queryable.Where(p => p.ProductName.Contains(query) ||
+                                               p.ProductDescription.Contains(query) ||
+                                               p.Categories.Any(c => c.CategoryName.Contains(query)));
+            }
+
+            return await queryable.CountAsync();
+        }
     }
 }
