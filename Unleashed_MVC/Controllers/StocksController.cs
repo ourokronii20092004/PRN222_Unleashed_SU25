@@ -9,6 +9,7 @@ using BLL.Services.Interfaces;
 using AutoMapper;
 using Microsoft.Extensions.Logging;
 using DAL.DTOs.StockDTOs;
+using DAL.Models.ViewModels;
 
 namespace Unleashed_MVC.Controllers
 {
@@ -50,34 +51,59 @@ namespace Unleashed_MVC.Controllers
                 return NotFound("Stock ID not provided.");
             }
 
-            try
+            // 1. Fetch the flat list of all product details for this stock.
+            var stockDetailsFlatList = await _stockService.GetStockDetailsAsync(id.Value);
+
+            if (stockDetailsFlatList == null || !stockDetailsFlatList.Any())
             {
-                // GetStockDetailsAsync returns List<StockDetailDTO> which is very detailed.
-                // For a simple Stock Details page, GetStockByIdAsync returning StockDTO might be enough.
-                // Let's assume the scaffolded Details view expects a single Stock entity.
-                var stockDto = await _stockService.GetStockByIdAsync(id.Value);
-                if (stockDto == null)
+                // If the stock exists but has nothing, we can still show a page.
+                // First, check if the stock itself exists.
+                var stock = await _stockService.GetStockByIdAsync(id.Value);
+                if (stock == null)
                 {
                     return NotFound($"Stock with ID {id.Value} not found.");
                 }
-                var stock = _mapper.Map<Stock>(stockDto);
-                return View(stock);
 
-                // If you want to use the more detailed GetStockDetailsAsync:
-                // var stockDetailsList = await _stockService.GetStockDetailsAsync(id.Value);
-                // if (stockDetailsList == null || !stockDetailsList.Any())
-                // {
-                //     return NotFound($"Details for stock with ID {id.Value} not found or stock is empty.");
-                // }
-                // You'd need a view that can handle List<StockDetailDTO> or you'd pick the first item
-                // if all common stock info is the same across the list (e.g., stockDetailsList.First()).
-                // For now, sticking to mapping a single StockDTO to Stock for the scaffolded view.
+                // If the stock exists but is empty, create a ViewModel with an empty product list.
+                var emptyViewModel = new StockDetailsViewModel
+                {
+                    StockId = stock.StockId,
+                    StockName = stock.StockName,
+                    StockAddress = stock.StockAddress,
+                    Products = new List<ProductInventoryGroup>() // Empty list
+                };
+                return View(emptyViewModel);
             }
-            catch (Exception ex)
+
+            // 2. Group the flat list by ProductId to create our hierarchical structure.
+            var groupedProducts = stockDetailsFlatList
+                .Where(d => d.ProductId.HasValue) // Ensure we only process items that are linked to a product
+                .GroupBy(d => d.ProductId.Value)
+                .Select(group => new ProductInventoryGroup
+                {
+                    ProductId = group.Key,
+                    ProductName = group.First().ProductName,
+                    BrandName = group.First().BrandName,
+                    // For each product group, create a list of its variations
+                    Variations = group.Select(item => new VariationInventoryDetail
+                    {
+                        VariationId = item.VariationId.Value,
+                        SizeName = item.SizeName,
+                        ColorName = item.ColorName,
+                        Quantity = item.Quantity ?? 0
+                    }).ToList()
+                }).ToList();
+
+            // 3. Create the final ViewModel.
+            var viewModel = new StockDetailsViewModel
             {
-                _logger.LogError(ex, $"Error retrieving details for stock ID {id.Value}.");
-                return RedirectToAction(nameof(Index)); // Or an error view
-            }
+                StockId = id.Value,
+                StockName = stockDetailsFlatList.First().StockName,
+                StockAddress = stockDetailsFlatList.First().StockAddress,
+                Products = groupedProducts
+            };
+
+            return View(viewModel);
         }
 
         // GET: Stocks/Create

@@ -387,23 +387,23 @@ namespace DAL.Repositories
                                  .ToListAsync();
         }
   
-    public async Task<int> CountAllProductsAsync()
-    {
-        return await _context.Products.CountAsync();
-    }
+        public async Task<int> CountAllProductsAsync()
+        {
+            return await _context.Products.CountAsync();
+        }
 
-    public async Task<int> CountSearchResultsAsync(string query)
-    {
-        if (string.IsNullOrWhiteSpace(query))
-            return await CountAllProductsAsync();
+        public async Task<int> CountSearchResultsAsync(string query)
+        {
+            if (string.IsNullOrWhiteSpace(query))
+                return await CountAllProductsAsync();
 
-        query = query.ToLower();
-        return await _context.Products
-            .Where(p => p.ProductName.ToLower().Contains(query) || 
-                       p.ProductCode.ToLower().Contains(query) ||
-                       p.Brand.BrandName.ToLower().Contains(query))
-            .CountAsync();
-    }
+            query = query.ToLower();
+            return await _context.Products
+                .Where(p => p.ProductName.ToLower().Contains(query) || 
+                           p.ProductCode.ToLower().Contains(query) ||
+                           p.Brand.BrandName.ToLower().Contains(query))
+                .CountAsync();
+        }
         public async Task<List<Product>> GetAllWithPagingAsync(int skip, int take)
         {
             return await _context.Products

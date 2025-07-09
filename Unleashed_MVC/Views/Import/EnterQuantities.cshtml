@@ -1,0 +1,78 @@
+﻿@model DAL.Models.ViewModels.ProductImportViewModel
+
+@{
+    ViewData["Title"] = $"Enter Quantities for {Model.StockName}";
+}
+
+<div class="container mt-4">
+    <div class="card shadow-sm">
+        <div class="card-header bg-primary text-white">
+            <h1 class="h3 mb-0">Step 2: Enter Quantities & Select Provider</h1>
+            <p class="mb-0">Importing into stock location: <strong>@Model.StockName</strong></p>
+        </div>
+        <div class="card-body">
+            <form asp-action="EnterQuantities" method="post">
+
+                <input type="hidden" asp-for="StockId" />
+
+                <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+
+                <div class="form-group mb-4">
+                    <label asp-for="ProviderId" class="font-weight-bold h5"></label>
+                    <select asp-for="ProviderId" asp-items="Model.Providers" class="form-control form-control-lg">
+                        <option value="">-- Select a Provider --</option>
+                    </select>
+                    <span asp-validation-for="ProviderId" class="text-danger"></span>
+                </div>
+
+                <h4 class="mt-4">Product Variations</h4>
+                <p class="text-muted">Enter the quantity you wish to import for each variation below. Leave as 0 to ignore.</p>
+
+                <div class="table-responsive">
+                    <table class="table table-bordered">
+                        <thead class="thead-light">
+                            <tr>
+                                <th>Product Details</th>
+                                <th style="width: 150px;">Import Quantity</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @for (var i = 0; i < Model.VariationsToImport.Count; i++)
+                            {
+                                <tr>
+                                    <input type="hidden" asp-for="VariationsToImport[i].VariationId" />
+                                    <input type="hidden" asp-for="VariationsToImport[i].ProductName" />
+                                    <input type="hidden" asp-for="VariationsToImport[i].BrandName" />
+                                    <input type="hidden" asp-for="VariationsToImport[i].SizeName" />
+                                    <input type="hidden" asp-for="VariationsToImport[i].ColorName" />
+
+                                    <td>
+                                        <strong>@Model.VariationsToImport[i].ProductName</strong><br />
+                                        <small class="text-muted">
+                                            @Model.VariationsToImport[i].BrandName -
+                                            Size: @Model.VariationsToImport[i].SizeName,
+                                            Color: @Model.VariationsToImport[i].ColorName
+                                        </small>
+                                    </td>
+                                    <td>
+                                        <div class="form-group mb-0">
+                                            <input asp-for="VariationsToImport[i].ImportQuantity" class="form-control" type="number" min="0" />
+                                            <span asp-validation-for="VariationsToImport[i].ImportQuantity" class="text-danger"></span>
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+
+                <hr />
+                <div class="form-group mt-4 text-right">
+                    <a asp-action="SelectProducts" asp-controller="Import" asp-route-id="@Model.StockId" class="btn btn-secondary">Back to Product Selection</a>
+                    <button type="submit" class="btn btn-primary">Complete Import</button>
+                </div>
+
+            </form>
+        </div>
+    </div>
+</div>
