@@ -379,5 +379,15 @@ namespace DAL.Repositories
         {
             return await _context.Products.FirstOrDefaultAsync(p => p.ProductCode == productCode);
         }
+
+        public async Task<List<Product>> GetProductsWithVariationsAsync()
+        {
+            return await _context.Products
+                                 .Include(p => p.Brand)
+                                 .Where(p => p.Variations.Any())
+                                 .OrderBy(p => p.ProductName)
+                                 .ToListAsync();
+        }
+
     }
 }
