@@ -1,23 +1,23 @@
 ﻿@model DAL.Models.ViewModels.ProductImportViewModel
+@using System.Globalization
 
 @{
     ViewData["Title"] = $"Enter Quantities for {Model.StockName}";
+    var vietnameseCulture = new CultureInfo("vi-VN");
 }
 
 <div class="container mt-4">
-    <div class="card shadow-sm">
-        <div class="card-header bg-primary text-white">
-            <h1 class="h3 mb-0">Step 2: Enter Quantities & Select Provider</h1>
-            <p class="mb-0">Importing into stock location: <strong>@Model.StockName</strong></p>
-        </div>
-        <div class="card-body">
-            <form asp-action="EnterQuantities" method="post">
-
+    <form asp-action="EnterQuantities" method="post">
+        <div class="card shadow-sm">
+            <div class="card-header bg-primary text-white">
+                <h1 class="h3 mb-0">Step 2: Enter Quantities & Select Provider</h1>
+                <p class="mb-0">Importing into stock location: <strong>@Model.StockName</strong></p>
+            </div>
+            <div class="card-body">
                 <input type="hidden" asp-for="StockId" />
-
                 <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
 
-                <div class="form-group mb-4">
+                <div class="form-group mb-5">
                     <label asp-for="ProviderId" class="font-weight-bold h5"></label>
                     <select asp-for="ProviderId" asp-items="Model.Providers" class="form-control form-control-lg">
                         <option value="">-- Select a Provider --</option>
@@ -26,53 +26,112 @@
                 </div>
 
                 <h4 class="mt-4">Product Variations</h4>
-                <p class="text-muted">Enter the quantity you wish to import for each variation below. Leave as 0 to ignore.</p>
+                <p class="text-muted">Enter the quantity you wish to import for each variation below.</p>
 
-                <div class="table-responsive">
-                    <table class="table table-bordered">
-                        <thead class="thead-light">
-                            <tr>
-                                <th>Product Details</th>
-                                <th style="width: 150px;">Import Quantity</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @for (var i = 0; i < Model.VariationsToImport.Count; i++)
+                @for (var i = 0; i < Model.ProductGroups.Count; i++)
+                {
+                    <div class="card mb-4 product-card">
+                        <input type="hidden" asp-for="ProductGroups[i].ProductName" />
+                        <input type="hidden" asp-for="ProductGroups[i].BrandName" />
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <div>
+                                <h5 class="mb-0">@Model.ProductGroups[i].ProductName</h5>
+                                <small class="text-muted">@Model.ProductGroups[i].BrandName</small>
+                            </div>
+                            <div class="h5 mb-0">
+                                Subtotal: <span class="fw-bold product-subtotal" data-product-index="@i">0 ₫</span>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            @for (var j = 0; j < Model.ProductGroups[i].VariationsToImport.Count; j++)
                             {
-                                <tr>
-                                    <input type="hidden" asp-for="VariationsToImport[i].VariationId" />
-                                    <input type="hidden" asp-for="VariationsToImport[i].ProductName" />
-                                    <input type="hidden" asp-for="VariationsToImport[i].BrandName" />
-                                    <input type="hidden" asp-for="VariationsToImport[i].SizeName" />
-                                    <input type="hidden" asp-for="VariationsToImport[i].ColorName" />
+                                var variation = Model.ProductGroups[i].VariationsToImport[j];
 
-                                    <td>
-                                        <strong>@Model.VariationsToImport[i].ProductName</strong><br />
-                                        <small class="text-muted">
-                                            @Model.VariationsToImport[i].BrandName -
-                                            Size: @Model.VariationsToImport[i].SizeName,
-                                            Color: @Model.VariationsToImport[i].ColorName
-                                        </small>
-                                    </td>
-                                    <td>
-                                        <div class="form-group mb-0">
-                                            <input asp-for="VariationsToImport[i].ImportQuantity" class="form-control" type="number" min="0" />
-                                            <span asp-validation-for="VariationsToImport[i].ImportQuantity" class="text-danger"></span>
+                                <input type="hidden" asp-for="ProductGroups[i].VariationsToImport[j].VariationId" />
+                                <input type="hidden" asp-for="ProductGroups[i].VariationsToImport[j].Price" />
+                                <input type="hidden" asp-for="ProductGroups[i].VariationsToImport[j].VariationImageUrl" />
+                                <input type="hidden" asp-for="ProductGroups[i].VariationsToImport[j].SizeName" />
+                                <input type="hidden" asp-for="ProductGroups[i].VariationsToImport[j].ColorName" />
+                                <input type="hidden" asp-for="ProductGroups[i].VariationsToImport[j].ColorHexCode" />
+
+                                <div class="row align-items-center mb-3 variation-row">
+                                    <div class="col-md-1">
+                                        <img src="@variation.VariationImageUrl" class="img-thumbnail" alt="Variation Image" />
+                                    </div>
+                                    <div class="col-md-7">
+                                        <span class="fw-bold">Size:</span> @variation.SizeName
+                                        <div class="d-flex align-items-center mt-1">
+                                            <span class="fw-bold me-2">Color:</span>
+                                            @if (!string.IsNullOrEmpty(variation.ColorHexCode))
+                                            {
+                                                <span class="border" style="width: 20px; height: 20px; background-color: @variation.ColorHexCode; display: inline-block;"></span>
+                                            }
+                                            <span class="ms-2">@variation.ColorName</span>
                                         </div>
-                                    </td>
-                                </tr>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="input-group">
+                                            <span class="input-group-text">@(variation.Price.ToString("C0", vietnameseCulture)) x</span>
+                                            <input asp-for="ProductGroups[i].VariationsToImport[j].ImportQuantity" class="form-control form-control-lg quantity-input" type="number" min="0" data-price="@variation.Price" data-product-index="@i" />
+                                        </div>
+                                        <span asp-validation-for="ProductGroups[i].VariationsToImport[j].ImportQuantity" class="text-danger"></span>
+                                    </div>
+                                </div>
+                                @if (j < Model.ProductGroups[i].VariationsToImport.Count - 1)
+                                {
+                                    <hr />
+                                }
                             }
-                        </tbody>
-                    </table>
-                </div>
-
-                <hr />
-                <div class="form-group mt-4 text-right">
+                        </div>
+                    </div>
+                }
+            </div>
+            <div class="card-footer d-flex justify-content-between align-items-center">
+                <div>
                     <a asp-action="SelectProducts" asp-controller="Import" asp-route-id="@Model.StockId" class="btn btn-secondary">Back to Product Selection</a>
                     <button type="submit" class="btn btn-primary">Complete Import</button>
                 </div>
-
-            </form>
+                <div class="h4 mb-0">
+                    Grand Total: <span id="grand-total" class="fw-bold text-success">0 ₫</span>
+                </div>
+            </div>
         </div>
-    </div>
+    </form>
 </div>
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const quantityInputs = document.querySelectorAll('.quantity-input');
+            function formatCurrency(value) {
+                return value.toLocaleString('vi-VN', { style: 'currency', currency: 'VND', minimumFractionDigits: 0, maximumFractionDigits: 0 });
+            }
+
+            function updateTotals() {
+                let grandTotal = 0;
+
+                document.querySelectorAll('.product-card').forEach(card => {
+                    let productSubtotal = 0;
+                    const productIndex = card.querySelector('.product-subtotal').dataset.productIndex;
+
+                    card.querySelectorAll('.quantity-input').forEach(input => {
+                        const quantity = parseInt(input.value, 10) || 0;
+                        const price = parseFloat(input.dataset.price) || 0;
+                        productSubtotal += quantity * price;
+                    });
+
+                    card.querySelector(`.product-subtotal[data-product-index='${productIndex}']`).textContent = formatCurrency(productSubtotal);
+                    grandTotal += productSubtotal;
+                });
+
+                document.getElementById('grand-total').textContent = formatCurrency(grandTotal);
+            }
+
+            quantityInputs.forEach(input => {
+                input.addEventListener('input', updateTotals);
+            });
+
+            updateTotals();
+        });
+    </script>
+}

@@ -21,7 +21,7 @@ namespace BLL.Services.Interfaces
         Task<List<ProductListDTO>> GetAllProductsAsync(int skip, int take);
         Task<int> CountAllProductsAsync();  
         Task<int> CountSearchResultsAsync(string query);
-        Task<List<ProductSelectionDTO>> GetProductsForImportSelectionAsync();
+        Task<List<ProductImportSelectionDTO>> GetProductsForImportSelectionAsync(int stockId);
         Task<ProductDropdownsDTO> GetProductDropdownsAsync();
         Task<bool> SoftDeleteProductAsync(Guid productId);
     }

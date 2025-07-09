@@ -377,18 +377,18 @@ namespace BLL.Services
         }
 
 
-        public async Task<List<ProductSelectionDTO>> GetProductsForImportSelectionAsync()
+        public async Task<List<ProductImportSelectionDTO>> GetProductsForImportSelectionAsync(int stockId)
         {
             try
             {
-                var products = await _productRepository.GetProductsWithVariationsAsync();
-                return _mapper.Map<List<ProductSelectionDTO>>(products);
+                return await _productRepository.GetProductsForImportSelectionAsync(stockId);
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Fetch import select error");
                 throw;
             }
+        }
 
         public async Task<ProductDropdownsDTO> GetProductDropdownsAsync()
         {

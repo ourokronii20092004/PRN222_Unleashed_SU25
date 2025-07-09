@@ -16,5 +16,10 @@ namespace DAL.DTOs.VariationDTOs
         public string? BrandName { get; set; }
         public string? SizeName { get; set; }
         public string? ColorName { get; set; }
+        public decimal VariationPrice { get; set; }
+        public string? VariationImageUrl { get; set; }
+        public string? ColorHexCode { get; set; }
+
+
     }
 }

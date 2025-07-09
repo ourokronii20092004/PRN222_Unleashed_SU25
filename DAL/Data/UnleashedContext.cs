@@ -875,6 +875,8 @@ public partial class UnleashedContext : DbContext
 
         modelBuilder.Entity<ProductSearchResultDTO>(dto => dto.HasNoKey());
 
+        modelBuilder.Entity<ProductImportSelectionDTO>().HasNoKey();
+
 
 
 

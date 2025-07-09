@@ -28,12 +28,21 @@ namespace BLL.Services
             _logger = logger;
         }
 
-        public async Task<List<StockDTO>> GetAllStocksAsync()
+        public async Task<PagedResult<StockDTO>> GetAllStocksAsync(int pageNumber, int pageSize)
         {
             try
             {
-                var stocks = await _stockRepository.GetAllAsync();
-                return _mapper.Map<List<StockDTO>>(stocks);
+                var pagedStocks = await _stockRepository.GetAllAsync(pageNumber, pageSize);
+
+                var mappedItems = _mapper.Map<List<StockDTO>>(pagedStocks.Items);
+
+                return new PagedResult<StockDTO>
+                {
+                    Items = mappedItems,
+                    TotalCount = pagedStocks.TotalCount,
+                    CurrentPage = pagedStocks.CurrentPage,
+                    PageSize = pagedStocks.PageSize
+                };
             }
             catch (Exception ex)
             {

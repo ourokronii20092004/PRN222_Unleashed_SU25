@@ -10,11 +10,11 @@ namespace DAL.Repositories.Interfaces
 {
     public interface IStockRepository
     {
-        Task<List<Stock>> GetAllAsync(); // Corresponds to JpaRepository.findAll()
-        Task<Stock?> GetByIdAsync(int id); // Corresponds to JpaRepository.findById()
+        Task<PagedResult<Stock>> GetAllAsync(int pageNumber, int pageSize);
+        Task<Stock?> GetByIdAsync(int id);
         Task<Stock> AddAsync(Stock stock);
         Task UpdateAsync(Stock stock);
-        Task DeleteAsync(int id); // Or Task DeleteAsync(Stock stock);
+        Task DeleteAsync(int id);
         Task<bool> ExistsAsync(int id);
 
         // Corresponds to findStockDetailsById(Integer stockId)

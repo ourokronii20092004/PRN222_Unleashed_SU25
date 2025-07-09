@@ -1,4 +1,5 @@
 ﻿using DAL.DTOs.StockDTOs;
+using DAL.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,7 +10,7 @@ namespace BLL.Services.Interfaces
 {
     public interface IStockService
     {
-        Task<List<StockDTO>> GetAllStocksAsync();
+        Task<PagedResult<StockDTO>> GetAllStocksAsync(int pageNumber, int pageSize);
         Task<StockDTO?> GetStockByIdAsync(int id);
         Task<List<StockDetailDTO>?> GetStockDetailsAsync(int stockId);
         Task<StockDTO?> CreateStockAsync(StockCreateDTO stockCreateDto);
