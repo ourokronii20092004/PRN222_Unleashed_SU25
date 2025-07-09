@@ -4,8 +4,11 @@
     ViewData["Title"] = "My Notifications";
 }
 
-<h1 class="mb-4">My Notifications</h1>
 
+
+<div class="container mt-5">
+    <h1 class="mb-4">My Notifications</h1>
+</div>
 <div class="card shadow-sm">
     <div class="card-body">
         @if (Model.NotificationUsers == null || !Model.NotificationUsers.Any())
@@ -44,6 +47,24 @@
                         }
                     </tbody>
                 </table>
+            </div>
+
+            <div class="d-flex justify-content-center mt-4">
+                <form method="get" class="me-3">
+                    <input type="hidden" name="pageIndex" value="@((int)ViewData["CurrentPage"] - 1)" />
+                    <input type="hidden" name="SearchString" value="@ViewData["SearchString"]" />
+                    <button type="submit" class="btn btn-primary px-4" @(!(bool)ViewData["HasPreviousPage"] ? "disabled" : "")>
+                        <i class="bi bi-arrow-left-circle me-2"></i> Previous
+                    </button>
+                </form>
+
+                <form method="get">
+                    <input type="hidden" name="pageIndex" value="@((int)ViewData["CurrentPage"] + 1)" />
+                    <input type="hidden" name="SearchString" value="@ViewData["SearchString"]" />
+                    <button type="submit" class="btn btn-primary px-4" @(!(bool)ViewData["HasNextPage"] ? "disabled" : "")>
+                        Next <i class="bi bi-arrow-right-circle ms-2"></i>
+                    </button>
+                </form>
             </div>
         }
     </div>

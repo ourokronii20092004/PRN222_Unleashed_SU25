@@ -58,33 +58,48 @@ namespace BLL.Services
 
         public async Task<bool> EditNotificationAsync(NotificationDetailDTO notificationDetailDTO)
         {
-            try
+         try
             {
                 ArgumentNullException.ThrowIfNull(notificationDetailDTO, nameof(notificationDetailDTO));
                 var notification = await _notificationRepository.GetByIdAsync(notificationDetailDTO.NotificationId);
-                if (notification != null && notification.IsNotificationDraft.GetValueOrDefault(false)) {
-                    notification = _mapper.Map<Notification>(notificationDetailDTO);
+                if (notification != null && notification.IsNotificationDraft.GetValueOrDefault(true)) {
+                    notification = _mapper.Map(notificationDetailDTO,notification);
                     notification.NotificationUpdatedAt = DateTime.UtcNow;
                     await _notificationRepository.Update(notification);
                     if(!notification.IsNotificationDraft.GetValueOrDefault(true))
                     await AddNotificationUsersForPublishedNotification(notification);
-                    }       
-                return false;
-            }
-            catch (DBConcurrencyException)
+                return true;    
+                } else return false;
+            } catch
             {
                 return false;
             }
-            catch (Exception) 
-            {
-                return false;
-            }
+
         }
 
         public async Task<IEnumerable<NotificationDetailDTO>> GetAllNotificationsAsync()
         {
             IEnumerable<Notification> notifications = await _notificationRepository.FindAsync(noti => noti.IsNotificationDraft != null);
             return _mapper.Map<IEnumerable<NotificationDetailDTO>>(notifications);
+        }
+
+        public async Task<(IEnumerable<NotificationDetailDTO>, int totalAmount)> GetAllNotificationsAsync(string? SearchString, int currentPage, int pageSize)
+        {
+            IEnumerable<Notification> notifications;
+            if (!string.IsNullOrEmpty(SearchString))
+            {
+                notifications = await _notificationRepository.FindAsync(noti => noti.IsNotificationDraft != null && noti.NotificationTitle.Contains(SearchString));
+            }
+            else
+            {
+                notifications = await _notificationRepository.FindAsync(noti => noti.IsNotificationDraft != null);
+            }
+            int totalAmount = notifications.Count();
+            return (_mapper
+                .Map<IEnumerable<NotificationDetailDTO>>
+                (notifications
+                .Skip((currentPage - 1) * pageSize)
+                .Take(pageSize)), totalAmount);
         }
 
         public async Task<NotificationDetailDTO> GetNotificationByIdAsync(int id)
