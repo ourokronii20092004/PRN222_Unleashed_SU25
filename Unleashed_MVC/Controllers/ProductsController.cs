@@ -4,6 +4,7 @@ using DAL.DTOs.ProductDTOs;
 using DAL.Models;
 using DAL.Repositories.Interfaces;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using System;
 using System;
@@ -17,6 +18,7 @@ namespace Unleashed_MVC.Controllers
     public class ProductsController : Controller
     {
         private readonly IProductService _productService;
+        private readonly IProductRepository _productRepository;
         private readonly IBrandRepository _brandRepository;     
         private readonly IProductStatusRepository _productStatusRepository;
         private readonly IVariationRepository _variationRepository;
@@ -25,7 +27,7 @@ namespace Unleashed_MVC.Controllers
         private readonly IImageUploader _imageUploader;
         private readonly ILogger<ProductsController> _logger;
 
-        public ProductsController(ILogger<ProductsController> logger,IProductService productService, IBrandRepository brandRepository, IProductStatusRepository productStatusRepository, IVariationRepository variationRepository, IColorRepository colorRepository, ISizeRepository sizeRepository, IImageUploader imageUploader)
+        public ProductsController(ILogger<ProductsController> logger,IProductService productService,IProductRepository productRepository, IBrandRepository brandRepository, IProductStatusRepository productStatusRepository, IVariationRepository variationRepository, IColorRepository colorRepository, ISizeRepository sizeRepository, IImageUploader imageUploader)
         {
             _productService = productService;
             _brandRepository = brandRepository;
@@ -35,24 +37,22 @@ namespace Unleashed_MVC.Controllers
             _sizeRepository = sizeRepository;
             _imageUploader = imageUploader;
             _logger = logger;
+            _productRepository = productRepository;
         }
-
-public async Task<IActionResult> Index(int page = 1, int pageSize = 10)
-{
-    int skip = (page - 1) * pageSize;
+        public async Task<IActionResult> Index(string? query, int page = 1, int pageSize = 10)
+        {
+            int skip = (page - 1) * pageSize;
 
     var products = await _productService.GetAllProductsAsync(); 
     var pagedProducts = products.Skip(skip).Take(pageSize).ToList(); 
 
     var totalCount = products.Count();
-     
-    ViewBag.TotalCount = totalCount;
-    ViewBag.Page = page;
-    ViewBag.PageSize = pageSize;
+
+            ViewBag.Page = page;
+            ViewBag.PageSize = pageSize;
 
     return View(pagedProducts);
-}
-
+        }
         // GET: Products/Details/5
         public async Task<IActionResult> Details(Guid? id)
         {
@@ -270,7 +270,6 @@ public async Task<IActionResult> Index(int page = 1, int pageSize = 10)
 
             return View(productDTO);
         }
-        // POST: Products/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(Guid id, ProductDTO productDTO)
@@ -280,6 +279,7 @@ public async Task<IActionResult> Index(int page = 1, int pageSize = 10)
                 return NotFound();
             }
 
+            // Load dropdown data
             var brands = await _brandRepository.GetAllAsync() ?? new List<Brand>();
             var statuses = await _productStatusRepository.GetAllAsync() ?? new List<ProductStatus>();
             var sizes = await _sizeRepository.GetAllAsync() ?? new List<Size>();
@@ -287,9 +287,20 @@ public async Task<IActionResult> Index(int page = 1, int pageSize = 10)
 
             try
             {
+                // Clear ModelState errors for optional files
+                foreach (var key in ModelState.Keys.Where(k => k.Contains("ProductVariationFile")).ToList())
+                {
+                    ModelState[key].Errors.Clear();
+                    ModelState[key].ValidationState = ModelValidationState.Valid;
+                }
+
                 if (ModelState.IsValid)
                 {
-                    if (!string.IsNullOrWhiteSpace(productDTO.ProductCode))
+                    if (string.IsNullOrWhiteSpace(productDTO.ProductCode))
+                    {
+                        ModelState.AddModelError("ProductCode", "Product code is required");
+                    }
+                    else
                     {
                         var existingProduct = await _productService.GetProductByCodeAsync(productDTO.ProductCode);
                         if (existingProduct != null && existingProduct.ProductId != id)
@@ -298,6 +309,7 @@ public async Task<IActionResult> Index(int page = 1, int pageSize = 10)
                         }
                         else
                         {
+                            // Process image uploads for variations
                             foreach (var variation in productDTO.Variations)
                             {
                                 if (variation.ProductVariationFile != null && variation.ProductVariationFile.Length > 0)
@@ -305,48 +317,40 @@ public async Task<IActionResult> Index(int page = 1, int pageSize = 10)
                                     var uploadResult = await _imageUploader.UploadImageAsync(variation.ProductVariationFile);
                                     if (uploadResult != null)
                                     {
-                                        variation.ProductVariationImageUrl = uploadResult.Url; 
-                                    }
-                                    else
-                                    {
-                                        ModelState.AddModelError("ProductVariationFile", "Variation image upload failed. Please try again.");
-                                        return View(productDTO);  
+                                        variation.ProductVariationImageUrl = uploadResult.Url;
                                     }
                                 }
                             }
 
-
+                            // Update product
                             productDTO.UpdatedAt = DateTimeOffset.UtcNow;
-                            productDTO.CreatedAt ??= DateTimeOffset.UtcNow; 
+                            productDTO.CreatedAt ??= DateTimeOffset.UtcNow;
 
-
-                            await _productService.UpdateProductAsync(id, productDTO);
-                            return RedirectToAction(nameof(Index));
+                            var updatedProduct = await _productService.UpdateProductAsync(id, productDTO);
+                            if (updatedProduct != null)
+                            {
+                                return RedirectToAction(nameof(Index));
+                            }
+                            else
+                            {
+                                ModelState.AddModelError("", "Failed to update product. Please try again.");
+                            }
                         }
-                    }
-                    else
-                    {
-                        ModelState.AddModelError("ProductCode", "Product code is required");
                     }
                 }
 
-
+                // Prepare view data
                 ViewBag.BrandId = new SelectList(brands, "BrandId", "BrandName", productDTO.BrandId);
                 ViewBag.ProductStatusId = new SelectList(statuses, "ProductStatusId", "ProductStatusName", productDTO.ProductStatusId);
                 ViewBag.SizeId = new SelectList(sizes, "SizeId", "SizeName");
                 ViewBag.ColorId = new SelectList(colors, "ColorId", "ColorName");
 
-
                 productDTO.Variations ??= new List<ProductDTO.ProductVariationDTO>();
-                if (!productDTO.Variations.Any())
-                {
-                    productDTO.Variations.Add(new ProductDTO.ProductVariationDTO());
-                }
-
-                return View("Edit", productDTO);
+                return View(productDTO);
             }
             catch (Exception ex)
             {
+                _logger.LogError(ex, "Error updating product");
                 ModelState.AddModelError("", "An error occurred while updating the product. Please try again.");
 
                 ViewBag.BrandId = new SelectList(brands, "BrandId", "BrandName", productDTO.BrandId);
@@ -354,7 +358,7 @@ public async Task<IActionResult> Index(int page = 1, int pageSize = 10)
                 ViewBag.SizeId = new SelectList(sizes, "SizeId", "SizeName");
                 ViewBag.ColorId = new SelectList(colors, "ColorId", "ColorName");
 
-                return View("Edit", productDTO);
+                return View(productDTO);
             }
         }
 
@@ -372,32 +376,56 @@ public async Task<IActionResult> Index(int page = 1, int pageSize = 10)
                 return NotFound();
             }
 
+            // Load related data for variations
+            if (product.Variations != null)
+            {
+                foreach (var variation in product.Variations)
+                {
+                    if (variation.ColorId != null)
+                    {
+                        variation.Color = await _colorRepository.GetByIdAsync(variation.ColorId);
+                    }
+                    if (variation.SizeId != null)
+                    {
+                        variation.Size = await _sizeRepository.GetByIdAsync(variation.SizeId);
+                    }
+                }
+            }
+
             // Handle nullable DateTime properties for the view
             if (product.ProductCreatedAt == null)
             {
-                product.ProductCreatedAt = DateTimeOffset.MinValue; 
+                product.ProductCreatedAt = DateTimeOffset.MinValue;
             }
 
             if (product.ProductUpdatedAt == null)
             {
-                product.ProductUpdatedAt = DateTimeOffset.MinValue; 
+                product.ProductUpdatedAt = DateTimeOffset.MinValue;
             }
 
             return View(product);
         }
-
         // POST: Products/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(Guid ProductId)
+        public async Task<IActionResult> DeleteConfirmed(Guid ProductId, string deleteType)
         {
-            var deleted = await _productService.DeleteProductAsync(ProductId);
-            if (deleted)
+            if (deleteType == "soft")
             {
-                return RedirectToAction(nameof(Index));
+                await _productRepository.SoftDeleteProductAsync(ProductId);
+                TempData["SuccessMessage"] = "Product has been deactivated successfully.";
+            }
+            else if (deleteType == "hard")
+            {
+                var deleted = await _productService.DeleteProductAsync(ProductId);
+                if (!deleted)
+                {
+                    return NotFound();
+                }
+                TempData["SuccessMessage"] = "Product has been permanently deleted successfully.";
             }
 
-            return NotFound();
+            return RedirectToAction(nameof(Index));
         }
     }
 }

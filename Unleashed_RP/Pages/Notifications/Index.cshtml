@@ -1,42 +1,50 @@
 ﻿@page
 @model Unleashed_RP.Pages.Notifications.IndexModel
+@{
+    ViewData["Title"] = "My Notifications";
+}
 
-<table class="table">
-    <thead>
-        <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.NotificationUsers[0].NotificationTitle)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.NotificationUsers[0].IsViewed)
-            </th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-        @{
-            if (Model.NotificationUsers == null)
-            {
-                <div>No data</div>
-            }
-            else
-            {
-                foreach (var item in Model.NotificationUsers)
-                {
-                    <tr>
-                        <td>
-                            @Html.DisplayFor(modelItem => item.NotificationTitle)
-                        </td>
-                        <td>
-                            @Html.DisplayFor(modelItem => item.IsViewed)
-                        </td>
+<h1 class="mb-4">My Notifications</h1>
 
-                        <td>
-                            <a asp-page="./Details" asp-route-id="@item.NotificationId">Details</a>
-                        </td>
-                    </tr>
-                }
+<div class="card shadow-sm">
+    <div class="card-body">
+        @if (Model.NotificationUsers == null || !Model.NotificationUsers.Any())
+        {
+            <div class="alert alert-info text-center" role="alert">
+                You have no notifications.
+            </div>
         }
+        else
+        {
+            <div class="table-responsive">
+                <table class="table table-hover table-striped">
+                    <thead class="table-light">
+                        <tr>
+                            <th>
+                                @Html.DisplayNameFor(model => model.NotificationUsers[0].NotificationTitle)
+                            </th>
+                            <th>
+                                @Html.DisplayNameFor(model => model.NotificationUsers[0].NotificationCreatedAt)
+                            </th>
+                            <th></th>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model.NotificationUsers)
+                        {
+                            <tr class="@(item.IsNotificationViewed.GetValueOrDefault(false) ? "" : "table-primary fw-bold")"
+                                onclick="location.href='@Url.Page("./Details", new { id = item.NotificationId })'"
+                                style="cursor: pointer;">
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.NotificationTitle)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.NotificationCreatedAt)
+                                </td>                                    
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
         }
-    </tbody>
-</table>
+    </div>
+</div>

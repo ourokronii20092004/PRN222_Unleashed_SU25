@@ -197,10 +197,10 @@ namespace BLL.Services
                     }).ToList(),
                 };
 
-                // Kiểm tra xem có variations cho sản phẩm này không
+
                 if (variationsByProductId.ContainsKey(product.ProductId))
                 {
-                    // Lấy variations từ dictionary
+
                     productDTO.Variations = variationsByProductId[product.ProductId]
                         .Select(v => new ProductListDTO.ProductVariationDTO
                         {
@@ -309,7 +309,6 @@ namespace BLL.Services
                 }
                 else
                 {
-                    // Remove variation not in DTO
                     await _variationRepository.DeleteAsync(variation.VariationId);
                 }
             }
@@ -352,6 +351,71 @@ namespace BLL.Services
         public async Task<Product?> GetProductByCodeAsync(string productCode)
         {
             return await _productRepository.GetProductByCodeAsync(productCode);
+        }
+        public async Task<List<ProductListDTO>> GetAllProductsAsync(int skip, int take)
+        {
+            var products = await _productRepository.GetAllWithPagingAsync(skip, take);
+
+            var variations = await _variationRepository.GetAllAsync();
+            var variationsByProductId = variations
+                .GroupBy(v => v.ProductId)
+                .ToDictionary(g => g.Key, g => g.ToList());
+
+            var productListDTOs = new List<ProductListDTO>();
+
+            foreach (var product in products)
+            {
+                var productDTO = new ProductListDTO
+                {
+                    ProductCreatedAt = product.ProductCreatedAt,
+                    ProductUpdatedAt = product.ProductUpdatedAt,
+                    ProductCode = product.ProductCode,
+                    ProductStatusName = product.ProductStatus?.ProductStatusName,
+                    ProductId = product.ProductId.ToString(),
+                    ProductName = product.ProductName,
+                    ProductDescription = product.ProductDescription,
+                    BrandId = product.BrandId ?? 0,
+                    BrandName = product.Brand?.BrandName,
+                    CategoryList = product.Categories?.Select(c => new Category
+                    {
+                        CategoryId = c.CategoryId,
+                        CategoryName = c.CategoryName
+                    }).ToList() ?? new List<Category>(),
+                };
+
+                if (variationsByProductId.TryGetValue(product.ProductId, out var productVariations))
+                {
+                    productDTO.Variations = productVariations
+                        .Select(v => new ProductListDTO.ProductVariationDTO
+                        {
+                            SizeId = v.SizeId,
+                            ColorId = v.ColorId,
+                            ProductPrice = v.VariationPrice,
+                            ProductVariationImage = v.VariationImage
+                        }).ToList();
+                }
+                else
+                {
+                    productDTO.Variations = new List<ProductListDTO.ProductVariationDTO>();
+                }
+
+                productListDTOs.Add(productDTO);
+            }
+
+            return productListDTOs;
+        }
+
+        public async Task<int> CountAllProductsAsync()
+        {
+            return await _productRepository.CountAllProductsAsync();
+        }
+
+        public async Task<int> CountSearchResultsAsync(string query)
+        {
+            if (string.IsNullOrWhiteSpace(query))
+                return await CountAllProductsAsync();
+
+            return await _productRepository.CountSearchResultsAsync(query);
         }
     }
 }

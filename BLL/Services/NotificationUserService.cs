@@ -12,7 +12,7 @@ namespace BLL.Services
 {
     public class NotificationUserService : INotificationUserService
     {
-        
+
         private readonly INotificationRepository _notificationRepository;
         private readonly INotificationUserRepository _notificationUserRepository;
         private readonly IUserRepository _userRepository;
@@ -26,9 +26,25 @@ namespace BLL.Services
             _mapper = mapper;
         }
 
-        public Task DeleteUserNotification(string username, int notificationId)
+        public async Task<bool> DeleteUserNotification(string username, int notificationId)
         {
-            throw new NotImplementedException();
+            try
+            {
+                var user = await _userRepository.GetByUsernameAsync(username);
+                ArgumentNullException.ThrowIfNull(user, nameof(username));
+                var notificationUser = await _notificationUserRepository.GetByIdAsync((notificationId, user.UserId));
+                if (notificationUser != null)
+                {
+                    notificationUser.IsNotificationDeleted = true;
+                    await _notificationUserRepository.Update(notificationUser);
+                    return true;
+                }
+                return false;
+            }
+            catch (Exception ex) {
+                return false;
+            }
+            
         }
 
         public async Task<IEnumerable<NotificationUserDetailDTO>?> GetNotificationUserListAsync(string username)
@@ -37,17 +53,31 @@ namespace BLL.Services
             {
                 var user = await _userRepository.GetByUsernameAsync(username);
                 ArgumentNullException.ThrowIfNull(user, nameof(username));
-                var NotificationUsers = await _notificationUserRepository.GetNotificationByUserId(user.UserId);
-                return _mapper.Map<IEnumerable<NotificationUserDetailDTO>>(NotificationUsers);
-            } catch {
+                var NotificationUsers = await _notificationUserRepository.FindAsync(nu => nu.UserId == user.UserId && nu.IsNotificationDeleted == false);
+                return _mapper
+                    .Map<IEnumerable<NotificationUserDetailDTO>>(NotificationUsers
+                    .OrderByDescending(nu => nu.IsNotificationViewed)
+                    .ThenByDescending(nu => nu.Notification.NotificationCreatedAt));
+            }
+            catch
+            {
                 return null;
             }
         }
 
-        public Task SetViewedUserNotification(string username, int notificationId)
+        public async Task<bool> SetViewedUserNotification(string username, int notificationId)
         {
-            throw new NotImplementedException();
+            try
+            {
+                var user = await _userRepository.GetByUsernameAsync(username);
+                ArgumentNullException.ThrowIfNull(user, nameof(username));
+                var notificationUser = await _notificationUserRepository.GetByIdAsync((notificationId,user.UserId));
+                notificationUser.IsNotificationViewed = true;
+                await _notificationUserRepository.Update(notificationUser);
+                return true;
+            } catch(Exception ex) {
+                return false;
+            }
         }
     }
-
 }
