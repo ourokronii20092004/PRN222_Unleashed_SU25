@@ -191,6 +191,14 @@ namespace DAL.Repositories
             }
         }
 
+        public async Task<List<Variation>> GetVariationsByProductIdsAsync(List<Guid> productIds)
+        {
+            return await _context.Variations
+                .Where(v => productIds.Contains(v.ProductId))
+                .ToListAsync();
+        }
+
+
         public async Task<List<Variation>> GetVariationsForProductsAsync(List<Guid> productIds)
         {
             if (productIds == null || !productIds.Any())

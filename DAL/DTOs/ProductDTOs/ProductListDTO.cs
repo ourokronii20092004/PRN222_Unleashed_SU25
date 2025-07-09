@@ -17,8 +17,6 @@ namespace DAL.DTOs.ProductDTOs
 
         public List<Category>? CategoryList { get; set; }
 
-        public decimal ProductPrice { get; set; }
-
         public Sale? Sale { get; set; }
         public decimal? SaleValue { get; set; }
 

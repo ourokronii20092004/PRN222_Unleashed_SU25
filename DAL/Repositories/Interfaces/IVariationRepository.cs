@@ -30,7 +30,7 @@ namespace DAL.Repositories.Interfaces
 
         // Corresponds to findProductIdsByVariationIds(@Param("variationIds") List<Integer> variationIds)
         Task<List<Guid>> FindProductIdsByVariationIdsAsync(List<int> variationIds);
-
+        Task<List<Variation>> GetVariationsByProductIdsAsync(List<Guid> productIds);
         Task<int> SaveChangesAsync();
 
 

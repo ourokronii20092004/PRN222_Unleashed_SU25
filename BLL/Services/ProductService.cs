@@ -9,6 +9,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using DAL.Models.ViewModels;
 
 namespace BLL.Services
 {
@@ -154,9 +155,46 @@ namespace BLL.Services
             await _productRepository.Delete(product);
             await _productRepository.SaveChangesAsync();
             return true;
-        }
+        }       
+        private ProductListDTO MapToProductListDTO(Product product, Dictionary<Guid, List<Variation>> variationsByProductId)
+        {
+            var productDTO = new ProductListDTO
+            {
+                ProductCreatedAt = product.ProductCreatedAt,
+                ProductUpdatedAt = product.ProductUpdatedAt,
+                ProductCode = product.ProductCode,
+                ProductStatusName = product.ProductStatus?.ProductStatusName,
+                ProductId = product.ProductId.ToString(),
+                ProductName = product.ProductName,
+                ProductDescription = product.ProductDescription,
+                BrandId = product.BrandId ?? 0,
+                BrandName = product.Brand?.BrandName,
+                CategoryList = product.Categories?.Select(c => new Category
+                {
+                    CategoryId = c.CategoryId,
+                    CategoryName = c.CategoryName
+                }).ToList() ?? new List<Category>(),
+            };
 
-        public async Task<List<ProductListDTO>> GetAllProductsAsync()
+            if (variationsByProductId.TryGetValue(product.ProductId, out var productVariations))
+            {
+                productDTO.Variations = productVariations
+                    .Select(v => new ProductListDTO.ProductVariationDTO
+                    {
+                        SizeId = v.SizeId,
+                        ColorId = v.ColorId,
+                        ProductPrice = v.VariationPrice,
+                        ProductVariationImage = v.VariationImage
+                    }).ToList();
+            }
+            else
+            {
+                productDTO.Variations = new List<ProductListDTO.ProductVariationDTO>();
+            }
+
+            return productDTO;
+        }
+        public async Task<List<ProductListDTO>> GetAllProductsCustomerAsync()
         {
             var products = await _productRepository.GetAllAsync();
             var variations = await _variationRepository.GetAllAsync();
@@ -410,5 +448,37 @@ namespace BLL.Services
             await _productRepository.SoftDeleteProductAsync(productId);
             return true;
         }
+
+        public async Task<PagedResult<ProductListDTO>> GetProductsWithPagingAsync(int page, int pageSize, string query)
+        {
+            int skip = (page - 1) * pageSize;
+
+            var products = await _productRepository.GetProductsWithPagingAsync(skip, pageSize, query);
+            var totalCount = await _productRepository.GetProductsCountAsync(query);
+
+            var productIds = products.Select(p => p.ProductId).ToList();
+            var variations = await _variationRepository.GetVariationsByProductIdsAsync(productIds);
+
+            var variationsByProductId = variations
+                .GroupBy(v => v.ProductId)
+                .ToDictionary(g => g.Key, g => g.ToList());
+
+            var productListDTOs = new List<ProductListDTO>();
+
+            foreach (var product in products)
+            {
+                var productDTO = MapToProductListDTO(product, variationsByProductId);
+                productListDTOs.Add(productDTO);
+            }
+
+            return new PagedResult<ProductListDTO>
+            {
+                Items = productListDTOs,
+                TotalItems = totalCount,
+                PageNumber = page,
+                PageSize = pageSize
+            };
+        }
+
     }
 }
