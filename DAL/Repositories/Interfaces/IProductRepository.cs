@@ -31,6 +31,7 @@ namespace DAL.Repositories.Interfaces
         Task<Product> AddAsync(Product product);
         Task UpdateAsync(Product product);
         Task<List<Product>> GetProductsWithVariationsAsync();
+        Task<List<ProductImportSelectionDTO>> GetProductsForImportSelectionAsync(int stockId);
         Task<Product?> GetProductByCodeAsync(string productCode);
         Task<List<Product>> GetAllWithPagingAsync(int skip, int take);
         Task<int> CountAllProductsAsync();

@@ -4,25 +4,19 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace DAL.Models.ViewModels
+namespace DAL.DTOs.ProductDTOs
 {
-    public class SelectProductsViewModel
-    {
-        public int StockId { get; set; }
-        public string? StockName { get; set; }
-        public List<ProductSelectionItem> Products { get; set; } = new List<ProductSelectionItem>();
-    }
-
-    public class ProductSelectionItem
+    /// <summary>
+    /// A rich DTO containing detailed information for the product selection step of the import workflow.
+    /// </summary>
+    public class ProductImportSelectionDTO
     {
         public Guid ProductId { get; set; }
         public string? ProductName { get; set; }
         public string? BrandName { get; set; }
-        public bool IsSelected { get; set; }
         public string? FirstVariationImageUrl { get; set; }
         public string? CategoryNames { get; set; }
         public decimal? FirstVariationPrice { get; set; }
         public int? QuantityInStock { get; set; }
-
     }
 }

@@ -1,4 +1,5 @@
-﻿@model IEnumerable<DAL.Models.Stock>
+﻿@using DAL.Models;
+@model PagedResult<DAL.DTOs.StockDTOs.StockDTO>
 
 @{
     ViewData["Title"] = "Stock Locations Management";
@@ -12,7 +13,7 @@
         </a>
     </div>
 
-    @if (!Model.Any())
+    @if (!Model.Items.Any())
     {
         <div class="alert alert-info text-center" role="alert">
             <i class="bi bi-info-circle me-2"></i>
@@ -29,27 +30,19 @@
                 <table class="table table-hover table-striped mb-0 align-middle">
                     <thead class="table-light">
                         <tr>
-                            <th scope="col">
-                                @Html.DisplayNameFor(model => model.First().StockName)
-                            </th>
-                            <th scope="col">
-                                @Html.DisplayNameFor(model => model.First().StockAddress)
-                            </th>
-                            <th scope="col" class="text-center" style="width: 15%;">Actions</th>
+                            <th scope="col">Stock Name</th>
+                            <th scope="col">Stock Address</th>
+                            <th scope="col" class="text-center" style="width: 20%;">Actions</th>
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach (var item in Model)
+                        @foreach (var item in Model.Items)
                         {
                             <tr>
-                                <td>
-                                    <strong>@Html.DisplayFor(modelItem => item.StockName)</strong>
-                                </td>
-                                <td>
-                                    @Html.DisplayFor(modelItem => item.StockAddress)
-                                </td>
+                                <td><strong>@item.StockName</strong></td>
+                                <td>@item.StockAddress</td>
                                 <td class="text-center">
-                                    <div class="btn-group btn-group-sm" role="group" aria-label="Stock Actions">
+                                    <div class="btn-group btn-group-sm" role="group">
                                         <a asp-action="Details" asp-route-id="@item.StockId" class="btn btn-outline-info" title="View Details"><i class="bi bi-eye-fill"></i></a>
                                         <a asp-action="SelectProducts" asp-controller="Import" asp-route-id="@item.StockId" class="btn btn-outline-success" title="Import Products"><i class="bi bi-box-arrow-in-down"></i></a>
                                         <a asp-action="Edit" asp-route-id="@item.StockId" class="btn btn-outline-primary" title="Edit Stock"><i class="bi bi-pencil-fill"></i></a>
@@ -60,6 +53,9 @@
                         }
                     </tbody>
                 </table>
+            </div>
+            <div class="card-footer">
+                <partial name="_PagingControls" model="@(new DAL.Models.ViewModels.PagingViewModel { CurrentPage = Model.CurrentPage, TotalPages = Model.TotalPages })" />
             </div>
         </div>
     }

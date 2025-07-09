@@ -28,18 +28,18 @@ namespace Unleashed_MVC.Controllers
         }
 
         // GET: Stocks
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(int page = 1)
         {
             try
             {
-                var stockDTOs = await _stockService.GetAllStocksAsync();
-                var stocks = _mapper.Map<List<Stock>>(stockDTOs);
-                return View(stocks);
+                const int pageSize = 10;
+                var pagedStockDTOs = await _stockService.GetAllStocksAsync(page, pageSize);
+                return View(pagedStockDTOs);
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error retrieving stock index.");
-                return View(new List<Stock>());
+                return View(new DAL.Models.PagedResult<StockDTO>());
             }
         }
 

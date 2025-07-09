@@ -20,7 +20,10 @@ namespace BLL.Mappings
                 .ForMember(dest => dest.ProductName, opt => opt.MapFrom(src => src.Product.ProductName))
                 .ForMember(dest => dest.BrandName, opt => opt.MapFrom(src => src.Product.Brand.BrandName))
                 .ForMember(dest => dest.SizeName, opt => opt.MapFrom(src => src.Size.SizeName))
-                .ForMember(dest => dest.ColorName, opt => opt.MapFrom(src => src.Color.ColorName));
+                .ForMember(dest => dest.ColorName, opt => opt.MapFrom(src => src.Color.ColorName))
+                .ForMember(dest => dest.VariationImageUrl, opt => opt.MapFrom(src => src.VariationImage))
+                .ForMember(dest => dest.ColorHexCode, opt => opt.MapFrom(src => src.Color.ColorHexCode))
+                .ForMember(dest => dest.VariationPrice, opt => opt.MapFrom(src => src.VariationPrice));
         }
     }
 }

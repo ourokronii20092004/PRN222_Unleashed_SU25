@@ -12,28 +12,28 @@
         </div>
         <div class="card-body">
             <form asp-action="SelectProducts" method="post">
-                
                 <input type="hidden" asp-for="StockId" />
-                
                 <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
-
-                <p class="text-muted">Choose the products you wish to import quantities for. Only products that have at least one variation are shown.</p>
 
                 @if (!Model.Products.Any())
                 {
-                    <div class="alert alert-info">
-                        There are no products available for import at this time.
+                    <div class="alert alert-info text-center">
+                        There are no products with variations available in the system to import.
                     </div>
                 }
                 else
                 {
                     <div class="table-responsive">
-                        <table class="table table-hover">
+                        <table class="table table-hover align-middle">
                             <thead class="thead-light">
                                 <tr>
-                                    <th style="width: 50px;">Select</th>
-                                    <th>Product Name</th>
+                                    <th style="width: 5%;">Select</th>
+                                    <th style="width: 10%;">Image</th>
+                                    <th>Product</th>
                                     <th>Brand</th>
+                                    <th>Categories</th>
+                                    <th class="text-end">Price</th>
+                                    <th class="text-center">Qty in Stock</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -43,21 +43,34 @@
                                         <input type="hidden" asp-for="Products[i].ProductId" />
                                         <input type="hidden" asp-for="Products[i].ProductName" />
                                         <input type="hidden" asp-for="Products[i].BrandName" />
+                                        <input type="hidden" asp-for="Products[i].FirstVariationImageUrl" />
+                                        <input type="hidden" asp-for="Products[i].CategoryNames" />
+                                        <input type="hidden" asp-for="Products[i].FirstVariationPrice" />
+                                        <input type="hidden" asp-for="Products[i].QuantityInStock" />
 
                                         <td>
-                                            <div class="form-check">
-                                                <input asp-for="Products[i].IsSelected" type="checkbox" class="form-check-input" />
+                                            <div class="form-check d-flex justify-content-center">
+                                                <input asp-for="Products[i].IsSelected" type="checkbox" class="form-check-input" style="width: 1.5em; height: 1.5em;" />
                                             </div>
                                         </td>
                                         <td>
-                                            <label asp-for="Products[i].IsSelected" class="form-check-label">
-                                                <strong>@Model.Products[i].ProductName</strong>
-                                            </label>
+                                            <img src="@Model.Products[i].FirstVariationImageUrl" class="img-thumbnail" style="width: 75px; height: 75px; object-fit: cover;" alt="@Model.Products[i].ProductName" />
                                         </td>
-                                        <td>
-                                            <label asp-for="Products[i].IsSelected" class="form-check-label text-muted">
-                                                @Model.Products[i].BrandName
-                                            </label>
+                                        <td><strong>@Model.Products[i].ProductName</strong></td>
+
+                                        <td>@Model.Products[i].BrandName</td>
+
+                                        <td><small class="text-muted">@Model.Products[i].CategoryNames</small></td>
+                                        <td class="text-end">@String.Format("{0:C}", Model.Products[i].FirstVariationPrice)</td>
+                                        <td class="text-center fw-bold">
+                                            @if (Model.Products[i].QuantityInStock.HasValue)
+                                            {
+                                                @Model.Products[i].QuantityInStock
+                                            }
+                                            else
+                                            {
+                                                <span class="text-muted">/</span>
+                                            }
                                         </td>
                                     </tr>
                                 }
@@ -74,7 +87,6 @@
                         <button type="submit" class="btn btn-primary">Next: Enter Quantities</button>
                     }
                 </div>
-
             </form>
         </div>
     </div>
