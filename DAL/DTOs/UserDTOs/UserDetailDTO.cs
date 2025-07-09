@@ -37,12 +37,11 @@ namespace DAL.DTOs.UserDTOs
         public string? UserImage { get; set; }
         [Display(Name = "Current Paymennt Method")]
         public string? UserCurrentPaymentMethod { get; set; }
+        [Display(Name = "Status")]
         public bool? IsUserEnabled { get; set; }
         [DisplayName("Created at")]
         public DateTimeOffset? UserCreatedAt { get; set; }
         [DisplayName("Updated At")]
         public DateTimeOffset? UserUpdatedAt { get; set; }
-
-        public UserDetailDTO() { }
-         }
+    }
 }

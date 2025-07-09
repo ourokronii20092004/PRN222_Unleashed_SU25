@@ -1,0 +1,93 @@
+﻿@model DAL.Models.ViewModels.SelectProductsViewModel
+
+@{
+    ViewData["Title"] = $"Select Products for {Model.StockName}";
+}
+
+<div class="container mt-4">
+    <div class="card shadow-sm">
+        <div class="card-header bg-primary text-white">
+            <h1 class="h3 mb-0">Step 1: Select Products to Import</h1>
+            <p class="mb-0">Importing into stock location: <strong>@Model.StockName</strong></p>
+        </div>
+        <div class="card-body">
+            <form asp-action="SelectProducts" method="post">
+                <input type="hidden" asp-for="StockId" />
+                <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+
+                @if (!Model.Products.Any())
+                {
+                    <div class="alert alert-info text-center">
+                        There are no products with variations available in the system to import.
+                    </div>
+                }
+                else
+                {
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle">
+                            <thead class="thead-light">
+                                <tr>
+                                    <th style="width: 5%;">Select</th>
+                                    <th style="width: 10%;">Image</th>
+                                    <th>Product</th>
+                                    <th>Brand</th>
+                                    <th>Categories</th>
+                                    <th class="text-end">Price</th>
+                                    <th class="text-center">Qty in Stock</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @for (var i = 0; i < Model.Products.Count; i++)
+                                {
+                                    <tr>
+                                        <input type="hidden" asp-for="Products[i].ProductId" />
+                                        <input type="hidden" asp-for="Products[i].ProductName" />
+                                        <input type="hidden" asp-for="Products[i].BrandName" />
+                                        <input type="hidden" asp-for="Products[i].FirstVariationImageUrl" />
+                                        <input type="hidden" asp-for="Products[i].CategoryNames" />
+                                        <input type="hidden" asp-for="Products[i].FirstVariationPrice" />
+                                        <input type="hidden" asp-for="Products[i].QuantityInStock" />
+
+                                        <td>
+                                            <div class="form-check d-flex justify-content-center">
+                                                <input asp-for="Products[i].IsSelected" type="checkbox" class="form-check-input" style="width: 1.5em; height: 1.5em;" />
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <img src="@Model.Products[i].FirstVariationImageUrl" class="img-thumbnail" style="width: 75px; height: 75px; object-fit: cover;" alt="@Model.Products[i].ProductName" />
+                                        </td>
+                                        <td><strong>@Model.Products[i].ProductName</strong></td>
+
+                                        <td>@Model.Products[i].BrandName</td>
+
+                                        <td><small class="text-muted">@Model.Products[i].CategoryNames</small></td>
+                                        <td class="text-end">@String.Format("{0:C}", Model.Products[i].FirstVariationPrice)</td>
+                                        <td class="text-center fw-bold">
+                                            @if (Model.Products[i].QuantityInStock.HasValue)
+                                            {
+                                                @Model.Products[i].QuantityInStock
+                                            }
+                                            else
+                                            {
+                                                <span class="text-muted">/</span>
+                                            }
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+
+                <hr />
+                <div class="form-group mt-4 text-right">
+                    <a asp-action="Details" asp-controller="Stocks" asp-route-id="@Model.StockId" class="btn btn-secondary">Cancel</a>
+                    @if (Model.Products.Any())
+                    {
+                        <button type="submit" class="btn btn-primary">Next: Enter Quantities</button>
+                    }
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

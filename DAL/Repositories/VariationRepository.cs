@@ -190,11 +190,31 @@ namespace DAL.Repositories
                 await _context.SaveChangesAsync();
             }
         }
+
         public async Task<List<Variation>> GetVariationsByProductIdsAsync(List<Guid> productIds)
         {
             return await _context.Variations
                 .Where(v => productIds.Contains(v.ProductId))
                 .ToListAsync();
         }
+
+
+        public async Task<List<Variation>> GetVariationsForProductsAsync(List<Guid> productIds)
+        {
+            if (productIds == null || !productIds.Any())
+            {
+                return new List<Variation>();
+            }
+
+            return await _context.Variations
+               .Include(v => v.Product).ThenInclude(p => p.Brand)
+               .Include(v => v.Size)
+               .Include(v => v.Color)
+               .Where(v => productIds.Contains(v.ProductId))
+               .OrderBy(v => v.Product.ProductName).ThenBy(v => v.Size.SizeName)
+               .ToListAsync();
+        }
+
+
     }
 }

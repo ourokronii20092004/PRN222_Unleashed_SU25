@@ -11,6 +11,7 @@ namespace BLL.Services.Interfaces
     public interface INotificationService
     {
         public Task<IEnumerable<NotificationDetailDTO>> GetAllNotificationsAsync();
+        public Task<(IEnumerable<NotificationDetailDTO>, int totalAmount)> GetAllNotificationsAsync(string? SearchString,int currentPage,int pageSize);
         public Task<bool> AddNotificationAsync(NotificationCreateDTO notification);
         public Task<bool> EditNotificationAsync(NotificationDetailDTO notificationDetailDTO);
         public Task<bool> RemoveNotificationAsync(int id);

@@ -113,7 +113,14 @@
                             @Html.DisplayNameFor(model => model.Gender)
                         </dt>
                         <dd class="col-sm-8">
-                            @(Model.Gender)
+                            @if (Model.Gender.HasValue)
+                            {
+                                @(Model.Gender.Value ? "Female" : "Male")
+                            }
+                            else
+                            {
+                                <span class="text-muted fst-italic">N/A</span>
+                            }
                         </dd>
 
                         <dt class="col-sm-4 text-primary">

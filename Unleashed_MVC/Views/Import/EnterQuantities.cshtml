@@ -1,7 +1,9 @@
 ﻿@model DAL.Models.ViewModels.ProductImportViewModel
+@using System.Globalization
 
 @{
     ViewData["Title"] = $"Enter Quantities for {Model.StockName}";
+    var vietnameseCulture = new CultureInfo("vi-VN");
 }
 
 <div class="container mt-4">
@@ -29,13 +31,15 @@
                 @for (var i = 0; i < Model.ProductGroups.Count; i++)
                 {
                     <div class="card mb-4 product-card">
+                        <input type="hidden" asp-for="ProductGroups[i].ProductName" />
+                        <input type="hidden" asp-for="ProductGroups[i].BrandName" />
                         <div class="card-header d-flex justify-content-between align-items-center">
                             <div>
                                 <h5 class="mb-0">@Model.ProductGroups[i].ProductName</h5>
                                 <small class="text-muted">@Model.ProductGroups[i].BrandName</small>
                             </div>
                             <div class="h5 mb-0">
-                                Subtotal: <span class="fw-bold product-subtotal" data-product-index="@i">$0.00</span>
+                                Subtotal: <span class="fw-bold product-subtotal" data-product-index="@i">0 ₫</span>
                             </div>
                         </div>
                         <div class="card-body">
@@ -45,6 +49,10 @@
 
                                 <input type="hidden" asp-for="ProductGroups[i].VariationsToImport[j].VariationId" />
                                 <input type="hidden" asp-for="ProductGroups[i].VariationsToImport[j].Price" />
+                                <input type="hidden" asp-for="ProductGroups[i].VariationsToImport[j].VariationImageUrl" />
+                                <input type="hidden" asp-for="ProductGroups[i].VariationsToImport[j].SizeName" />
+                                <input type="hidden" asp-for="ProductGroups[i].VariationsToImport[j].ColorName" />
+                                <input type="hidden" asp-for="ProductGroups[i].VariationsToImport[j].ColorHexCode" />
 
                                 <div class="row align-items-center mb-3 variation-row">
                                     <div class="col-md-1">
@@ -63,7 +71,7 @@
                                     </div>
                                     <div class="col-md-4">
                                         <div class="input-group">
-                                            <span class="input-group-text">@String.Format("{0:C}", variation.Price) x</span>
+                                            <span class="input-group-text">@(variation.Price.ToString("C0", vietnameseCulture)) x</span>
                                             <input asp-for="ProductGroups[i].VariationsToImport[j].ImportQuantity" class="form-control form-control-lg quantity-input" type="number" min="0" data-price="@variation.Price" data-product-index="@i" />
                                         </div>
                                         <span asp-validation-for="ProductGroups[i].VariationsToImport[j].ImportQuantity" class="text-danger"></span>
@@ -84,7 +92,7 @@
                     <button type="submit" class="btn btn-primary">Complete Import</button>
                 </div>
                 <div class="h4 mb-0">
-                    Grand Total: <span id="grand-total" class="fw-bold text-success">$0.00</span>
+                    Grand Total: <span id="grand-total" class="fw-bold text-success">0 ₫</span>
                 </div>
             </div>
         </div>
@@ -95,9 +103,8 @@
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             const quantityInputs = document.querySelectorAll('.quantity-input');
-
             function formatCurrency(value) {
-                return value.toLocaleString('en-US', { style: 'currency', currency: 'USD' });
+                return value.toLocaleString('vi-VN', { style: 'currency', currency: 'VND', minimumFractionDigits: 0, maximumFractionDigits: 0 });
             }
 
             function updateTotals() {

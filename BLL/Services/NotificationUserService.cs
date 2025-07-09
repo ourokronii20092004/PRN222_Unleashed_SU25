@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using BLL.Services.Interfaces;
 using DAL.DTOs.NotificationDTOs;
+using DAL.Models;
 using DAL.Repositories.Interfaces;
 using System;
 using System.Collections.Generic;
@@ -65,6 +66,32 @@ namespace BLL.Services
             }
         }
 
+        public async Task<(IEnumerable<NotificationUserDetailDTO>, int totalAmount)> GetNotificationUserListAsync(string username, string SearchString, int currentPage, int pageSize)
+        {
+            try
+            {
+                var user = await _userRepository.GetByUsernameAsync(username);
+                ArgumentNullException.ThrowIfNull(user, nameof(username));
+                IEnumerable<NotificationUser> notificationUsers;
+                if (!string.IsNullOrEmpty(SearchString))
+                {
+                    notificationUsers = await _notificationUserRepository.FindAsync(nu => nu.UserId == user.UserId && nu.IsNotificationDeleted == false && nu.Notification.NotificationTitle.Contains(SearchString));
+                }
+                else
+                {
+                    notificationUsers = await _notificationUserRepository.FindAsync(nu => nu.UserId == user.UserId && nu.IsNotificationDeleted == false);
+                }
+                int totalAmount = notificationUsers.Count();
+                return (_mapper
+                        .Map<IEnumerable<NotificationUserDetailDTO>>(notificationUsers
+                        .OrderByDescending(nu => nu.IsNotificationViewed)
+                        .ThenByDescending(nu => nu.Notification.NotificationCreatedAt)), totalAmount);
+            } catch {
+                return (new List<NotificationUserDetailDTO>(), 0);
+            }
+
+        }
+
         public async Task<bool> SetViewedUserNotification(string username, int notificationId)
         {
             try
@@ -79,5 +106,6 @@ namespace BLL.Services
                 return false;
             }
         }
+
     }
 }

@@ -42,9 +42,24 @@ namespace DAL.Repositories
             return await _context.Stocks.AnyAsync(s => s.StockId == id);
         }
 
-        public async Task<List<Stock>> GetAllAsync()
+        public async Task<PagedResult<Stock>> GetAllAsync(int pageNumber, int pageSize)
         {
-            return await _context.Stocks.OrderBy(s => s.StockName).ToListAsync();
+            var query = _context.Stocks.OrderBy(s => s.StockName);
+
+            var totalCount = await query.CountAsync();
+
+            var items = await query
+                .Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+
+            return new PagedResult<Stock>
+            {
+                Items = items,
+                TotalCount = totalCount,
+                CurrentPage = pageNumber,
+                PageSize = pageSize
+            };
         }
 
         public async Task<Stock?> GetByIdAsync(int id)

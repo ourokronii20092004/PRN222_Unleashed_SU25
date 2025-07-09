@@ -1,59 +1,171 @@
 ﻿@model IEnumerable<DAL.DTOs.NotificationDTOs.NotificationDetailDTO>
 
 @{
-    ViewData["Title"] = "Index";
+    ViewData["Title"] = "Notification Management";
 }
 
-<h1>Index</h1>
+<style>
+    /* Custom styles for table layout and readability */
+    .table-fixed-header th,
+    .table-fixed-header td {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        padding: 0.75rem 0.5rem;
+        vertical-align: middle;
+    }
 
-<p>
-    <a asp-action="Create">Create New</a>
-</p>
-<table class="table">
-    <thead>
-        <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.NotificationTitle)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.IsNotificationDraft)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.NotificationCreatedAt)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.NotificationUpdatedAt)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.UserIdSender)
-            </th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.NotificationTitle)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.IsNotificationDraft)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.NotificationCreatedAt)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.NotificationUpdatedAt)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.UserIdSender)
-            </td>
-            <td>
-                <a asp-action="Edit" asp-route-id="@item.NotificationId">Edit</a> |
-                    <a asp-action="Details" asp-route-id="@item.NotificationId">Details</a> |
-                    <a asp-action="Delete" asp-route-id="@item.NotificationId">Delete</a>
-            </td>
-        </tr>
-}
-    </tbody>
-</table>
+    /* Specific column widths for better visual balance */
+    .table-fixed-header .col-title {
+        width: 250px;
+    }
+
+    .table-fixed-header .col-draft {
+        width: 100px;
+        text-align: center;
+    }
+
+    .table-fixed-header .col-date {
+        width: 150px;
+    }
+
+    .table-fixed-header .col-sender {
+        width: 150px;
+    }
+
+    .table-fixed-header .col-actions {
+        width: 150px;
+        text-align: center;
+    }
+
+    /* Custom badge styles for better contrast */
+    .badge-draft {
+        background-color: #ffc107; /* Bootstrap warning yellow */
+        color: #212529; /* Dark text for contrast */
+        padding: 0.4em 0.6em;
+        border-radius: 0.3em;
+        font-weight: 500;
+    }
+
+    .badge-published {
+        background-color: #0d6efd; /* Bootstrap primary blue */
+        color: white;
+        padding: 0.4em 0.6em;
+        border-radius: 0.3em;
+        font-weight: 500;
+    }
+</style>
+
+<div class="container mt-5">
+    <h1 class="mb-3 text-center text-primary">Notification Management</h1>
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-center mb-4 gap-3">
+        <a asp-action="Create" class="btn btn-success btn-lg flex-grow-1 flex-md-grow-0 d-flex align-items-center justify-content-center">
+            <i class="bi bi-plus-circle-fill me-2"></i> Create New Notification
+        </a>
+
+        <form method="get" class="d-flex w-50 w-md-50">
+            <input type="text" name="SearchString" value="@ViewData["SearchString"]"
+                   class="form-control form-control-lg me-2" placeholder="Search by title..." aria-label="Search notifications" />
+            <button type="submit" class="btn btn-outline-primary btn-lg">
+                <i class="bi bi-search"></i>
+            </button>
+            <a href="/Notifications/Index" class="btn btn-outline-secondary btn-lg ms-2" title="Clear Search">
+                <i class="bi bi-arrow-counterclockwise"></i>
+            </a>
+        </form>
+    </div>
+
+    <div class="table-responsive shadow-sm rounded-3 overflow-hidden">
+        <table class="table table-striped table-hover table-fixed-header mb-0">
+            <thead class="table-dark">
+                <tr>
+                    <th class="col-title">
+                        @Html.DisplayNameFor(model => model.NotificationTitle)
+                    </th>
+                    <th class="col-draft">
+                        Status
+                    </th>
+                    <th class="col-date">
+                        @Html.DisplayNameFor(model => model.NotificationCreatedAt)
+                    </th>
+                    <th class="col-date">
+                        @Html.DisplayNameFor(model => model.NotificationUpdatedAt)
+                    </th>
+                    <th class="col-sender">
+                        Sender
+                    </th>
+                    <th class="col-actions">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td class="col-title">
+                            @Html.DisplayFor(modelItem => item.NotificationTitle)
+                        </td>
+                        <td class="col-draft">
+                            @if (item.IsNotificationDraft)
+                            {
+                                <span class="badge badge-draft">Draft</span>
+                            }
+                            else
+                            {
+                                <span class="badge badge-published">Published</span>
+                            }
+                        </td>
+                        <td class="col-date">
+                            @item.NotificationCreatedAt?.ToString("yyyy-MM-dd HH:mm")
+                        </td>
+                        <td class="col-date">
+                            @item.NotificationUpdatedAt?.ToString("yyyy-MM-dd HH:mm")
+                        </td>
+                        <td class="col-sender">
+                            @Html.DisplayFor(modelItem => item.UserIdSenderNavigation.UserFullname)
+                        </td>
+                        <td class="col-actions">
+                            <div class="btn-group btn-group-sm" role="group" aria-label="Notification Actions">
+                                @if (item.IsNotificationDraft)
+                                {
+                                    <a asp-action="Edit" asp-route-id="@item.NotificationId" class="btn btn-outline-primary" title="Edit">
+                                        <i class="bi bi-pencil"></i>
+                                    </a>
+                                } 
+                                <a asp-action="Details" asp-route-id="@item.NotificationId" class="btn btn-outline-info" title="Details">
+                                    <i class="bi bi-info-circle"></i>
+                                </a>
+                                <a asp-action="Delete" asp-route-id="@item.NotificationId" class="btn btn-outline-danger" title="Delete">
+                                    <i class="bi bi-trash"></i>
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                }
+                @if (!Model.Any())
+                {
+                    <tr>
+                        <td colspan="6" class="text-center text-muted py-4">No notifications found. Try creating one or adjusting your search.</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+    <div class="d-flex justify-content-center mt-4">
+        <form method="get" class="me-3">
+            <input type="hidden" name="pageIndex" value="@((int)ViewData["CurrentPage"] - 1)" />
+            <input type="hidden" name="SearchString" value="@ViewData["SearchString"]" />
+            <button type="submit" class="btn btn-primary px-4" @(!(bool)ViewData["HasPreviousPage"] ? "disabled" : "")>
+                <i class="bi bi-arrow-left-circle me-2"></i> Previous
+            </button>
+        </form>
+
+        <form method="get">
+            <input type="hidden" name="pageIndex" value="@((int)ViewData["CurrentPage"] + 1)" />
+            <input type="hidden" name="SearchString" value="@ViewData["SearchString"]" />
+            <button type="submit" class="btn btn-primary px-4" @(!(bool)ViewData["HasNextPage"] ? "disabled" : "")>
+                Next <i class="bi bi-arrow-right-circle ms-2"></i>
+            </button>
+        </form>
+    </div>
+</div>

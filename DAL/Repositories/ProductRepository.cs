@@ -387,23 +387,23 @@ namespace DAL.Repositories
                                  .ToListAsync();
         }
   
-    public async Task<int> CountAllProductsAsync()
-    {
-        return await _context.Products.CountAsync();
-    }
+        public async Task<int> CountAllProductsAsync()
+        {
+            return await _context.Products.CountAsync();
+        }
 
-    public async Task<int> CountSearchResultsAsync(string query)
-    {
-        if (string.IsNullOrWhiteSpace(query))
-            return await CountAllProductsAsync();
+        public async Task<int> CountSearchResultsAsync(string query)
+        {
+            if (string.IsNullOrWhiteSpace(query))
+                return await CountAllProductsAsync();
 
-        query = query.ToLower();
-        return await _context.Products
-            .Where(p => p.ProductName.ToLower().Contains(query) || 
-                       p.ProductCode.ToLower().Contains(query) ||
-                       p.Brand.BrandName.ToLower().Contains(query))
-            .CountAsync();
-    }
+            query = query.ToLower();
+            return await _context.Products
+                .Where(p => p.ProductName.ToLower().Contains(query) || 
+                           p.ProductCode.ToLower().Contains(query) ||
+                           p.Brand.BrandName.ToLower().Contains(query))
+                .CountAsync();
+        }
         public async Task<List<Product>> GetAllWithPagingAsync(int skip, int take)
         {
             return await _context.Products
@@ -415,6 +415,7 @@ namespace DAL.Repositories
                 .Take(take)
                 .ToListAsync();
         }
+
         public async Task<List<Product>> GetProductsWithPagingAsync(int skip, int take, string query)
         {
             var products = _context.Products
@@ -451,5 +452,66 @@ namespace DAL.Repositories
 
             return await queryable.CountAsync();
         }
+
+
+        public async Task<List<ProductImportSelectionDTO>> GetProductsForImportSelectionAsync(int stockId)
+        {
+            var sql = $@"
+        WITH FirstVariation AS (
+            SELECT 
+                v.product_id,
+                v.variation_image,
+                v.variation_price,
+                ROW_NUMBER() OVER(PARTITION BY v.product_id ORDER BY v.variation_id) as rn
+            FROM variation v
+        ),
+        ProductCategories AS (
+            SELECT 
+                pc.product_id,
+                STRING_AGG(c.category_name, ', ') AS CategoryNames
+            FROM product_category pc
+            JOIN category c ON pc.category_id = c.category_id
+            GROUP BY pc.product_id
+        ),
+        StockQuantities AS (
+            SELECT 
+                v.product_id,
+                SUM(sv.stock_quantity) as TotalQuantity
+            FROM stock_variation sv
+            JOIN variation v ON sv.variation_id = v.variation_id
+            WHERE sv.stock_id = {{0}}
+            GROUP BY v.product_id
+        )
+        SELECT 
+            p.product_id AS ProductId,
+            p.product_name AS ProductName,
+            b.brand_name AS BrandName,
+            fv.variation_image AS FirstVariationImageUrl,
+            fv.variation_price AS FirstVariationPrice,
+            pc.CategoryNames,
+            sq.TotalQuantity AS QuantityInStock
+        FROM product p
+        JOIN brand b ON p.brand_id = b.brand_id
+        LEFT JOIN FirstVariation fv ON p.product_id = fv.product_id AND fv.rn = 1
+        LEFT JOIN ProductCategories pc ON p.product_id = pc.product_id
+        LEFT JOIN StockQuantities sq ON p.product_id = sq.product_id
+        WHERE fv.variation_image IS NOT NULL  -- Ensures we only get products that have variations
+        ORDER BY p.product_name;
+    ";
+
+            return await _context.Set<ProductImportSelectionDTO>()
+                                 .FromSqlRaw(sql, stockId)
+                                 .ToListAsync();
+        }
+
+
+
+
+
+
+
+
+
+
     }
 }
