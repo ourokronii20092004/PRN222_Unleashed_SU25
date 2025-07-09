@@ -12,10 +12,10 @@
             <form id="account" method="post">
                 <div asp-validation-summary="All" class="text-danger text-center mb-3"></div>
                 <span asp-validation-for="UserLoginDTO.UserUsername" class="text-danger"></span>
-                <form-input asp-for="UserLoginDTO.UserUsername" placeholder="Your username"></form-input>
+                <form-input asp-for="UserLoginDTO.UserUsername" placeholder="Username"></form-input>
                 
                 <span asp-validation-for="UserLoginDTO.UserPassword" class="text-danger"></span>
-                <form-input asp-for="UserLoginDTO.UserPassword" type="password" placeholder="Your password"></form-input>
+                <form-input asp-for="UserLoginDTO.UserPassword" type="password" placeholder="Password"></form-input>
                
                 <div class="mb-3">
                     <animated-checkbox asp-for="UserLoginDTO.RememberMe"></animated-checkbox>

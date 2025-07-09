@@ -14,6 +14,7 @@
                 </div>
                 <div class="card-body">
                     <form method="post" enctype="multipart/form-data">
+                        <input hidden asp-for="User.IsUserEnabled"/>
                             <div class="text-center mb-4">
                                 @* Use a label to make the image clickable and trigger the file input *@
                                 <label for="imageUpload" style="cursor: pointer;">

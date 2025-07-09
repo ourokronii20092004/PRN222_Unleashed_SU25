@@ -11,6 +11,13 @@ namespace Unleashed_MVC.Controllers
         private readonly INotificationService _notificationService;
         private readonly IUserService _accountService;
 
+        [BindProperty(SupportsGet = true)]
+        public string? SearchString { get; set; }
+
+        [BindProperty(SupportsGet = true)]
+        public int? pageIndex { get; set; }
+
+        public int pageSize = 10;
         public NotificationsController(INotificationService notificationService, IUserService accountService)
         {
             _notificationService = notificationService;
@@ -20,8 +27,13 @@ namespace Unleashed_MVC.Controllers
         // GET: Notifications
         public async Task<IActionResult> Index()
         {
-           
-            return View(await _notificationService.GetAllNotificationsAsync());
+            int currentPage = pageIndex ?? 1;
+            var (notiList, totalAmount) = await _notificationService.GetAllNotificationsAsync(SearchString, currentPage, pageSize);
+            ViewData["HasPreviousPage"] = (currentPage > 1);
+            ViewData["HasNextPage"] = (currentPage * pageSize < totalAmount);
+            ViewData["CurrentPage"] = currentPage;
+            ViewData["SearchString"] = SearchString;
+            return View(notiList);
         }
 
         // GET: Notifications/Details/5
@@ -42,7 +54,7 @@ namespace Unleashed_MVC.Controllers
         }
 
         // GET: Notifications/Create
-        public async Task<IActionResult> Create()
+        public IActionResult Create()
         {
             return View();
         }
