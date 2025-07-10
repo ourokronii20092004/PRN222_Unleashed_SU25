@@ -156,7 +156,7 @@
         <ul class="pagination justify-content-center">
             <li class="page-item @(CurrentPage == 1 ? "disabled" : "")">
                 <a class="page-link"
-                   asp-area="" asp-controller="Notifications" asp-action="Index"
+                   asp-area="" asp-controller="Users" asp-action="Index"
                    asp-route-pageIndex="@(CurrentPage - 1)"
                    asp-route-SearchString="@ViewData["SearchString"]"
                    aria-label="Previous">
@@ -167,7 +167,7 @@
             {
                 <li class="page-item @(i == CurrentPage ? "active" : "")">
                     <a class="page-link"
-                       asp-area="" asp-controller="Notifications" asp-action="Index"
+                       asp-area="" asp-controller="Users" asp-action="Index"
                        asp-route-pageIndex="@(i)"
                        asp-route-SearchString="@ViewData["SearchString"]">
                         @i
@@ -180,7 +180,7 @@
             }
             <li class="page-item @(CurrentPage == Pages ? "disabled" : "")">
                 <a class="page-link"
-                   asp-area="" asp-controller="Notifications" asp-action="Index"
+                   asp-area="" asp-controller="Users" asp-action="Index"
                    asp-route-pageIndex="@(CurrentPage + 1)"
                    asp-route-SearchString="@ViewData["SearchString"]"
                    aria-label="Next">
