@@ -12,7 +12,7 @@
         </div>
     </div>
 
-    <!-- Search form (separate from pagination) -->
+    <!-- Search form -->
     <form method="get" id="searchForm">
         <div class="input-group search-bar">
             <input type="text" name="query" class="form-control form-control-lg"
@@ -23,6 +23,7 @@
             </button>
         </div>
     </form>
+
     <!-- Display Info and Page Size Selector -->
     <div class="d-flex justify-content-between mt-2">
         <small class="text-muted">
@@ -197,7 +198,6 @@
 
 @section Scripts {
     <script>
-
         document.addEventListener('DOMContentLoaded', function() {
             const pageSizeSelector = document.getElementById('pageSizeSelector');
 
@@ -206,7 +206,6 @@
                     const pageSize = this.value;
                     const currentUrl = new URL(window.location.href);
                     const query = currentUrl.searchParams.get('query') || '';
-
 
                     const newUrl = new URL(window.location.origin + window.location.pathname);
                     newUrl.searchParams.set('page', '1');
@@ -240,7 +239,7 @@
 
         .product-card:hover {
             transform: translateY(-5px);
-            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
         }
 
     .product-image-container {
@@ -298,7 +297,7 @@
 
         .quick-actions button:hover {
             transform: scale(1.1);
-            background-color: rgba(255,255,255,0.2);
+            background-color: rgba(255, 255, 255, 0.2);
         }
 
     .card-title {
