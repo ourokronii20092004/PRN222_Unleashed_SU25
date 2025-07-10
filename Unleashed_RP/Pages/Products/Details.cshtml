@@ -1,55 +1,178 @@
 ﻿@page
 @model Unleashed_RP.Pages.Products.DetailsModel
 
-<div>
-    <h4>Product</h4>
-    <hr />
-    <dl class="row">
-        <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.Product.ProductName)
-        </dt>
-        <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.Product.ProductName)
-        </dd>
-        <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.Product.ProductCode)
-        </dt>
-        <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.Product.ProductCode)
-        </dd>
-        <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.Product.ProductDescription)
-        </dt>
-        <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.Product.ProductDescription)
-        </dd>
-        <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.Product.ProductCreatedAt)
-        </dt>
-        <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.Product.ProductCreatedAt)
-        </dd>
-        <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.Product.ProductUpdatedAt)
-        </dt>
-        <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.Product.ProductUpdatedAt)
-        </dd>
-        <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.Product.Brand)
-        </dt>
-        <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.Product.Brand.BrandId)
-        </dd>
-        <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.Product.ProductStatus)
-        </dt>
-        <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.Product.ProductStatus.ProductStatusId)
-        </dd>
-    </dl>
+@{
+    ViewData["Title"] = Model.Product.ProductName;
+    var firstVariation = Model.Product.Variations?.FirstOrDefault();
+}
+
+<style>
+    .product-title {
+        font-size: 2rem;
+        font-weight: 600;
+    }
+
+    .cursor-pointer {
+        cursor: pointer;
+    }
+
+    .product-image-main {
+        height: 400px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background-color: #f8f9fa;
+        border-radius: 0.5rem;
+        overflow: hidden;
+    }
+
+        .product-image-main img {
+            max-height: 100%;
+            width: auto;
+            object-fit: contain;
+        }
+
+    .variation-thumbnail {
+        transition: all 0.3s ease;
+        border: 2px solid transparent;
+    }
+
+        .variation-thumbnail.active {
+            border-color: #0d6efd;
+        }
+
+        .variation-thumbnail:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+        }
+
+    .variation-details {
+        background-color: #f8f9fa;
+        padding: 1rem;
+        border-radius: 0.5rem;
+        margin-top: 1rem;
+    }
+</style>
+
+<div class="container my-5">
+    <div class="row">
+        <!-- Product Images -->
+        <div class="col-md-6">
+            <div class="product-image-main mb-3">
+                <img src="@(firstVariation?.VariationImage ?? "https://via.placeholder.com/600x600?text=Product+Image")"
+                     alt="@Model.Product.ProductName"
+                     class="img-fluid rounded shadow"
+                     id="mainProductImage">
+            </div>
+            <div class="product-thumbnails d-flex gap-2">
+                @if (Model.Product.Variations != null)
+                {
+                    foreach (var variation in Model.Product.Variations)
+                    {
+                        <img src="@(variation.VariationImage ?? "https://via.placeholder.com/100x100?text=Thumb")"
+                             class="img-thumbnail cursor-pointer variation-thumbnail @(variation == firstVariation ? "active" : "")"
+                             style="width: 80px;"
+                             onclick="changeVariation(this, '@variation.VariationImage', '@variation.Color?.ColorName', '@variation.Size?.SizeName', '@(variation.VariationPrice?.ToString("C") ?? "N/A")')"
+                             alt="@variation.VariationImage">
+                    }
+                }
+            </div>
+        </div>
+
+        <!-- Product Info -->
+        <div class="col-md-6">
+            <div class="product-details">
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item"><a href="/">Home</a></li>
+                        <li class="breadcrumb-item"><a href="/Products">Products</a></li>
+                        <li class="breadcrumb-item active" aria-current="page">@Model.Product.ProductName</li>
+                    </ol>
+                </nav>
+
+                <h1 class="product-title mb-2">@Model.Product.ProductName</h1>
+                <p class="text-muted mb-3">Brand: <span class="text-primary">@Model.Product.Brand?.BrandName</span></p>
+
+                <div class="description mb-4">
+                    <h5>Description</h5>
+                    <p class="text-justify">@(string.IsNullOrEmpty(Model.Product.ProductDescription) ? "No description available" : Model.Product.ProductDescription)</p>
+                </div>
+
+                <!-- Variation Details -->
+                <div class="variation-details mb-4" id="variationDetails">
+                    <h5>Selected Variation</h5>
+                    <table class="table table-sm">
+                        <tbody>
+                            <tr>
+                                <th>Color</th>
+                                <td id="variationColor">@(firstVariation?.Color?.ColorName ?? "N/A")</td>
+                            </tr>
+                            <tr>
+                                <th>Size</th>
+                                <td id="variationSize">@(firstVariation?.Size?.SizeName ?? "N/A")</td>
+                            </tr>
+                            <tr>
+                                <th>Price</th>
+                                <td id="variationPrice">@(firstVariation?.VariationPrice?.ToString("C") ?? "N/A")</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="add-to-cart mb-4">
+                    <div class="input-group mb-3" style="max-width: 150px;">
+                        <button class="btn btn-outline-secondary" type="button" onclick="decrementQuantity()">-</button>
+                        <input type="number" class="form-control text-center" value="1" id="quantity" min="1">
+                        <button class="btn btn-outline-secondary" type="button" onclick="incrementQuantity()">+</button>
+                    </div>
+                    <button class="btn btn-danger btn-lg w-100" onclick="addToCart()">
+                        <i class="fas fa-shopping-cart me-2"></i> Add to Cart
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
-<div>
-    <a asp-page="./Edit" asp-route-id="@Model.Product.ProductId">Edit</a> |
-    <a asp-page="./Index">Back to List</a>
-</div>
+
+@section Scripts {
+    <script>
+        // Change variation when thumbnail is clicked
+        function changeVariation(element, imageUrl, color, size, price) {
+            // Update main image
+            document.getElementById('mainProductImage').src = imageUrl;
+
+            // Update variation details
+            document.getElementById('variationColor').textContent = color || 'N/A';
+            document.getElementById('variationSize').textContent = size || 'N/A';
+            document.getElementById('variationPrice').textContent = price || 'N/A';
+
+            // Update active thumbnail
+            document.querySelectorAll('.variation-thumbnail').forEach(thumb => {
+                thumb.classList.remove('active');
+            });
+            element.classList.add('active');
+        }
+
+        // Quantity controls
+        function incrementQuantity() {
+            const input = document.getElementById('quantity');
+            input.value = parseInt(input.value) + 1;
+        }
+
+        function decrementQuantity() {
+            const input = document.getElementById('quantity');
+            if (parseInt(input.value) > 1) {
+                input.value = parseInt(input.value) - 1;
+            }
+        }
+
+        // Add to cart function
+        function addToCart() {
+            const quantity = document.getElementById('quantity').value;
+            const selectedColor = document.getElementById('variationColor').textContent;
+            const selectedSize = document.getElementById('variationSize').textContent;
+
+            alert(`Added ${quantity} item(s) to cart\nColor: ${selectedColor}\nSize: ${selectedSize}`);
+        }
+    </script>
+}
