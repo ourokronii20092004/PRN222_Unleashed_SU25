@@ -148,22 +148,45 @@
             </tbody>
         </table>
     </div>
-
-    <div class="d-flex justify-content-center mt-4">
-        <form method="get" class="me-3">
-            <input type="hidden" name="pageIndex" value="@((int)ViewData["CurrentPage"] - 1)" />
-            <input type="hidden" name="SearchString" value="@ViewData["SearchString"]" />
-            <button type="submit" class="btn btn-primary px-4" @(!(bool)ViewData["HasPreviousPage"] ? "disabled" : "")>
-                <i class="bi bi-arrow-left-circle me-2"></i> Previous
-            </button>
-        </form>
-
-        <form method="get">
-            <input type="hidden" name="pageIndex" value="@((int)ViewData["CurrentPage"] + 1)" />
-            <input type="hidden" name="SearchString" value="@ViewData["SearchString"]" />
-            <button type="submit" class="btn btn-primary px-4" @(!(bool)ViewData["HasNextPage"] ? "disabled" : "")>
-                Next <i class="bi bi-arrow-right-circle ms-2"></i>
-            </button>
-        </form>
-    </div>
+    @{
+        int CurrentPage = (int)ViewData["CurrentPage"];
+        int Pages = (int)ViewData["Pages"];
+    }
+    <nav>
+        <ul class="pagination justify-content-center">
+            <li class="page-item @(CurrentPage == 1 ? "disabled" : "")">
+                <a class="page-link"
+                   asp-area="" asp-controller="Notifications" asp-action="Index"
+                   asp-route-pageIndex="@(CurrentPage - 1)"
+                   asp-route-SearchString="@ViewData["SearchString"]"
+                   aria-label="Previous">
+                    <span aria-hidden="true">&laquo;</span>
+                </a>
+            </li>
+            @for (int i = Math.Max(1, CurrentPage - 2); i <= Math.Min(Pages, CurrentPage + 2); i++)
+            {
+                <li class="page-item @(i == CurrentPage ? "active" : "")">
+                    <a class="page-link"
+                       asp-area="" asp-controller="Notifications" asp-action="Index"
+                       asp-route-pageIndex="@(i)"
+                       asp-route-SearchString="@ViewData["SearchString"]">
+                        @i
+                        @if (i == CurrentPage)
+                        {
+                            <span class="visually-hidden">(current)</span>
+                        }
+                    </a>
+                </li>
+            }
+            <li class="page-item @(CurrentPage == Pages ? "disabled" : "")">
+                <a class="page-link"
+                   asp-area="" asp-controller="Notifications" asp-action="Index"
+                   asp-route-pageIndex="@(CurrentPage + 1)"
+                   asp-route-SearchString="@ViewData["SearchString"]"
+                   aria-label="Next">
+                    <span aria-hidden="true">&raquo;</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
 </div>

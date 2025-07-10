@@ -29,8 +29,7 @@ namespace Unleashed_MVC.Controllers
         {
             int currentPage = pageIndex ?? 1;
             var (notiList, totalAmount) = await _notificationService.GetAllNotificationsAsync(SearchString, currentPage, pageSize);
-            ViewData["HasPreviousPage"] = (currentPage > 1);
-            ViewData["HasNextPage"] = (currentPage * pageSize < totalAmount);
+            ViewData["Pages"] = (totalAmount + pageSize - 1) / pageSize;
             ViewData["CurrentPage"] = currentPage;
             ViewData["SearchString"] = SearchString;
             return View(notiList);
