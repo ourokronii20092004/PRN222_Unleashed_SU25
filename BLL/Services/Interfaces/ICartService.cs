@@ -1,4 +1,5 @@
-﻿using DAL.Models;
+﻿using DAL.DTOs.CartDTOs;
+using DAL.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,8 +12,13 @@ namespace BLL.Services.Interfaces
     {
         Task<Cart> GetCartByIdAsync((Guid userId, int variationId) id);
         Task<IEnumerable<Cart>> GetAllAsync();
-        Task CreateCartAsync(Cart cart);
-        Task UpdateCartAsync(Cart cart);
-        Task DeleteCartAsync((Guid userId, int variationId) id);
+        //Task CreateCartAsync(Cart cart);
+        //Task UpdateCartAsync(Cart cart);
+        //Task DeleteCartAsync((Guid userId, int variationId) id);
+        Task<List<CartDTO>> GetCartItemsAsync(Guid userId);
+        Task AddToCartAsync(AddToCartDTO addToCartDTO);
+        Task RemoveCartItemAsync(Guid userId, int variationId);
+        //Task ClearCartAsync(Guid userId);
+        //Task<CheckoutDto> CheckoutAsync(Guid userId);
     }
 }

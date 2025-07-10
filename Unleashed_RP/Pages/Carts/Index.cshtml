@@ -1,0 +1,49 @@
+﻿@page
+@model Unleashed_RP.Pages.Carts.IndexModel
+
+@{
+    ViewData["Title"] = "Index";
+    Layout = "~/Pages/Shared/_Layout.cshtml";
+}
+
+<h1>Index</h1>
+
+<p>
+    <a asp-page="Create">Create New</a>
+</p>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.Cart[0].CartQuantity)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Cart[0].User)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Cart[0].Variation)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model.Cart) {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.CartQuantity)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.User.UserId)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Variation.VariationId)
+            </td>
+            <td>
+                @Html.ActionLink("Edit", "Edit", new { /* id=item.PrimaryKey */ }) |
+                @Html.ActionLink("Details", "Details", new { /* id=item.PrimaryKey */ }) |
+                @Html.ActionLink("Delete", "Delete", new { /* id=item.PrimaryKey */ })
+            </td>
+        </tr>
+}
+    </tbody>
+</table>
