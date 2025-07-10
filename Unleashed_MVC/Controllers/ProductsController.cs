@@ -33,15 +33,14 @@ namespace Unleashed_MVC.Controllers
         {
             try
             {
-                int skip = (page - 1) * pageSize;
-                var products = await _productService.GetAllProductsAsync(skip, pageSize);
-                var totalCount = await _productService.CountAllProductsAsync();
+                var pagedResult = await _productService.GetProductsWithPagingAsync(page, pageSize, query);
 
-                ViewBag.Page = page;
-                ViewBag.PageSize = pageSize;
-                ViewBag.TotalCount = totalCount;
+                ViewBag.Page = pagedResult.CurrentPage;
+                ViewBag.PageSize = pagedResult.PageSize;
+                ViewBag.TotalCount = pagedResult.TotalCount;
+                ViewBag.Query = query;
 
-                return View(products);
+                return View(pagedResult.Items);
             }
             catch (Exception ex)
             {
