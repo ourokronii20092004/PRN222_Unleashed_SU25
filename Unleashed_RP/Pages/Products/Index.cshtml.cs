@@ -1,11 +1,12 @@
-﻿using System;
+﻿using BLL.Services.Interfaces;
+using DAL.DTOs.ProductDTOs;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.Extensions.Logging;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc.RazorPages;
-using DAL.DTOs.ProductDTOs;
-using BLL.Services.Interfaces;
-using Microsoft.Extensions.Logging;
 
 namespace Unleashed_RP.Pages.Products
 {
@@ -14,45 +15,46 @@ namespace Unleashed_RP.Pages.Products
         private readonly IProductService _productService;
         private readonly ILogger<IndexModel> _logger;
 
+        [BindProperty(SupportsGet = true)]
+        public string? Query { get; set; }
+
+        [BindProperty(SupportsGet = true)]
+        public int? pageIndex { get; set; }
+
+        [BindProperty(SupportsGet = true)]
+        public int pageSize { get; set; } = 10;
+
+        public IList<ProductListDTO> Product { get; set; } = new List<ProductListDTO>();
+        public int TotalCount { get; set; }
+        public int TotalPages { get; set; }
+        public int CurrentPage => pageIndex ?? 1;
+
         public IndexModel(IProductService productService, ILogger<IndexModel> logger)
         {
             _productService = productService;
             _logger = logger;
         }
 
-        public IList<ProductListDTO> Product { get; set; } = new List<ProductListDTO>();
-        public int TotalCount { get; set; }
-        public int Page { get; set; } = 1;
-        public int PageSize { get; set; } = 10;
-        public int TotalPages { get; set; }
-        public string Query { get; set; } = string.Empty;
-
-        public async Task OnGetAsync(int page = 1, int pageSize = 10, string query = "")
+        public async Task OnGetAsync()
         {
-            _logger.LogInformation("OnGetAsync called with page: {Page}, pageSize: {PageSize}, query: '{Query}'", page, pageSize, query);
+            _logger.LogInformation("OnGetAsync received: pageIndex={pageIndex}, pageSize={pageSize}, query='{query}'",
+                pageIndex, pageSize, Query);
 
             try
             {
-                Page = Math.Max(1, page);
-                PageSize = Math.Clamp(pageSize, 1, 100);  
+                pageSize = Math.Clamp(pageSize, 1, 100);
+                Query = Query ?? string.Empty;
 
-                Query = query ?? string.Empty;
-
-                var pagedResult = await _productService.GetProductsWithPagingAsync(Page, PageSize, Query);
+                var pagedResult = await _productService.GetProductsWithPagingAsync(CurrentPage, pageSize, Query);
 
                 Product = pagedResult.Items;
                 TotalCount = pagedResult.TotalCount;
-                TotalPages = (int)Math.Ceiling((double)TotalCount / PageSize);
-                if (TotalPages > 0 && Page > TotalPages)
-                {
-                    Page = TotalPages;
-                }
-                _logger.LogInformation("Adjusted values -TotalPages:{TotalPages} Page: {Page}, PageSize: {PageSize}, Query: '{Query}'", TotalPages, Page, PageSize, Query);
+                TotalPages = pagedResult.TotalPages;
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "An error occurred while retrieving products.");
-                ModelState.AddModelError("", "An error occurred while retrieving products.");
+                _logger.LogError(ex, "Error retrieving products");
+                ModelState.AddModelError("", "An error occurred.");
             }
         }
     }
