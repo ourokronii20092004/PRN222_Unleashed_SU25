@@ -1,5 +1,7 @@
 ﻿using BLL.Services.Interfaces;
+using DAL.DTOs.CartDTOs;
 using DAL.Models;
+using DAL.Repositories;
 using DAL.Repositories.Interfaces;
 using System;
 using System.Collections.Generic;
@@ -12,27 +14,42 @@ namespace BLL.Services
     public class CartService : ICartService 
     {
         public ICartRepository _cartRepo;
-        public IUserRepository _userRepo;
-        //public IVariontionRepository _variationRepo;
-        public CartService(ICartRepository cartRepo, IUserRepository accountRepository) 
+        
+        //public IUserRepository _userRepo;
+        //public IVariationRepository _variationRepo;
+        public CartService(ICartRepository cartRepo) //,IUserRepository accountRepository, IVariationRepository variationRepo)
         {
-            _userRepo = accountRepository;
-            // _variationRepo = variationRepository;
+            //_userRepo = accountRepository;
             _cartRepo = cartRepo;
+            //_variationRepo = variationRepo;
         }
 
-        public async Task CreateCartAsync(Cart cart)
+        public async Task AddToCartAsync(AddToCartDTO addToCartDTO)
         {
-            // GetCurrentUserId
-            // GetVariationId
-            await _cartRepo.AddAsync(cart);
+            var carts = await _cartRepo.GetCartByUserIdAsync(addToCartDTO.UserId);
+
+            var result = carts.Select(c => new Cart
+            {
+                UserId = c.UserId,
+                VariationId = c.VariationId,
+                CartQuantity = c.CartQuantity
+            }).ToList();
+
+            await _cartRepo.AddToCartAsync(result);
         }
 
-        public async Task DeleteCartAsync((Guid, int) id)
-        {
-            var cart = await _cartRepo.GetByIdAsync(id);
-            await _cartRepo.Delete(cart);
-        }
+        //public async Task CreateCartAsync(Cart cart)
+        //{
+        //    // GetCurrentUserName
+        //    // GetVariationId
+        //    await _cartRepo.AddAsync(cart);
+        //}
+
+        //public async Task DeleteCartAsync((Guid, int) id)
+        //{
+        //    var cart = await _cartRepo.GetByIdAsync(id);
+        //    await _cartRepo.Delete(cart);
+        //}
 
         public async Task<IEnumerable<Cart>> GetAllAsync()
         {
@@ -44,12 +61,22 @@ namespace BLL.Services
             return await _cartRepo.GetByIdAsync(id);
         }
 
-        public async Task UpdateCartAsync(Cart cart)
+        public Task<List<CartDTO>> GetCartItemsAsync(Guid userId)
         {
-            (Guid,int) id = new(cart.UserId,cart.VariationId);
-            var existingCart = await _cartRepo.GetByIdAsync(id);
-            existingCart.CartQuantity = cart.CartQuantity;
-            await _cartRepo.Update(existingCart);
+            throw new NotImplementedException();
         }
+
+        public Task RemoveCartItemAsync(Guid userId, int variationId)
+        {
+            throw new NotImplementedException();
+        }
+
+        //public async Task UpdateCartAsync(Cart cart)
+        //{
+        //    (Guid,int) id = new(cart.UserId,cart.VariationId);
+        //    var existingCart = await _cartRepo.GetByIdAsync(id);
+        //    existingCart.CartQuantity = cart.CartQuantity;
+        //    await _cartRepo.Update(existingCart);
+        //}
     }
 }

@@ -24,6 +24,15 @@ namespace DAL.Repositories
             await _unleashedContext.SaveChangesAsync(cancellationToken);
         }
 
+        public async Task AddToCartAsync(List<Cart> cart)
+        {
+            foreach (var cartItem in cart)
+            {
+                _unleashedContext.Carts.Add(cartItem);
+            }
+            await _unleashedContext.SaveChangesAsync();
+        }
+
         public async Task Delete(Cart entity, CancellationToken cancellationToken = default)
         {
             _unleashedContext.Remove(entity);
@@ -47,10 +56,43 @@ namespace DAL.Repositories
                 throw new Exception();
         }
 
+        public async Task<List<Cart>> GetCartByUserIdAsync(Guid userId)
+        {
+            return await _unleashedContext.Carts
+            .Include(c => c.Variation)
+            .ThenInclude(v => v.Product)
+            .Include(c => c.Variation.Color)
+            .Include(c => c.Variation.Size)
+            .Where(c => c.UserId == userId)
+            .ToListAsync();
+        }
+
+        public async Task<Cart?> GetCartItemAsync(Guid userId, int variationId)
+        {
+            return await _unleashedContext.Carts
+            .FirstOrDefaultAsync(c => c.UserId == userId && c.VariationId == variationId);
+        }
+
+        public async Task RemoveCartItemAsync(Guid userId, int variationId)
+        {
+            var cartItem = await GetCartItemAsync(userId, variationId);
+            if (cartItem != null)
+            {
+                _unleashedContext.Carts.Remove(cartItem);
+                await _unleashedContext.SaveChangesAsync();
+            }
+        }
+
         public async Task Update(Cart entity, CancellationToken cancellationToken = default)
         {
             _unleashedContext.Update(entity);
            await _unleashedContext.SaveChangesAsync(cancellationToken);
+        }
+
+        public async Task UpdateCartItemAsync(Cart cart)
+        {
+            _unleashedContext.Carts.Update(cart);
+            await _unleashedContext.SaveChangesAsync();
         }
     }
 }
