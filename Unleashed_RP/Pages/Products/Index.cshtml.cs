@@ -3,10 +3,6 @@ using DAL.DTOs.ProductDTOs;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Extensions.Logging;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace Unleashed_RP.Pages.Products
 {
@@ -37,9 +33,6 @@ namespace Unleashed_RP.Pages.Products
 
         public async Task OnGetAsync()
         {
-            _logger.LogInformation("OnGetAsync received: pageIndex={pageIndex}, pageSize={pageSize}, query='{query}'",
-                pageIndex, pageSize, Query);
-
             try
             {
                 pageSize = Math.Clamp(pageSize, 1, 100);
@@ -49,12 +42,12 @@ namespace Unleashed_RP.Pages.Products
 
                 Product = pagedResult.Items;
                 TotalCount = pagedResult.TotalCount;
-                TotalPages = pagedResult.TotalPages;
+                TotalPages = (int)Math.Ceiling((double)TotalCount / pageSize);
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error retrieving products");
-                ModelState.AddModelError("", "An error occurred.");
+                ModelState.AddModelError("", "An error occurred while loading products.");
             }
         }
     }
