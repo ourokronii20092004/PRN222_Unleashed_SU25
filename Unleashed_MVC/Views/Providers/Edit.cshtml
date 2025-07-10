@@ -1,0 +1,60 @@
+﻿@model DAL.DTOs.ProviderDTOs.ProviderEditDTO
+
+@{
+    ViewData["Title"] = "Edit Provider";
+}
+
+<div class="container mt-5">
+    <div class="card shadow border-0">
+        <div class="card-header bg-warning text-dark">
+            <h4 class="mb-0">Edit Provider</h4>
+        </div>
+        <div class="card-body">
+            <form asp-action="Edit">
+                <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+                <input type="hidden" asp-for="ProviderId" />
+
+                <div class="mb-3">
+                    <label asp-for="ProviderName" class="form-label"></label>
+                    <input asp-for="ProviderName" class="form-control" />
+                    <span asp-validation-for="ProviderName" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="ProviderImageUrl" class="form-label"></label>
+                    <input asp-for="ProviderImageUrl" class="form-control" />
+                    <span asp-validation-for="ProviderImageUrl" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="ProviderEmail" class="form-label"></label>
+                    <input asp-for="ProviderEmail" class="form-control" />
+                    <span asp-validation-for="ProviderEmail" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="ProviderPhone" class="form-label"></label>
+                    <input asp-for="ProviderPhone" class="form-control" />
+                    <span asp-validation-for="ProviderPhone" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="ProviderAddress" class="form-label"></label>
+                    <input asp-for="ProviderAddress" class="form-control" />
+                    <span asp-validation-for="ProviderAddress" class="text-danger"></span>
+                </div>
+
+                <div class="d-flex justify-content-between">
+                    <button type="submit" class="btn btn-primary">Save</button>
+                    <a asp-action="Index" class="btn btn-secondary">Back to List</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}
