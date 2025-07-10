@@ -449,7 +449,7 @@ namespace BLL.Services
             return true;
         }
 
-        public async Task<PagedResult<ProductListDTO>> GetProductsWithPagingAsync(int page, int pageSize, string query)
+        public async Task<DAL.Models.PagedResult<ProductListDTO>> GetProductsWithPagingAsync(int page, int pageSize, string query)
         {
             int skip = (page - 1) * pageSize;
 
@@ -471,11 +471,11 @@ namespace BLL.Services
                 productListDTOs.Add(productDTO);
             }
 
-            return new PagedResult<ProductListDTO>
+            return new DAL.Models.PagedResult<ProductListDTO>
             {
                 Items = productListDTOs,
-                TotalItems = totalCount,
-                PageNumber = page,
+                TotalCount = totalCount,
+                CurrentPage = page,
                 PageSize = pageSize
             };
         }
