@@ -16,10 +16,6 @@
                 
                 <span asp-validation-for="UserLoginDTO.UserPassword" class="text-danger"></span>
                 <form-input asp-for="UserLoginDTO.UserPassword" type="password" placeholder="Password"></form-input>
-               
-                <div class="mb-3">
-                    <animated-checkbox asp-for="UserLoginDTO.RememberMe"></animated-checkbox>
-                </div>
 
                 <div class="d-grid gap-2 mb-3">
                     <btn Text="Log In" is-submit=true Variant="Primary" class="btn-lg"></btn>

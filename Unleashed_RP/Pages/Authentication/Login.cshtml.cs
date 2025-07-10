@@ -35,10 +35,12 @@ namespace Unleashed_RP.Pages.Authentication
             if (ModelState.IsValid)
             {
                 var user = await _authenticationService.Login(UserLoginDTO);
-                if (user != null) {
+                if (user != null && user.Role.RoleId == 2) {
                     HttpContext.Session.SetString("username", user.UserUsername);
                     HttpContext.Session.SetString("role", user.Role.RoleName);
                     HttpContext.Session.SetString("fullname", user.UserFullname);
+                    if(user.UserImage != null) 
+                    HttpContext.Session.SetString("userImage", user.UserImage);
                     return RedirectToPage("/Index");
                 }
                 else

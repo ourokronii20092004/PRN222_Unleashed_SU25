@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 
 namespace Unleashed_RP.Pages.Notifications
 {
+    [Filter.Filter(RequiredRoles = new[] { "CUSTOMER" })]
     public class IndexModel : PageModel
     {
         private readonly INotificationUserService _notificationUserService;
@@ -30,8 +31,7 @@ namespace Unleashed_RP.Pages.Notifications
                 ArgumentNullException.ThrowIfNullOrEmpty(username, nameof(username));
                 int currentPage = pageIndex ?? 1;
                 var (NotificationUsersList, totalAmount) = await _notificationUserService.GetNotificationUserListAsync(username, SearchString, currentPage, pageSize);
-                ViewData["HasPreviousPage"] = (currentPage > 1);
-                ViewData["HasNextPage"] = (currentPage * pageSize < totalAmount);
+                ViewData["Pages"] = (totalAmount + pageSize - 1) / pageSize;
                 ViewData["CurrentPage"] = currentPage;
                 ViewData["SearchString"] = SearchString;
                 NotificationUsers = [.. NotificationUsersList];
