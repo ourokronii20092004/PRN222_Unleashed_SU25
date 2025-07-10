@@ -26,7 +26,7 @@ namespace BLL.Services.Interfaces
         Task<List<ProductImportSelectionDTO>> GetProductsForImportSelectionAsync(int stockId);
         Task<ProductDropdownsDTO> GetProductDropdownsAsync();
         Task<bool> SoftDeleteProductAsync(Guid productId);
-        Task<PagedResult<ProductListDTO>> GetProductsWithPagingAsync(int page, int pageSize, string query);
+        Task<DAL.Models.PagedResult<ProductListDTO>> GetProductsWithPagingAsync(int page, int pageSize, string query);
     }
 }
 

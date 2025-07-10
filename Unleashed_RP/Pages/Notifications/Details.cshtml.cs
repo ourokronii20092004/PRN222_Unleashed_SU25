@@ -1,14 +1,12 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using Microsoft.EntityFrameworkCore;
-using DAL.Data;
-using DAL.Models;
 using BLL.Services.Interfaces;
 using DAL.DTOs.NotificationDTOs;
 using Microsoft.Extensions.Logging;
 
 namespace Unleashed_RP.Pages.Notifications
 {
+    [Filter.Filter(RequiredRoles = new[]{"CUSTOMER"})]
     public class DetailsModel : PageModel
     {
         private readonly INotificationService _notificationService;

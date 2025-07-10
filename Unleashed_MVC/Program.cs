@@ -68,6 +68,8 @@ namespace Unleashed_MVC
             builder.Services.AddScoped<ISizeRepository, SizeRepository>();
             builder.Services.AddScoped<IColorRepository, ColorRepository>();
             builder.Services.AddScoped<IOrderRepository, OrderRepository>();
+            builder.Services.AddScoped<IReviewRepository, ReviewRepository>();
+            builder.Services.AddScoped<ICommentRepository, CommentRepository>();
 
             // --- Services ---  
             builder.Services.AddScoped<IBrandService, BrandService>();
@@ -83,6 +85,8 @@ namespace Unleashed_MVC
             builder.Services.AddScoped<IDiscountService, DiscountService>();
             builder.Services.AddScoped<IProviderService, ProviderService>();
             builder.Services.AddScoped<IVariationService, VariationService>();
+            builder.Services.AddScoped<IReviewService, ReviewService>();
+            builder.Services.AddScoped<ICommentService, CommentService>();
 
             // --- AutoMapper ---  
             // This scans all assemblies loaded in the current application domain for AutoMapper profiles.  

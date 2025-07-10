@@ -1,53 +1,110 @@
-﻿@model DAL.Models.Category
+﻿@model DAL.DTOs.CategoryDTOs.CategoryCreateDTO
 
 @{
-    ViewData["Title"] = "Create";
+    ViewData["Title"] = "Create New Category";
 }
 
-<h1>Create</h1>
+<style>
+    .image-placeholder {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 160px;
+        width: 100%;
+        background-color: #f8f9fa;
+        border: 1px dashed #ced4da;
+        border-radius: .25rem;
+        color: #6c757d;
+        font-size: 0.9rem;
+    }
+</style>
 
-<h4>Category</h4>
-<hr />
-<div class="row">
-    <div class="col-md-4">
-        <form asp-action="Create">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <div class="form-group">
-                <label asp-for="CategoryName" class="control-label"></label>
-                <input asp-for="CategoryName" class="form-control" />
-                <span asp-validation-for="CategoryName" class="text-danger"></span>
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-7">
+            <div class="card shadow-sm">
+                <div class="card-header bg-success text-white">
+                    <h4 class="mb-0"><i class="bi bi-plus-circle-fill"></i> @ViewData["Title"]</h4>
+                </div>
+                <div class="card-body">
+                    <form asp-action="Create" enctype="multipart/form-data">
+                        <div asp-validation-summary="All" class="alert alert-danger" role="alert" style="@(ViewData.ModelState.IsValid ? "display: none;" : "")"></div>
+
+                        <div class="mb-3">
+                            <label asp-for="CategoryName" class="form-label fw-bold"></label>
+                            <input asp-for="CategoryName" class="form-control" placeholder="Enter category name" />
+                            <span asp-validation-for="CategoryName" class="text-danger small"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="CategoryDescription" class="form-label fw-bold"></label>
+                            <textarea asp-for="CategoryDescription" class="form-control" rows="3" placeholder="Enter category description"></textarea>
+                            <span asp-validation-for="CategoryDescription" class="text-danger small"></span>
+                        </div>
+
+                        <hr />
+                        <h5 class="mb-3">Category Image</h5>
+                        <div class="mb-3">
+                            <label asp-for="CategoryImageFile" class="form-label fw-bold"></label>
+                            <input asp-for="CategoryImageFile" id="imageUpload" class="form-control" type="file" accept="image/png, image/jpeg, image/gif" />
+                            <span asp-validation-for="CategoryImageFile" class="text-danger small"></span>
+                        </div>
+
+                        <div class="mb-3 text-center">
+                            <label class="form-label fw-bold">Image Preview</label>
+                            <div class="image-placeholder">
+                                <img id="imagePreview" src="" alt="Image Preview" class="img-fluid" style="max-height: 150px; display: none;" />
+                                <span id="imagePreviewText">No image selected</span>
+                            </div>
+                        </div>
+
+                        <hr />
+                        <div class="d-flex justify-content-end">
+                            <a asp-action="Index" class="btn btn-outline-secondary me-2">Back to List</a>
+                            <button type="submit" class="btn btn-success">Create Category</button>
+                        </div>
+                    </form>
+                </div>
             </div>
-            <div class="form-group">
-                <label asp-for="CategoryDescription" class="control-label"></label>
-                <input asp-for="CategoryDescription" class="form-control" />
-                <span asp-validation-for="CategoryDescription" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="CategoryImageUrl" class="control-label"></label>
-                <input asp-for="CategoryImageUrl" class="form-control" />
-                <span asp-validation-for="CategoryImageUrl" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="CategoryCreatedAt" class="control-label"></label>
-                <input asp-for="CategoryCreatedAt" class="form-control" />
-                <span asp-validation-for="CategoryCreatedAt" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="CategoryUpdatedAt" class="control-label"></label>
-                <input asp-for="CategoryUpdatedAt" class="form-control" />
-                <span asp-validation-for="CategoryUpdatedAt" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <input type="submit" value="Create" class="btn btn-primary" />
-            </div>
-        </form>
+        </div>
     </div>
 </div>
 
-<div>
-    <a asp-action="Index">Back to List</a>
-</div>
-
 @section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const imageUploadInput = document.getElementById('imageUpload');
+            const imagePreview = document.getElementById('imagePreview');
+            const imagePreviewText = document.getElementById('imagePreviewText');
+            const form = document.querySelector('form');
+
+            if (imageUploadInput) {
+                imageUploadInput.addEventListener('change', function(e) {
+                    if (e.target.files && e.target.files[0]) {
+                        const reader = new FileReader();
+                        reader.onload = function(event) {
+                            imagePreview.src = event.target.result;
+                            imagePreview.style.display = 'block';
+                            imagePreviewText.style.display = 'none';
+                        }
+                        reader.readAsDataURL(e.target.files[0]);
+                    }
+                });
+            }
+
+            if (form) {
+                form.addEventListener('submit', function(e) {
+                    if ($(form).valid()) {
+                        form.querySelectorAll('button[type="submit"]').forEach(function(button) {
+                            button.disabled = true;
+                            button.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Creating...';
+                        });
+                    }
+                });
+            }
+        });
+    </script>
 }

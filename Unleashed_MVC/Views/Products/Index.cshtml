@@ -1,4 +1,5 @@
-﻿@model IEnumerable<DAL.DTOs.ProductDTOs.ProductListDTO>
+﻿@using System.Text.RegularExpressions
+@model IEnumerable<DAL.DTOs.ProductDTOs.ProductListDTO>
 
 @{
     ViewData["Title"] = "Product Management";
@@ -24,6 +25,29 @@
             overflow: hidden;
             text-overflow: ellipsis;
         }
+
+        .search-container {
+            position: relative;
+        }
+
+        .search-clear {
+            position: absolute;
+            right: 40px;
+            top: 50%;
+            transform: translateY(-50%);
+            cursor: pointer;
+            color: #6c757d;
+            display: none;
+        }
+
+            .search-clear:hover {
+                color: #dc3545;
+            }
+
+        .search-highlight {
+            background-color: yellow;
+            font-weight: bold;
+        }
     </style>
 }
 
@@ -34,14 +58,20 @@
             <i class="bi bi-plus-circle-fill"></i> Create New Product
         </a>
     </div>
+
     <!-- Search Box -->
     <div class="card shadow-sm mb-3">
         <div class="card-body">
             <form method="get" asp-action="Index" class="row g-3">
                 <div class="col-md-8">
-                    <div class="input-group">
-                        <input type="text" name="query" class="form-control" placeholder="Search products..." value="@ViewBag.Query">
-                        <button class="btn btn-outline-secondary" type="submit">
+                    <div class="input-group search-container">
+                        <input type="text" name="query" id="searchInput" class="form-control"
+                               placeholder="Search by product name, code or description..."
+                               value="@ViewBag.Query">
+                        <span class="search-clear" id="searchClear" title="Clear search">
+                            <i class="bi bi-x-circle-fill"></i>
+                        </span>
+                        <button class="btn btn-outline-primary" type="submit" id="searchButton">
                             <i class="bi bi-search"></i> Search
                         </button>
                     </div>
@@ -54,18 +84,36 @@
                     </select>
                 </div>
                 <div class="col-md-2 text-end">
-                    <a asp-action="Index" class="btn btn-outline-danger">Reset</a>
+                    <a asp-action="Index" class="btn btn-outline-danger">
+                        <i class="bi bi-arrow-counterclockwise"></i> Reset
+                    </a>
                 </div>
             </form>
         </div>
     </div>
+
+    @if (!string.IsNullOrEmpty(ViewBag.Query))
+    {
+        <div class="alert alert-info mb-3">
+            <i class="bi bi-info-circle"></i> Showing results for: <strong>"@ViewBag.Query"</strong>
+            <span class="float-end">@ViewBag.TotalCount results found</span>
+        </div>
+    }
 
     <div class="card shadow-sm">
         <div class="card-body p-0">
             @if (!Model.Any())
             {
                 <div class="alert alert-info m-3" role="alert">
-                    No products found. Click "Create New Product" to add one.
+                    <i class="bi bi-exclamation-circle"></i> No products found.
+                    @if (!string.IsNullOrEmpty(ViewBag.Query))
+                    {
+                        <span>Try a different search term or <a asp-action="Index" class="alert-link">clear search</a>.</span>
+                    }
+                    else
+                    {
+                        <span>Click "Create New Product" to add one.</span>
+                    }
                 </div>
             }
             else
@@ -88,9 +136,11 @@
                             @foreach (var item in Model)
                             {
                                 <tr>
-                                    <td><strong>@item.ProductName</strong></td>
-                                    <td>@item.ProductCode</td>
-                                    <td class="table-description" title="@item.ProductDescription">@item.ProductDescription</td>
+                                    <td class="data-highlight"><strong>@item.ProductName</strong></td>
+                                    <td class="data-highlight">@item.ProductCode</td>
+                                    <td class="table-description data-highlight" title="@item.ProductDescription">
+                                        @item.ProductDescription
+                                    </td>
                                     <td>@item.BrandName</td>
                                     <td>@item.ProductStatusName</td>
                                     <td>
@@ -129,7 +179,7 @@
     </div>
 </div>
 
-<!-- =========================== PAGINATION =========================== -->
+<!-- Pagination -->
 @if (ViewBag.TotalCount != null && ViewBag.PageSize != null && ViewBag.Page != null)
 {
     var totalCount = (int)ViewBag.TotalCount;
@@ -147,7 +197,22 @@
                            asp-action="Index"
                            asp-route-query="@ViewBag.Query"
                            asp-route-page="@(page - 1)"
-                           asp-route-pageSize="@pageSize">Previous</a>
+                           asp-route-pageSize="@pageSize">
+                            <i class="bi bi-chevron-left"></i> Previous
+                        </a>
+                    </li>
+                }
+
+                @for (int i = 1; i <= Math.Ceiling((double)totalCount / pageSize); i++)
+                {
+                    <li class="page-item @(i == page ? "active" : "")">
+                        <a class="page-link"
+                           asp-action="Index"
+                           asp-route-query="@ViewBag.Query"
+                           asp-route-page="@i"
+                           asp-route-pageSize="@pageSize">
+                            @i
+                        </a>
                     </li>
                 }
 
@@ -158,10 +223,41 @@
                            asp-action="Index"
                            asp-route-query="@ViewBag.Query"
                            asp-route-page="@(page + 1)"
-                           asp-route-pageSize="@pageSize">Next</a>
+                           asp-route-pageSize="@pageSize">
+                            Next <i class="bi bi-chevron-right"></i>
+                        </a>
                     </li>
                 }
             </ul>
         </nav>
     }
+}
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            // Search box functionality
+            const searchInput = $('#searchInput');
+            const searchClear = $('#searchClear');
+
+            // Show/hide clear button based on input
+            if (searchInput.val().trim() !== '') {
+                searchClear.show();
+            }
+
+            searchInput.on('input', function() {
+                searchClear.toggle(this.value.trim() !== '');
+            });
+
+            // Clear search
+            searchClear.on('click', function() {
+                searchInput.val('');
+                $(this).hide();
+                $('#searchButton').click();
+            });
+
+            // Auto focus search input
+            searchInput.focus();
+        });
+    </script>
 }

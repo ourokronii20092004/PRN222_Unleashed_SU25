@@ -32,10 +32,13 @@ namespace Unleashed_MVC.Controllers
                 {
                     var user = await _authenticationService.Login(loginInfor);
                     _logger.LogInformation("user: " + (user == null? null : user.Role.RoleName));
-                    if (user != null)
+                    if (user != null && (user.Role.RoleId == 3 || user.Role.RoleId == 1))
                     {
                         HttpContext.Session.SetString("username", user.UserUsername);
                         HttpContext.Session.SetString("role", user.Role.RoleName);
+                        HttpContext.Session.SetString("fullName", user.UserFullname);
+                        if (user.UserImage != null)
+                            HttpContext.Session.SetString("userImage", user.UserImage);
                         return RedirectToAction("Index", "Home");
                     }
                 }
@@ -44,6 +47,11 @@ namespace Unleashed_MVC.Controllers
                 return View(loginInfor);
             }
            
+        }
+        public ActionResult Logout()
+        {
+            HttpContext.Session.Clear();
+            return RedirectToAction("Login", "Authentication"); ;
         }
 
     }

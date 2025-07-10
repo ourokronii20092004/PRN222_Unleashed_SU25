@@ -85,7 +85,9 @@ namespace BLL.Services
                 return (_mapper
                         .Map<IEnumerable<NotificationUserDetailDTO>>(notificationUsers
                         .OrderByDescending(nu => nu.IsNotificationViewed)
-                        .ThenByDescending(nu => nu.Notification.NotificationCreatedAt)), totalAmount);
+                        .ThenByDescending(nu => nu.Notification.NotificationCreatedAt)
+                        .Skip(currentPage)
+                        .Take(pageSize)), totalAmount);
             } catch {
                 return (new List<NotificationUserDetailDTO>(), 0);
             }
