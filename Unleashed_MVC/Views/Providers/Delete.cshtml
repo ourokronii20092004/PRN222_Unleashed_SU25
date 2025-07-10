@@ -1,0 +1,36 @@
+﻿@model DAL.DTOs.ProviderDTOs.ProviderDetailsDTO
+
+@{
+    ViewData["Title"] = "Delete Provider";
+}
+
+<div class="container mt-5">
+    <div class="card shadow border-0">
+        <div class="card-header bg-danger text-white">
+            <h4 class="mb-0">Delete Provider</h4>
+        </div>
+        <div class="card-body">
+            <p>Are you sure you want to delete this provider?</p>
+            <dl class="row">
+                <dt class="col-sm-3">Name</dt>
+                <dd class="col-sm-9">@Model.ProviderName</dd>
+
+                <dt class="col-sm-3">Email</dt>
+                <dd class="col-sm-9">@Model.ProviderEmail</dd>
+
+                <dt class="col-sm-3">Phone</dt>
+                <dd class="col-sm-9">@Model.ProviderPhone</dd>
+
+                <dt class="col-sm-3">Address</dt>
+                <dd class="col-sm-9">@Model.ProviderAddress</dd>
+            </dl>
+        </div>
+        <div class="card-footer d-flex justify-content-between">
+            <form asp-action="Delete" method="post">
+                <input type="hidden" asp-for="ProviderId" />
+                <button type="submit" class="btn btn-danger">Delete</button>
+            </form>
+            <a asp-action="Index" class="btn btn-secondary">Cancel</a>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,68 @@
+﻿@model DAL.DTOs.ProviderDTOs.ProviderDetailsDTO
+
+@{
+    ViewData["Title"] = "Provider Details";
+}
+
+<div class="container mt-4">
+    <div class="card shadow-sm">
+        <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+            <h4 class="mb-0">Provider Details</h4>
+            <a asp-action="Index" class="btn btn-sm btn-light">Back to List</a>
+        </div>
+        <div class="card-body row">
+            <!-- Image Column -->
+            <div class="col-md-4 text-center">
+                @if (!string.IsNullOrEmpty(Model.ProviderImageUrl))
+                {
+                    <img src="@Model.ProviderImageUrl" alt="@Model.ProviderName" class="img-fluid rounded shadow"
+                         style="max-height: 250px; object-fit: contain;"
+                         onerror="this.src='/images/placeholder-image.png';" />
+                }
+                else
+                {
+                    <div class="bg-light d-flex align-items-center justify-content-center rounded border"
+                         style="height: 250px;">
+                        <i class="bi bi-image text-muted fs-1"></i>
+                    </div>
+                }
+                <p class="mt-2 text-muted">Image of Provider</p>
+            </div>
+
+            <!-- Details Column -->
+            <div class="col-md-8">
+                <dl class="row">
+                    <dt class="col-sm-4">Provider ID</dt>
+                    <dd class="col-sm-8">@Model.ProviderId</dd>
+
+                    <dt class="col-sm-4">Name</dt>
+                    <dd class="col-sm-8">@Model.ProviderName</dd>
+
+                    <dt class="col-sm-4">Email</dt>
+                    <dd class="col-sm-8">@Model.ProviderEmail</dd>
+
+                    <dt class="col-sm-4">Phone</dt>
+                    <dd class="col-sm-8">@Model.ProviderPhone</dd>
+
+                    <dt class="col-sm-4">Address</dt>
+                    <dd class="col-sm-8">@Model.ProviderAddress</dd>
+
+                    <dt class="col-sm-4">Created At</dt>
+                    <dd class="col-sm-8">@Model.ProviderCreatedAt?.ToString("yyyy-MM-dd HH:mm")</dd>
+
+                    <dt class="col-sm-4">Updated At</dt>
+                    <dd class="col-sm-8">@Model.ProviderUpdatedAt?.ToString("yyyy-MM-dd HH:mm")</dd>
+                </dl>
+
+                <div class="mt-3">
+                    <a asp-action="Edit" asp-route-id="@Model.ProviderId" class="btn btn-primary me-2">
+                        <i class="bi bi-pencil-fill"></i> Edit
+                    </a>
+                    <a asp-action="Delete" asp-route-id="@Model.ProviderId" class="btn btn-danger">
+                        <i class="bi bi-trash3-fill"></i> Delete
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

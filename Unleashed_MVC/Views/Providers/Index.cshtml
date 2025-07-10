@@ -1,0 +1,91 @@
+﻿@model IEnumerable<DAL.DTOs.ProviderDTOs.ProviderBareboneDTO>
+
+@{
+    ViewData["Title"] = "Providers Management";
+}
+
+@section Styles {
+    <style>
+        .table th, .table td {
+            vertical-align: middle;
+        }
+
+        .img-thumbnail-table {
+            width: 60px;
+            height: 60px;
+            object-fit: cover;
+            border-radius: .25rem;
+            padding: .1rem;
+        }
+    </style>
+}
+
+<div class="container-fluid mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h1><i class="bi bi-truck"></i> @ViewData["Title"]</h1>
+        <a asp-action="Create" class="btn btn-success">
+            <i class="bi bi-plus-circle-fill"></i> Create New Provider
+        </a>
+    </div>
+
+    <div class="card shadow-sm">
+        <div class="card-body p-0">
+            @if (!Model.Any())
+            {
+                <div class="alert alert-info m-3" role="alert">
+                    No providers found. Click "Create New Provider" to add one.
+                </div>
+            }
+            else
+            {
+                <div class="table-responsive">
+                    <table class="table table-hover table-striped mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>ID</th>
+                                <th>Name</th>
+                                <th>Image</th>
+                                <th class="text-center">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in Model)
+                            {
+                                <tr>
+                                    <td>@item.ProviderId</td>
+                                    <td><strong>@item.ProviderName</strong></td>
+                                    <td>
+                                        @if (!string.IsNullOrEmpty(item.ProviderImageUrl))
+                                        {
+                                            <img src="@item.ProviderImageUrl" alt="@item.ProviderName" class="img-thumbnail-table"
+                                                 onerror="this.src='/images/placeholder-image.png';" />
+                                        }
+                                        else
+                                        {
+                                            <div class="d-flex align-items-center justify-content-center bg-light img-thumbnail-table">
+                                                <i class="bi bi-image text-muted fs-4"></i>
+                                            </div>
+                                        }
+                                    </td>
+                                    <td class="text-center">
+                                        <div class="btn-group btn-group-sm" role="group">
+                                            <a asp-action="Details" asp-route-id="@item.ProviderId" class="btn btn-outline-info" title="Details">
+                                                <i class="bi bi-eye-fill"></i>
+                                            </a>
+                                            <a asp-action="Edit" asp-route-id="@item.ProviderId" class="btn btn-outline-primary" title="Edit">
+                                                <i class="bi bi-pencil-fill"></i>
+                                            </a>
+                                            <a asp-action="Delete" asp-route-id="@item.ProviderId" class="btn btn-outline-danger" title="Delete">
+                                                <i class="bi bi-trash3-fill"></i>
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+        </div>
+    </div>
+</div>

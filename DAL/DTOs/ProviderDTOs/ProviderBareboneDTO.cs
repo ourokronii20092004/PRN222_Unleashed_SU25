@@ -10,5 +10,6 @@ namespace DAL.DTOs.ProviderDTOs
     {
         public int ProviderId { get; set; }
         public string? ProviderName { get; set; }
+        public string? ProviderImageUrl { get; set; }
     }
 }
