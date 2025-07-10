@@ -7,7 +7,7 @@
         <h1 class="display-6">Our Products</h1>
         <div>
             <a asp-page="Create" class="btn btn-primary">
-                <i class="bi bi-plus-circle"></i> Add New Product
+                <i class="bi bi-plus-circle"></i> Add To Cart
             </a>
         </div>
     </div>
@@ -15,6 +15,7 @@
     <!-- Search form -->
     <form method="get" id="searchForm">
         <div class="input-group search-bar">
+            <input type="hidden" name="pageIndex" value="1" />
             <input type="text" name="query" class="form-control form-control-lg"
                    placeholder="Search products by name, category..."
                    value="@Model.Query" />
@@ -27,14 +28,14 @@
     <!-- Display Info and Page Size Selector -->
     <div class="d-flex justify-content-between mt-2">
         <small class="text-muted">
-            Showing @((Model.Page - 1) * Model.PageSize + 1)-@Math.Min(Model.Page * Model.PageSize, Model.TotalCount)
+            Showing @((Model.CurrentPage - 1) * Model.pageSize + 1)-@Math.Min(Model.CurrentPage * Model.pageSize, Model.TotalCount)
             of @Model.TotalCount products
         </small>
         <div class="form-group">
             <select class="form-select form-select-sm" id="pageSizeSelector">
-                <option value="10" selected="@(Model.PageSize == 10)">10 per page</option>
-                <option value="20" selected="@(Model.PageSize == 20)">20 per page</option>
-                <option value="50" selected="@(Model.PageSize == 50)">50 per page</option>
+                <option value="10" selected="@(Model.pageSize == 10)">10 per page</option>
+                <option value="20" selected="@(Model.pageSize == 20)">20 per page</option>
+                <option value="50" selected="@(Model.pageSize == 50)">50 per page</option>
             </select>
         </div>
     </div>
@@ -118,81 +119,27 @@
     }
 
     <!-- Pagination -->
-    @if (Model.TotalCount > Model.PageSize)
+    @if (Model.TotalCount > Model.pageSize)
     {
-        <nav aria-label="Product pagination" class="mt-4">
-            <ul class="pagination justify-content-center">
-                <!-- Previous -->
-                <li class="page-item @(Model.Page <= 1 ? "disabled" : "")">
-                    <a class="page-link"
-                       asp-page="./Index"
-                       asp-route-page="@(Model.Page - 1)"
-                       asp-route-pageSize="@Model.PageSize"
-                       asp-route-query="@Model.Query">
-                        <i class="bi bi-chevron-left"></i> Previous
-                    </a>
-                </li>
+        <div class="d-flex justify-content-center mt-4">
+            <form method="get" class="me-3">
+                <input type="hidden" name="pageIndex" value="@(Model.CurrentPage - 1)" />
+                <input type="hidden" name="pageSize" value="@Model.pageSize" />
+                <input type="hidden" name="query" value="@Model.Query" />
+                <button type="submit" class="btn btn-primary px-4" @(Model.CurrentPage <= 1 ? "disabled" : "")>
+                    <i class="bi bi-arrow-left-circle me-2"></i> Previous
+                </button>
+            </form>
 
-                <!-- First Page -->
-                @if (Model.Page > 3)
-                {
-                    <li class="page-item">
-                        <a class="page-link"
-                           asp-page="./Index"
-                           asp-route-page="1"
-                           asp-route-pageSize="@Model.PageSize"
-                           asp-route-query="@Model.Query">1</a>
-                    </li>
-                    @if (Model.Page > 4)
-                    {
-                        <li class="page-item disabled">
-                            <span class="page-link">...</span>
-                        </li>
-                    }
-                }
-
-                <!-- Page Numbers Around Current -->
-                @for (int i = Math.Max(1, Model.Page - 2); i <= Math.Min(Model.TotalPages, Model.Page + 2); i++)
-                {
-                    <li class="page-item @(i == Model.Page ? "active" : "")">
-                        <a class="page-link"
-                           asp-page="./Index"
-                           asp-route-page="@i"
-                           asp-route-pageSize="@Model.PageSize"
-                           asp-route-query="@Model.Query">@i</a>
-                    </li>
-                }
-
-                <!-- Last Page -->
-                @if (Model.Page < Model.TotalPages - 2)
-                {
-                    @if (Model.Page < Model.TotalPages - 3)
-                    {
-                        <li class="page-item disabled">
-                            <span class="page-link">...</span>
-                        </li>
-                    }
-                    <li class="page-item">
-                        <a class="page-link"
-                           asp-page="./Index"
-                           asp-route-page="@Model.TotalPages"
-                           asp-route-pageSize="@Model.PageSize"
-                           asp-route-query="@Model.Query">@Model.TotalPages</a>
-                    </li>
-                }
-
-                <!-- Next -->
-                <li class="page-item @(Model.Page >= Model.TotalPages ? "disabled" : "")">
-                    <a class="page-link"
-                       asp-page="./Index"
-                       asp-route-page="@(Model.Page + 1)"
-                       asp-route-pageSize="@Model.PageSize"
-                       asp-route-query="@Model.Query">
-                        Next <i class="bi bi-chevron-right"></i>
-                    </a>
-                </li>
-            </ul>
-        </nav>
+            <form method="get">
+                <input type="hidden" name="pageIndex" value="@(Model.CurrentPage + 1)" />
+                <input type="hidden" name="pageSize" value="@Model.pageSize" />
+                <input type="hidden" name="query" value="@Model.Query" />
+                <button type="submit" class="btn btn-primary px-4" @(Model.CurrentPage >= Model.TotalPages ? "disabled" : "")>
+                    Next <i class="bi bi-arrow-right-circle ms-2"></i>
+                </button>
+            </form>
+        </div>
     }
 </div>
 
@@ -203,17 +150,13 @@
 
             if (pageSizeSelector) {
                 pageSizeSelector.addEventListener('change', function() {
-                    const pageSize = this.value;
-                    const currentUrl = new URL(window.location.href);
-                    const query = currentUrl.searchParams.get('query') || '';
-
-                    const newUrl = new URL(window.location.origin + window.location.pathname);
-                    newUrl.searchParams.set('page', '1');
-                    newUrl.searchParams.set('pageSize', pageSize);
-                    if (query) {
-                        newUrl.searchParams.set('query', query);
-                    }
-                    window.location.href = newUrl.toString();
+                    const form = document.getElementById('searchForm');
+                    const pageSizeInput = document.createElement('input');
+                    pageSizeInput.type = 'hidden';
+                    pageSizeInput.name = 'pageSize';
+                    pageSizeInput.value = this.value;
+                    form.appendChild(pageSizeInput);
+                    form.submit();
                 });
             }
         });
