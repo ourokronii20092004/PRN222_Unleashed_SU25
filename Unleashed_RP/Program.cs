@@ -85,7 +85,7 @@ public class Program
         builder.Services.AddScoped<IProductService, ProductService>();
         builder.Services.AddScoped<IDiscountService, DiscountService>();
         builder.Services.AddScoped<IOrderService, OrderService>();
-
+        builder.Services.AddScoped<IVnpayService, VnpayService>();
 
         // --- AutoMapper ---
         builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
