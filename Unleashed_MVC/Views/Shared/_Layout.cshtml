@@ -52,21 +52,30 @@
                         </li>
                         <li class="nav-item">
                             <a class="nav-link text-dark" asp-area="" asp-controller="Products" asp-action="Index">Products</a>
-                        </li>
-                       
-                        @if(Context.Session.Get("username") == null)
-                        { 
+                        </li>              
+                    </ul>
+                    <ul class="navbar-nav ms-auto">
+                        @if (Context.Session.GetString("username") == null)
+                        {
                             <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Authentication" asp-action="Login">Login</a>
+                                <a class="nav-link text-dark" asp-area="" asp-controller="Authentication" asp-action="Login">Login</a>
                             </li>
-                        } else {
-                            <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Authentication" asp-action="Logout">Logout</a>
+                        }
+                        else
+                        {
+                            <li class="nav-item dropdown">
+                                @* Added 'dropdown' class here *@
+                                <span class="nav-link text-dark dropdown-toggle" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <img src="@Context.Session.GetString("userImage")" alt="User Avatar" class="rounded-circle me-1" style="height: 25px; width: 25px; object-fit: cover;" />
+                                    Hello, @Context.Session.GetString("fullName")!
+                                </span>
+                                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
+                                    <li class="nav-item">
+                                        <a class="nav-link text-dark" asp-area="" asp-controller="Authentication" asp-action="Logout">Logout</a>
+                                    </li>
+                                </ul>
                             </li>
-                        }       
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Stocks" asp-action="Index">Stock</a>
-                        </li>
+                        }
                     </ul>
                 </div>
             </div>
