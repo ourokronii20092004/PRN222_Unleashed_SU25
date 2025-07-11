@@ -84,7 +84,7 @@ namespace BLL.Services
                 int totalAmount = notificationUsers.Count();
                 return (_mapper
                         .Map<IEnumerable<NotificationUserDetailDTO>>(notificationUsers
-                        .OrderByDescending(nu => nu.IsNotificationViewed)
+                        .OrderBy(nu => nu.IsNotificationViewed)
                         .ThenByDescending(nu => nu.Notification.NotificationCreatedAt)
                         .Skip(currentPage)
                         .Take(pageSize)), totalAmount);
