@@ -1,4 +1,5 @@
-﻿using DAL.DTOs.ReviewDTOs;
+﻿using DAL.DTOs.ProductDTOs;
+using DAL.DTOs.ReviewDTOs;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -16,5 +17,6 @@ namespace BLL.Services.Interfaces
         Task DeleteAsync(int id);
         Task<IEnumerable<ReviewDetailDTO>> GetReviewsByProductIdAsync(Guid productId);
         Task<double?> GetAverageRatingByProductIdAsync(Guid productId);
+        Task<DAL.Models.PagedResult<ReviewDTO>> GetReviewsWithPagingAsync(int page, int pageSize, string query);
     }
 }
