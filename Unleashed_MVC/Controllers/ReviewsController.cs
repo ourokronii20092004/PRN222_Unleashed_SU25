@@ -64,6 +64,7 @@ namespace Unleashed_MVC.Controllers
             {
                 return NotFound();
             }
+            var reviewDto = _mapper.Map<ReviewDTO>(review);
 
             // Get comments for this review
             var comments = await _commentService.GetCommentsByReviewIdAsync(id.Value);
@@ -85,7 +86,7 @@ namespace Unleashed_MVC.Controllers
             {
                 return NotFound();
             }
-
+            var reviewDto = _mapper.Map<ReviewDTO>(review);
             return View(review);
         }
 
