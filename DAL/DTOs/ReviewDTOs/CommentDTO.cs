@@ -20,6 +20,7 @@ namespace DAL.DTOs.ReviewDTOs
     {
         public int? ReviewId { get; set; }
         public string CommentContent { get; set; }
+        public Guid UserId { get; set; }
         public int? ParentCommentId { get; set; }
     }
 

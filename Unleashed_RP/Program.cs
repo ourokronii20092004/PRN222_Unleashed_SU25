@@ -66,6 +66,9 @@ public class Program
         builder.Services.AddScoped<IProviderRepository, ProviderRepository>();
         builder.Services.AddScoped<ISizeRepository, SizeRepository>();
         builder.Services.AddScoped<IColorRepository, ColorRepository>();
+        builder.Services.AddScoped<IReviewRepository, ReviewRepository>();
+        builder.Services.AddScoped<ICommentRepository, CommentRepository>();
+
 
         builder.Services.AddScoped<IOrderRepository, OrderRepository>();
 
@@ -86,6 +89,8 @@ public class Program
         builder.Services.AddScoped<IDiscountService, DiscountService>();
         builder.Services.AddScoped<IOrderService, OrderService>();
         builder.Services.AddScoped<IVnpayService, VnpayService>();
+        builder.Services.AddScoped<IReviewService,ReviewService>();
+        builder.Services.AddScoped<ICommentService, CommentService>();
 
         // --- AutoMapper ---
         builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());

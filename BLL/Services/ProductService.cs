@@ -21,7 +21,9 @@ namespace BLL.Services
         private readonly ISizeRepository _sizeRepository;
         private readonly IColorRepository _colorRepository;
         private readonly IBrandRepository _brandRepository;
-        
+        private readonly IReviewRepository _reviewRepository;
+        private readonly ICommentRepository _commentRepository;
+
         private readonly IMapper _mapper;
         private readonly ILogger<ProductService> _logger;
         
@@ -34,7 +36,10 @@ namespace BLL.Services
             IColorRepository colorRepository,
             IMapper mapper,
             ILogger<ProductService> logger,
-            IBrandRepository brandRepository)
+            IBrandRepository brandRepository,
+            IReviewRepository reviewRepository,
+            ICommentRepository commentRepository
+            )
         {
             _productRepository = productRepository;
             _productStatusRepository = productStatusRepository;
@@ -44,6 +49,8 @@ namespace BLL.Services
             _brandRepository = brandRepository;
             _mapper = mapper;
             _logger = logger;
+            _reviewRepository = reviewRepository;
+            _commentRepository = commentRepository;
         }
 
         public async Task<Product?> AddVariationsToExistingProductAsync(
@@ -164,7 +171,7 @@ namespace BLL.Services
                 ProductUpdatedAt = product.ProductUpdatedAt,
                 ProductCode = product.ProductCode,
                 ProductStatusName = product.ProductStatus?.ProductStatusName,
-                ProductId = product.ProductId.ToString(),
+                ProductId = product.ProductId,
                 ProductName = product.ProductName,
                 ProductDescription = product.ProductDescription,
                 BrandId = product.BrandId ?? 0,
@@ -210,7 +217,7 @@ namespace BLL.Services
                     ProductUpdatedAt = product.ProductUpdatedAt,
                     ProductCode = product.ProductCode,
                     ProductStatusName = product.ProductStatus?.ProductStatusName,
-                    ProductId = product.ProductId.ToString(),
+                    ProductId = product.ProductId,
                     ProductName = product.ProductName,
                     ProductDescription = product.ProductDescription,
                     BrandId = product.BrandId ?? 0,
@@ -371,7 +378,7 @@ namespace BLL.Services
                     ProductUpdatedAt = product.ProductUpdatedAt,
                     ProductCode = product.ProductCode,
                     ProductStatusName = product.ProductStatus?.ProductStatusName,
-                    ProductId = product.ProductId.ToString(),
+                    ProductId = product.ProductId,
                     ProductName = product.ProductName,
                     ProductDescription = product.ProductDescription,
                     BrandId = product.BrandId ?? 0,
@@ -457,6 +464,16 @@ namespace BLL.Services
             var totalCount = await _productRepository.GetProductsCountAsync(query);
 
             var productIds = products.Select(p => p.ProductId).ToList();
+            if (!productIds.Any())
+            {
+                return new DAL.Models.PagedResult<ProductListDTO>
+                {
+                    Items = new List<ProductListDTO>(),
+                    TotalCount = 0,
+                    CurrentPage = page,
+                    PageSize = pageSize
+                };
+            }
             var variations = await _variationRepository.GetVariationsByProductIdsAsync(productIds);
 
             var variationsByProductId = variations
@@ -470,7 +487,14 @@ namespace BLL.Services
                 var productDTO = MapToProductListDTO(product, variationsByProductId);
                 productListDTOs.Add(productDTO);
             }
-
+            var ratingsDictionary = await _reviewRepository.GetAverageRatingsForProductsAsync(productIds);
+            foreach (var dto in productListDTOs)
+            {
+                if (ratingsDictionary.TryGetValue(dto.ProductId, out double? avgRating))
+                {
+                    dto.AverageRating = avgRating;
+                }
+            }
             return new DAL.Models.PagedResult<ProductListDTO>
             {
                 Items = productListDTOs,

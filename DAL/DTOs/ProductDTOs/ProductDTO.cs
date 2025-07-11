@@ -1,4 +1,5 @@
-﻿using DAL.Models;
+﻿using DAL.DTOs.ReviewDTOs;
+using DAL.Models;
 using Microsoft.AspNetCore.Http;
 using System;
 using System.Collections.Generic;

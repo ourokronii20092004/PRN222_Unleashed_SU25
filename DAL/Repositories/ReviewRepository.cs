@@ -117,5 +117,20 @@ namespace DAL.Repositories
 
             return await queryable.CountAsync();
         }
+        public async Task<Dictionary<Guid, double?>> GetAverageRatingsForProductsAsync(IEnumerable<Guid> productIds)
+        {
+            if (productIds == null || !productIds.Any())
+            {
+                return new Dictionary<Guid, double?>();
+            }
+            return await _context.Reviews
+                .Where(r => productIds.Contains(r.ProductId))
+                .GroupBy(r => r.ProductId)
+                .Select(g => new {
+                    ProductId = g.Key,
+                    AverageRating = g.Average(r => (double?)r.ReviewRating)
+                })
+                .ToDictionaryAsync(x => x.ProductId, x => x.AverageRating);
+        }
     }
 }
