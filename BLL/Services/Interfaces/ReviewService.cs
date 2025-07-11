@@ -1,7 +1,9 @@
 ﻿using AutoMapper;
 using BLL.Services.Interfaces;
+using DAL.DTOs.ProductDTOs;
 using DAL.DTOs.ReviewDTOs;
 using DAL.Models;
+using DAL.Repositories;
 using DAL.Repositories.Interfaces;
 using System;
 using System.Collections.Generic;
@@ -90,6 +92,21 @@ namespace BLL.Services
             }
 
             return reviews.Average(r => r.ReviewRating);
+        }
+
+        public async Task<PagedResult<ReviewDTO>> GetReviewsWithPagingAsync(int page, int pageSize, string query)
+        {
+            int skip = (page - 1) * pageSize;
+            var reviews = await _reviewRepository.GetReviewsWithPagingAsync(skip, pageSize, query);
+            var totalCount = await _reviewRepository.GetTotalCountAsync(query);
+            var reviewDTOs = _mapper.Map<List<ReviewDTO>>(reviews);
+            return new DAL.Models.PagedResult<ReviewDTO>
+            {
+                Items = reviewDTOs,
+                TotalCount = totalCount,
+                CurrentPage = page,
+                PageSize = pageSize
+            };
         }
     }
 }
