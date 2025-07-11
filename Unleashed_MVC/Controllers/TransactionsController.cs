@@ -4,8 +4,7 @@ using System.Threading.Tasks;
 
 namespace Unleashed_MVC.Controllers
 {
-    // This custom filter attribute is assumed to be defined elsewhere in your project.
-    // [Filter.Filter] 
+    [Filter.Filter(RequiredRoles = new[] { "ADMIN", "STAFF" })]
     public class TransactionsController : Controller
     {
         private readonly IStockTransactionService _transactionService;

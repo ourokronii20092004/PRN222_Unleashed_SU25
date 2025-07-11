@@ -12,6 +12,7 @@ using BLL.Services.Interfaces;
 
 namespace Unleashed_MVC.Controllers
 {
+    [Filter.Filter(RequiredRoles = new[] { "ADMIN", "STAFF" })]
     public class OrdersController : Controller
     {
         private readonly IOrderService _orderService;

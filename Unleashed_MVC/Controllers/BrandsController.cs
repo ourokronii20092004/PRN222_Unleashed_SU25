@@ -15,7 +15,7 @@ using BLL.Utilities.Interfaces;
 
 namespace Unleashed_MVC.Controllers
 {
-    [Filter.Filter]
+    [Filter.Filter(RequiredRoles = new[] { "ADMIN","STAFF" })]
     public class BrandsController : Controller
     {
         private readonly IBrandService _brandService;

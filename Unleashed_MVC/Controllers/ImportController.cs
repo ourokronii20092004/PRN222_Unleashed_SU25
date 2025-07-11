@@ -12,7 +12,7 @@ using Unleashed_MVC.Filter;
 
 namespace Unleashed_MVC.Controllers
 {
-    [Filter.Filter]
+    [Filter.Filter(RequiredRoles = new[] { "ADMIN", "STAFF" })]
     public class ImportController : Controller
     {
         private readonly IStockService _stockService;
