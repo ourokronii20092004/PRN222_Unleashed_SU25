@@ -2,6 +2,17 @@
 
 @{
     ViewData["Title"] = "Provider Details";
+    TimeZoneInfo vietnamZone;
+    vietnamZone = TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time");
+    string FormatVietnamTime(DateTimeOffset? dto)
+    {
+        if (!dto.HasValue)
+        {
+            return "N/A";
+        }
+        var vietnamTime = TimeZoneInfo.ConvertTime(dto.Value, vietnamZone);
+        return vietnamTime.ToString("dd/MM/yyyy HH:mm:ss");
+    }
 }
 
 <div class="container mt-4">
@@ -48,10 +59,10 @@
                     <dd class="col-sm-8">@Model.ProviderAddress</dd>
 
                     <dt class="col-sm-4">Created At</dt>
-                    <dd class="col-sm-8">@Model.ProviderCreatedAt?.ToString("yyyy-MM-dd HH:mm")</dd>
+                    <dd class="col-sm-8">@FormatVietnamTime(Model.ProviderCreatedAt)</dd>
 
                     <dt class="col-sm-4">Updated At</dt>
-                    <dd class="col-sm-8">@Model.ProviderUpdatedAt?.ToString("yyyy-MM-dd HH:mm")</dd>
+                    <dd class="col-sm-8">@FormatVietnamTime(Model.ProviderUpdatedAt)</dd>
                 </dl>
 
                 <div class="mt-3">

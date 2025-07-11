@@ -26,8 +26,7 @@
             </dl>
         </div>
         <div class="card-footer d-flex justify-content-between">
-            <form asp-action="Delete" method="post">
-                <input type="hidden" asp-for="ProviderId" />
+            <form asp-action="Delete" asp-route-id="@Model.ProviderId">
                 <button type="submit" class="btn btn-danger">Delete</button>
             </form>
             <a asp-action="Index" class="btn btn-secondary">Cancel</a>
