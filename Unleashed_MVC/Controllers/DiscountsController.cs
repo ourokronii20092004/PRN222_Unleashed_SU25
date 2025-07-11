@@ -7,7 +7,7 @@ using BLL.Services.Interfaces; // Thêm using này để truy cập DbContext
 
 namespace Unleashed_MVC.Controllers
 {
-    [Filter.Filter]
+    [Filter.Filter(RequiredRoles = new[] { "ADMIN", "STAFF" })]
     public class DiscountsController : Controller
     {
         private readonly IDiscountService _discountService;

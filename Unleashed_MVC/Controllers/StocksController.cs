@@ -13,7 +13,7 @@ using DAL.Models.ViewModels;
 
 namespace Unleashed_MVC.Controllers
 {
-    [Filter.Filter]
+    [Filter.Filter(RequiredRoles = new[] { "ADMIN", "STAFF" })]
     public class StocksController : Controller
     {
         private readonly IStockService _stockService;
