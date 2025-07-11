@@ -26,13 +26,11 @@ namespace DAL.Repositories
             return provider;
         }
 
-        public async Task DeleteAsync(int id)
+        public Task DeleteAsync(Provider provider)
         {
-            var provider = await GetByIdAsync(id);
-            if (provider != null)
-            {
-                _context.Providers.Remove(provider);
-            }
+            ArgumentNullException.ThrowIfNull(provider);
+            _context.Providers.Remove(provider);
+            return Task.CompletedTask; // Không cần async/await ở đây
         }
 
         public async Task<bool> ExistsByProviderEmailAsync(string providerEmail)
@@ -57,7 +55,7 @@ namespace DAL.Repositories
 
         public async Task<Provider?> GetByIdAsync(int id)
         {
-            return await _context.Providers.FindAsync(id);
+            return await _context.Providers.FirstOrDefaultAsync(p => p.ProviderId == id);
         }
 
         public async Task UpdateAsync(Provider provider)

@@ -68,6 +68,7 @@ namespace Unleashed_MVC.Controllers
 
             var providerDto = await _providerService.GetProviderForEditAsync(id.Value);
             if (providerDto == null) return NotFound();
+            Console.WriteLine(providerDto);
 
             return View(providerDto);
         }
@@ -77,13 +78,14 @@ namespace Unleashed_MVC.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, [Bind("ProviderId,ProviderName,ProviderImageUrl,ProviderEmail,ProviderPhone,ProviderAddress")] ProviderEditDTO providerDto)
         {
+            Console.WriteLine(providerDto);
             if (id != providerDto.ProviderId) return NotFound();
 
             if (ModelState.IsValid)
             {
                 try
                 {
-                    await _providerService.UpdateProviderAsync(providerDto);
+                    await _providerService.UpdateProviderAsync(id, providerDto);
                 }
                 catch (KeyNotFoundException)
                 {

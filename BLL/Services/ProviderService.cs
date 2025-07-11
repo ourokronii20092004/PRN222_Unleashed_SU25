@@ -55,14 +55,14 @@ namespace BLL.Services
             return _mapper.Map<ProviderEditDTO>(provider);
         }
 
-        public async Task UpdateProviderAsync(ProviderEditDTO providerDto)
+        public async Task UpdateProviderAsync(int id, ProviderEditDTO providerDto)
         {
-            _logger.LogInformation("Updating provider with id: {ProviderId}", providerDto.ProviderId);
-            var existingProvider = await _providerRepository.GetByIdAsync(providerDto.ProviderId);
+            _logger.LogInformation("Updating provider with id: {ProviderId}", id);
+            var existingProvider = await _providerRepository.GetByIdAsync(id);
             if (existingProvider == null)
             {
                 // Bạn có thể tạo một exception NotFoundException tùy chỉnh
-                throw new KeyNotFoundException($"Provider with id {providerDto.ProviderId} not found.");
+                throw new KeyNotFoundException($"Provider with id {id} not found.");
             }
 
             // Map các giá trị từ DTO vào entity đã tồn tại
@@ -82,7 +82,7 @@ namespace BLL.Services
                 throw new KeyNotFoundException($"Provider with id {id} not found.");
             }
 
-            await _providerRepository.DeleteAsync(id);
+            await _providerRepository.DeleteAsync(provider);
             await _providerRepository.SaveChangesAsync();
         }
     }

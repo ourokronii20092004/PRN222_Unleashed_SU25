@@ -32,7 +32,7 @@ namespace BLL.Services.Interfaces
         /// <summary>
         /// Cập nhật thông tin một nhà cung cấp.
         /// </summary>
-        Task UpdateProviderAsync(ProviderEditDTO providerDto);
+        Task UpdateProviderAsync(int id, ProviderEditDTO providerDto);
 
         /// <summary>
         /// Xóa một nhà cung cấp bằng ID.
