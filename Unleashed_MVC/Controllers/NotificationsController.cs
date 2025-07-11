@@ -5,7 +5,7 @@ using BLL.Services.Interfaces;
 
 namespace Unleashed_MVC.Controllers
 {
-    [Filter.Filter]
+    [Filter.Filter(RequiredRoles = new[] { "ADMIN", "STAFF" })]
     public class NotificationsController : Controller
     {
         private readonly INotificationService _notificationService;

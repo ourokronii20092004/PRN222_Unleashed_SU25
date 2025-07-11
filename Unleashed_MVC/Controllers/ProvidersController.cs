@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Unleashed_MVC.Controllers
 {
+    [Filter.Filter(RequiredRoles = new[] { "ADMIN", "STAFF" })]
     public class ProvidersController : Controller
     {
         private readonly IProviderService _providerService;

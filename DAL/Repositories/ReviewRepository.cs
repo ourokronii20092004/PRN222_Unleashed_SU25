@@ -81,5 +81,56 @@ namespace DAL.Repositories
             return await _context.Reviews
                 .AnyAsync(r => r.UserId == userId && r.ProductId == productId);
         }
+        public async Task<List<Review>> GetReviewsWithPagingAsync(int skip, int take, string query)
+        {
+            var queryable = _context.Reviews
+                .Include(r => r.Product)
+                .Include(r => r.User)
+                .Include(r => r.Order)
+                .AsQueryable();
+
+            if (!string.IsNullOrEmpty(query))
+            {
+                queryable = queryable.Where(r =>
+                    r.Product.ProductName.Contains(query) ||
+                    r.User.UserUsername.Contains(query) ||
+                    r.Order.OrderTrackingNumber.Contains(query));
+            }
+
+            return await queryable
+                .OrderBy(p => p.UserId)
+                .Skip(skip)
+                .Take(take)
+                .ToListAsync();
+        }
+        public async Task<int> GetTotalCountAsync(string query)
+        {
+            var queryable = _context.Reviews.AsQueryable();
+
+            if (!string.IsNullOrEmpty(query))
+            {
+                queryable = queryable.Where(r =>
+                    r.Product.ProductName.Contains(query) ||
+                    r.User.UserUsername.Contains(query) ||
+                    r.Order.OrderTrackingNumber.Contains(query));
+            }
+
+            return await queryable.CountAsync();
+        }
+        public async Task<Dictionary<Guid, double?>> GetAverageRatingsForProductsAsync(IEnumerable<Guid> productIds)
+        {
+            if (productIds == null || !productIds.Any())
+            {
+                return new Dictionary<Guid, double?>();
+            }
+            return await _context.Reviews
+                .Where(r => productIds.Contains(r.ProductId))
+                .GroupBy(r => r.ProductId)
+                .Select(g => new {
+                    ProductId = g.Key,
+                    AverageRating = g.Average(r => (double?)r.ReviewRating)
+                })
+                .ToDictionaryAsync(x => x.ProductId, x => x.AverageRating);
+        }
     }
 }

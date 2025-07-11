@@ -8,7 +8,7 @@ namespace DAL.DTOs.ProductDTOs
 {
     public class ProductListDTO
     {
-        public string? ProductId { get; set; }
+        public Guid ProductId { get; set; }
         public string? ProductName { get; set; }
         public string? ProductDescription { get; set; }
 

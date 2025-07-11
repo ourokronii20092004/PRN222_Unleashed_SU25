@@ -1,0 +1,274 @@
+﻿@model List<DAL.DTOs.ReviewDTOs.ReviewDTO>
+@{
+    ViewData["Title"] = "Review Management";
+}
+
+@section Styles {
+    <style>
+        .table th, .table td {
+            vertical-align: middle;
+        }
+
+        .img-thumbnail-table {
+            width: 60px;
+            height: 60px;
+            object-fit: cover;
+            border-radius: .25rem;
+            padding: .1rem;
+        }
+
+        .table-description {
+            max-width: 300px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .search-container {
+            position: relative;
+        }
+
+        .search-clear {
+            position: absolute;
+            right: 40px;
+            top: 50%;
+            transform: translateY(-50%);
+            cursor: pointer;
+            color: #6c757d;
+            display: none;
+        }
+
+            .search-clear:hover {
+                color: #dc3545;
+            }
+
+        .search-highlight {
+            background-color: yellow;
+            font-weight: bold;
+        }
+
+        .star-rating {
+            font-size: 1.1rem;
+        }
+    </style>
+}
+
+<div class="container-fluid mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h1><i class="bi bi-chat-square-text"></i> @ViewData["Title"]</h1>
+    </div>
+
+    <!-- Search Box -->
+    <div class="card shadow-sm mb-3">
+        <div class="card-body">
+            <form method="get" asp-action="Index" class="row g-3">
+                <div class="col-md-8">
+                    <div class="input-group search-container">
+                        <input type="text" name="query" id="searchInput" class="form-control"
+                               placeholder="Search by product name, user or order number..."
+                               value="@ViewBag.Query">
+                        <span class="search-clear" id="searchClear" title="Clear search">
+                            <i class="bi bi-x-circle-fill"></i>
+                        </span>
+                        <button class="btn btn-outline-primary" type="submit" id="searchButton">
+                            <i class="bi bi-search"></i> Search
+                        </button>
+                    </div>
+                </div>
+                <div class="col-md-2">
+                    <select name="pageSize" class="form-select" onchange="this.form.submit()">
+                        <option value="10" selected="@(ViewBag.PageSize == 10)">10 per page</option>
+                        <option value="20" selected="@(ViewBag.PageSize == 20)">20 per page</option>
+                        <option value="50" selected="@(ViewBag.PageSize == 50)">50 per page</option>
+                    </select>
+                </div>
+                <div class="col-md-2 text-end">
+                    <a asp-action="Index" class="btn btn-outline-danger">
+                        <i class="bi bi-arrow-counterclockwise"></i> Reset
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    @if (!string.IsNullOrEmpty(ViewBag.Query))
+    {
+        <div class="alert alert-info mb-3">
+            <i class="bi bi-info-circle"></i> Showing results for: <strong>"@ViewBag.Query"</strong>
+            <span class="float-end">@ViewBag.TotalCount results found</span>
+        </div>
+    }
+
+    <div class="card shadow-sm">
+        <div class="card-body p-0">
+            @if (!Model.Any())
+            {
+                <div class="alert alert-info m-3" role="alert">
+                    <i class="bi bi-exclamation-circle"></i> No reviews found.
+                    @if (!string.IsNullOrEmpty(ViewBag.Query))
+                    {
+                        <span>Try a different search term or <a asp-action="Index" class="alert-link">clear search</a>.</span>
+                    }
+                    else
+                    {
+                        <span>There are currently no reviews in the system.</span>
+                    }
+                </div>
+            }
+            else
+            {
+                <div class="table-responsive">
+                    <table class="table table-hover table-striped mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Rating</th>
+                                <th>Product</th>
+                                <th>User</th>
+                                <th>Order</th>
+                                <th>Date</th>
+                                <th style="width: 120px;" class="text-center">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in Model)
+                            {
+                                <tr>
+                                    <td>
+                                        <div class="star-rating">
+                                            @{
+                                                int rating = item.ReviewRating ?? 0;
+                                                rating = Math.Clamp(rating, 0, 5);
+                                            }
+                                            @for (int i = 0; i < rating; i++)
+                                            {
+                                                <i class="bi bi-star-fill text-warning"></i>
+                                            }
+                                            @for (int i = rating; i < 5; i++)
+                                            {
+                                                <i class="bi bi-star text-warning"></i>
+                                            }
+                                            <span class="ms-1">(@rating)</span>
+                                        </div>
+                                    </td>
+                                    <td class="data-highlight">
+                                        @{
+                                            var variationWithImage = item.Product?.Variations?.FirstOrDefault(v => !string.IsNullOrEmpty(v.VariationImage));
+                                        }
+                                        @if (variationWithImage != null)
+                                        {
+                                            <img src="@variationWithImage.VariationImage" alt="@item.Product.ProductName"
+                                                 class="img-thumbnail-table me-2"
+                                                 onerror="this.src='/images/placeholder-image.png';" />
+                                        }
+                                        else
+                                        {
+                                            <div class="d-inline-flex align-items-center justify-content-center bg-light img-thumbnail-table me-2">
+                                                <i class="bi bi-box text-muted"></i>
+                                            </div>
+                                        }
+                                        @item.Product?.ProductName
+                                    </td>
+                                    <td>@item.User?.UserUsername</td>
+                                    <td>#@item.Order?.OrderTrackingNumber</td>
+                                    <td class="text-center">
+                                        <div class="btn-group btn-group-sm" role="group">
+                                            <a asp-action="Details" asp-route-id="@item.ReviewId" class="btn btn-outline-info" title="Details">
+                                                <i class="bi bi-eye-fill"></i>
+                                            </a>
+                                            <a asp-action="Delete" asp-route-id="@item.ReviewId" class="btn btn-outline-danger" title="Delete">
+                                                <i class="bi bi-trash3-fill"></i>
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+<!-- Pagination -->
+@if (ViewBag.TotalCount != null && ViewBag.PageSize != null && ViewBag.Page != null)
+{
+    var totalCount = (int)ViewBag.TotalCount;
+    var pageSize = (int)ViewBag.PageSize;
+    var page = (int)ViewBag.Page;
+
+    if (totalCount > pageSize)
+    {
+        <nav class="mt-3">
+            <ul class="pagination justify-content-center">
+                @if (page > 1)
+                {
+                    <li class="page-item">
+                        <a class="page-link"
+                           asp-action="Index"
+                           asp-route-query="@ViewBag.Query"
+                           asp-route-page="@(page - 1)"
+                           asp-route-pageSize="@pageSize">
+                            <i class="bi bi-chevron-left"></i> Previous
+                        </a>
+                    </li>
+                }
+
+                @for (int i = 1; i <= Math.Ceiling((double)totalCount / pageSize); i++)
+                {
+                    <li class="page-item @(i == page ? "active" : "")">
+                        <a class="page-link"
+                           asp-action="Index"
+                           asp-route-query="@ViewBag.Query"
+                           asp-route-page="@i"
+                           asp-route-pageSize="@pageSize">
+                            @i
+                        </a>
+                    </li>
+                }
+
+                @if ((page * pageSize) < totalCount)
+                {
+                    <li class="page-item">
+                        <a class="page-link"
+                           asp-action="Index"
+                           asp-route-query="@ViewBag.Query"
+                           asp-route-page="@(page + 1)"
+                           asp-route-pageSize="@pageSize">
+                            Next <i class="bi bi-chevron-right"></i>
+                        </a>
+                    </li>
+                }
+            </ul>
+        </nav>
+    }
+}
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            // Search box functionality
+            const searchInput = $('#searchInput');
+            const searchClear = $('#searchClear');
+
+            // Show/hide clear button based on input
+            if (searchInput.val().trim() !== '') {
+                searchClear.show();
+            }
+
+            searchInput.on('input', function() {
+                searchClear.toggle(this.value.trim() !== '');
+            });
+
+            // Clear search
+            searchClear.on('click', function() {
+                searchInput.val('');
+                $(this).hide();
+                $('#searchButton').click();
+            });
+
+            // Auto focus search input
+            searchInput.focus();
+        });
+    </script>
+}

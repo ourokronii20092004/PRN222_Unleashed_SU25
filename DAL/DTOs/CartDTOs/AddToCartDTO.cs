@@ -9,7 +9,7 @@ namespace DAL.DTOs.CartDTOs
     public class AddToCartDTO
     {
         public Guid UserId { get; set; }
-
+        public string? UserUsername { get; set; }
         public int VariationId { get; set; }
 
         public int Quantity { get; set; }

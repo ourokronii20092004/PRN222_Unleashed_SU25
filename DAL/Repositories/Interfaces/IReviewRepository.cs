@@ -18,5 +18,9 @@ namespace DAL.Repositories.Interfaces
         Task<List<Review>> FindAllReviewsByProductIdAsync(Guid productId);
         Task<bool> ExistsAsync(int id);
         Task<bool> HasUserReviewedProductAsync(Guid userId, Guid productId);
+        Task<List<Review>> GetReviewsWithPagingAsync(int page, int pageSize, string query);
+        Task<int> GetTotalCountAsync(string query);
+        Task<Dictionary<Guid, double?>> GetAverageRatingsForProductsAsync(IEnumerable<Guid> productIds);
     }
 }
+

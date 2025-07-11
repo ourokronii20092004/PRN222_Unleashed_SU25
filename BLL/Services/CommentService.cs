@@ -14,16 +14,19 @@ namespace BLL.Services
     {
         private readonly ICommentRepository _commentRepository;
         private readonly IReviewRepository _reviewRepository;
+        private readonly IUserRepository _userRepository;
         private readonly IMapper _mapper;
 
         public CommentService(
             ICommentRepository commentRepository,
             IReviewRepository reviewRepository,
-            IMapper mapper)
+            IMapper mapper,
+            IUserRepository userRepository)
         {
             _commentRepository = commentRepository;
             _reviewRepository = reviewRepository;
             _mapper = mapper;
+            _userRepository = userRepository;
         }
 
         public async Task<IEnumerable<CommentDTO>> GetAllAsync()
