@@ -1,9 +1,16 @@
 ﻿@page
+@using System.Security.Claims
 @model Unleashed_RP.Pages.Products.DetailsModel
 
 @{
     ViewData["Title"] = Model.Product.ProductName;
     var firstVariation = Model.Product.Variations?.FirstOrDefault();
+    var userIdStr = User.FindFirstValue(System.Security.Claims.ClaimTypes.NameIdentifier);
+    Guid? userId = null;
+    if (!string.IsNullOrEmpty(userIdStr))
+    {
+        userId = Guid.Parse(userIdStr);
+    }
 }
 
 <style>

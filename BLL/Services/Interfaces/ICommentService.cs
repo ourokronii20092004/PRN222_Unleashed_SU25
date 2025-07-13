@@ -1,4 +1,4 @@
-﻿using DAL.DTOs.ReviewDTOs;
+﻿using DAL.DTOs.CommentDTOs;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -7,12 +7,10 @@ namespace BLL.Services.Interfaces
 {
     public interface ICommentService
     {
-        Task<IEnumerable<CommentDTO>> GetAllAsync();
-        Task<CommentDetailDTO> GetByIdAsync(int id);
-        Task<CommentDTO> CreateAsync(CommentCreateDTO commentCreateDTO);
-        Task UpdateAsync(int id, CommentDTO commentDTO);
-        Task DeleteAsync(int id);
         Task<IEnumerable<CommentDetailDTO>> GetCommentsByReviewIdAsync(int reviewId);
-        Task<IEnumerable<CommentTreeDTO>> GetCommentTreeByReviewIdAsync(int reviewId);
+        Task<CommentDetailDTO> GetCommentByIdAsync(int commentId);
+        Task CreateAsync(CommentCreateDTO dto);
+        Task UpdateAsync(int commentId, CommentCreateDTO dto);
+        Task DeleteAsync(int commentId, Guid userId);
     }
 }

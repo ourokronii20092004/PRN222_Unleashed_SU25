@@ -15,7 +15,11 @@ namespace BLL.Mappings
         public ReviewProfile()
         {
             CreateMap<Review, ReviewDTO>().ReverseMap();
-            CreateMap<Review, ReviewDetailDTO>();
+            CreateMap<Review, ReviewDetailDTO>()
+                .ForMember(dest => dest.Comments, opt => opt.MapFrom(src => src.Comments))
+                .ForMember(dest => dest.Product, opt => opt.MapFrom(src => src.Product))
+                .ForMember(dest => dest.User, opt => opt.MapFrom(src => src.User));
+
             CreateMap<ReviewCreateDTO, Review>();
         }
     }

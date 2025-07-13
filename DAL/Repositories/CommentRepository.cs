@@ -1,9 +1,7 @@
-﻿
-using DAL.Data;
+﻿using DAL.Data;
 using DAL.Models;
 using DAL.Repositories.Interfaces;
 using Microsoft.EntityFrameworkCore;
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -19,82 +17,38 @@ namespace DAL.Repositories
             _context = context;
         }
 
-        public async Task<Comment> AddAsync(Comment comment)
-        {
-            comment.CommentCreatedAt = DateTimeOffset.UtcNow;
-            await _context.Comments.AddAsync(comment);
-            await _context.SaveChangesAsync();
-            return comment;
-        }
-
-        public async Task DeleteAsync(Comment comment)
-        {
-            var replies = await _context.Comments
-                .Where(c => c.ParentCommentId == comment.CommentId)
-                .ToListAsync();
-
-            foreach (var reply in replies)
-            {
-                await DeleteAsync(reply); 
-            }
-
-            _context.Comments.Remove(comment);
-            await _context.SaveChangesAsync();
-        }
-
-        public async Task<List<Comment>> GetAllAsync()
+        public async Task<IEnumerable<Comment>> GetCommentsByReviewIdAsync(int reviewId)
         {
             return await _context.Comments
-                .Include(c => c.Review)
-                .Include(c => c.ParentComment)
-                .OrderByDescending(c => c.CommentCreatedAt)
+                .Where(c => c.ReviewId == reviewId)
                 .ToListAsync();
         }
 
-        public async Task<Comment?> GetByIdAsync(int id)
+        public async Task<Comment> GetCommentByIdAsync(int commentId)
         {
-            return await _context.Comments
-                .Include(c => c.Review)
-                .Include(c => c.ParentComment)
-                .Include(c => c.InverseParentComment)
-                .FirstOrDefaultAsync(c => c.CommentId == id);
+            return await _context.Comments.FindAsync(commentId);
         }
 
-        public async Task<int> SaveChangesAsync()
+        public async Task AddCommentAsync(Comment comment)
         {
-            return await _context.SaveChangesAsync();
+            _context.Comments.Add(comment);
+            await _context.SaveChangesAsync();
         }
 
-        public async Task UpdateAsync(Comment comment)
+        public async Task UpdateCommentAsync(Comment comment)
         {
-            comment.CommentUpdatedAt = DateTimeOffset.UtcNow;
             _context.Comments.Update(comment);
             await _context.SaveChangesAsync();
         }
 
-        public async Task<List<Comment>> GetCommentsByReviewIdAsync(int reviewId)
+        public async Task DeleteCommentAsync(int commentId)
         {
-            return await _context.Comments
-                .Include(c => c.Review)
-                .Include(c => c.ParentComment)
-                .Where(c => c.ReviewId == reviewId)
-                .OrderByDescending(c => c.CommentCreatedAt)
-                .ToListAsync();
-        }
-
-        public async Task<List<Comment>> GetRepliesByCommentIdAsync(int parentCommentId)
-        {
-            return await _context.Comments
-                .Include(c => c.Review)
-                .Include(c => c.ParentComment)
-                .Where(c => c.ParentCommentId == parentCommentId)
-                .OrderByDescending(c => c.CommentCreatedAt)
-                .ToListAsync();
-        }
-
-        public async Task<bool> ExistsAsync(int id)
-        {
-            return await _context.Comments.AnyAsync(c => c.CommentId == id);
+            var comment = await _context.Comments.FindAsync(commentId);
+            if (comment != null)
+            {
+                _context.Comments.Remove(comment);
+                await _context.SaveChangesAsync();
+            }
         }
     }
 }

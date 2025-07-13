@@ -1,5 +1,4 @@
-﻿// ReviewRepository.cs
-using DAL.Data;
+﻿using DAL.Data;
 using DAL.Models;
 using DAL.Repositories.Interfaces;
 using Microsoft.EntityFrameworkCore;
@@ -37,6 +36,7 @@ namespace DAL.Repositories
             return await _context.Reviews
                 .Include(r => r.Product)
                 .Include(r => r.User)
+                .Include(r => r.Comments)
                 .OrderBy(b => b.ReviewId)
                 .ToListAsync();
         }
@@ -81,12 +81,13 @@ namespace DAL.Repositories
             return await _context.Reviews
                 .AnyAsync(r => r.UserId == userId && r.ProductId == productId);
         }
+
         public async Task<List<Review>> GetReviewsWithPagingAsync(int skip, int take, string query)
         {
-            var queryable = _context.Reviews
+            var queryable = _context.Reviews    
                 .Include(r => r.Product)
                 .Include(r => r.User)
-                .Include(r => r.Order)
+                .Include(r => r.Comments)
                 .AsQueryable();
 
             if (!string.IsNullOrEmpty(query))
@@ -103,6 +104,7 @@ namespace DAL.Repositories
                 .Take(take)
                 .ToListAsync();
         }
+
         public async Task<int> GetTotalCountAsync(string query)
         {
             var queryable = _context.Reviews.AsQueryable();
@@ -117,6 +119,7 @@ namespace DAL.Repositories
 
             return await queryable.CountAsync();
         }
+
         public async Task<Dictionary<Guid, double?>> GetAverageRatingsForProductsAsync(IEnumerable<Guid> productIds)
         {
             if (productIds == null || !productIds.Any())
@@ -131,6 +134,70 @@ namespace DAL.Repositories
                     AverageRating = g.Average(r => (double?)r.ReviewRating)
                 })
                 .ToDictionaryAsync(x => x.ProductId, x => x.AverageRating);
+        }
+
+        public async Task<IEnumerable<Review>> GetReviewsByProductIdAsync(Guid productId)
+        {
+            return await _context.Reviews
+                .Include(r => r.User)
+                .Where(r => r.ProductId == productId)
+                .ToListAsync();
+        }
+
+        public async Task<Review> GetReviewByIdAsync(int reviewId)
+        {
+            return await _context.Reviews
+                .Include(r => r.User)
+                .FirstOrDefaultAsync(r => r.ReviewId == reviewId);
+        }
+
+        public async Task<Review> GetUserReviewForProductAsync(Guid userId, Guid productId)
+        {
+            return await _context.Reviews
+                .FirstOrDefaultAsync(r => r.UserId == userId && r.ProductId == productId);
+        }
+
+        public async Task AddReviewAsync(Review review)
+        {
+            _context.Reviews.Add(review);
+            await _context.SaveChangesAsync();
+        }
+
+        public async Task UpdateReviewAsync(Review review)
+        {
+            _context.Reviews.Update(review);
+            await _context.SaveChangesAsync();
+        }
+
+        public async Task DeleteReviewAsync(int reviewId)
+        {
+            var review = await _context.Reviews.FindAsync(reviewId);
+            if (review != null)
+            {
+                _context.Reviews.Remove(review);
+                await _context.SaveChangesAsync();
+            }
+        }
+
+        public async Task<double?> GetAverageRatingByProductIdAsync(Guid productId)
+        {
+            return await _context.Reviews
+                .Where(r => r.ProductId == productId && r.ReviewRating.HasValue)
+                .AverageAsync(r => (double?)r.ReviewRating);
+        }
+
+        public async Task<bool> HasUserOrderedProductAsync(Guid userId, Guid productId)
+        {
+            return await _context.Orders
+                .AnyAsync(o => o.UserId == userId &&
+                    _context.Reviews.Any(r => r.OrderId == o.OrderId && r.ProductId == productId));
+        }
+
+        public async Task<List<Comment>> GetCommentsByReviewIdAsync(int reviewId)
+        {
+            return await _context.Comments
+                .Where(c => c.ReviewId == reviewId)
+                .ToListAsync();
         }
     }
 }
