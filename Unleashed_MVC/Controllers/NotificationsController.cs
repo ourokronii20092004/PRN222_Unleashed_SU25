@@ -82,7 +82,7 @@ namespace Unleashed_MVC.Controllers
             }
 
             var notification = await _notificationService.GetNotificationByIdAsync(id.Value);
-            if (notification == null)
+            if (notification == null || !notification.IsNotificationDraft)
             {
                 return NotFound();
             }
