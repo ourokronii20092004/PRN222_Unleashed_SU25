@@ -59,7 +59,7 @@ namespace Unleashed_MVC.Controllers
                 return NotFound();
             }
 
-            var review = await _reviewService.GetByIdAsync(id.Value);
+            var review = await _reviewService.GetReviewByIdAsync(id.Value);
             if (review == null)
             {
                 return NotFound();
@@ -81,7 +81,7 @@ namespace Unleashed_MVC.Controllers
                 return NotFound();
             }
 
-            var review = await _reviewService.GetByIdAsync(id.Value);
+            var review = await _reviewService.GetReviewByIdAsync(id.Value);
             if (review == null)
             {
                 return NotFound();
@@ -103,7 +103,7 @@ namespace Unleashed_MVC.Controllers
             catch (Exception ex)
             {
                 ModelState.AddModelError("", "Error deleting review: " + ex.Message);
-                return View("Delete", await _reviewService.GetByIdAsync(id));
+                return View("Delete", await _reviewService.GetReviewByIdAsync(id));
             }
         }
 

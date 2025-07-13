@@ -1,6 +1,6 @@
 ﻿using AutoMapper;
 using DAL.DTOs.CategoryDTOs;
-using DAL.DTOs.ReviewDTOs;
+using DAL.DTOs.CommentDTOs;
 using DAL.Models;
 using System;
 using System.Collections.Generic;
@@ -14,7 +14,6 @@ namespace BLL.Mappings
     {
         public CommentProfile()
         {
-            CreateMap<Comment, CommentDTO>().ReverseMap();
             CreateMap<Comment, CommentDetailDTO>();
             CreateMap<CommentCreateDTO, Comment>();
         }

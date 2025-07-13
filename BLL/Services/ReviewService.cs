@@ -1,9 +1,7 @@
 ﻿using AutoMapper;
 using BLL.Services.Interfaces;
-using DAL.DTOs.ProductDTOs;
 using DAL.DTOs.ReviewDTOs;
 using DAL.Models;
-using DAL.Repositories;
 using DAL.Repositories.Interfaces;
 using System;
 using System.Collections.Generic;
@@ -23,75 +21,67 @@ namespace BLL.Services
             _mapper = mapper;
         }
 
-        public async Task<IEnumerable<ReviewDTO>> GetAllAsync()
+        public async Task<IEnumerable<ReviewDetailDTO>> GetReviewsByProductIdAsync(Guid productId)
         {
-            var reviews = await _reviewRepository.GetAllAsync();
-            return _mapper.Map<IEnumerable<ReviewDTO>>(reviews);
+            var reviews = await _reviewRepository.GetReviewsByProductIdAsync(productId);
+            return _mapper.Map<IEnumerable<ReviewDetailDTO>>(reviews);
         }
 
-        public async Task<ReviewDetailDTO> GetByIdAsync(int id)
+        public async Task<ReviewDetailDTO> GetReviewByIdAsync(int reviewId)
         {
-            var review = await _reviewRepository.GetByIdAsync(id);
+            var review = await _reviewRepository.GetReviewByIdAsync(reviewId);
             return _mapper.Map<ReviewDetailDTO>(review);
         }
 
-        public async Task<ReviewDTO> CreateAsync(ReviewCreateDTO reviewCreateDTO)
+        public async Task<ReviewDetailDTO> GetUserReviewForProductAsync(Guid userId, Guid productId)
         {
-            var review = _mapper.Map<Review>(reviewCreateDTO);
-
-            // Check if user has already reviewed this product
-            if (await _reviewRepository.HasUserReviewedProductAsync(review.UserId, review.ProductId))
-            {
-                throw new InvalidOperationException("User has already reviewed this product");
-            }
-
-            await _reviewRepository.AddAsync(review);
-            return _mapper.Map<ReviewDTO>(review);
+            var review = await _reviewRepository.GetUserReviewForProductAsync(userId, productId);
+            return _mapper.Map<ReviewDetailDTO>(review);
         }
 
-        public async Task UpdateAsync(int id, ReviewDTO reviewDTO)
+        public async Task CreateAsync(ReviewCreateDTO dto)
         {
-            if (id != reviewDTO.ReviewId)
-            {
-                throw new ArgumentException("ID mismatch");
-            }
-
-            var existingReview = await _reviewRepository.GetByIdAsync(id);
-            if (existingReview == null)
-            {
-                throw new KeyNotFoundException("Review not found");
-            }
-
-            _mapper.Map(reviewDTO, existingReview);
-            await _reviewRepository.UpdateAsync(existingReview);
+            var review = _mapper.Map<Review>(dto);
+            await _reviewRepository.AddReviewAsync(review);
         }
 
-        public async Task DeleteAsync(int id)
+        public async Task UpdateAsync(int reviewId, ReviewCreateDTO dto)
         {
-            var review = await _reviewRepository.GetByIdAsync(id);
-            if (review == null)
-            {
-                throw new KeyNotFoundException("Review not found");
-            }
+            var review = await _reviewRepository.GetReviewByIdAsync(reviewId);
+            if (review == null || review.UserId != dto.UserId)
+                throw new KeyNotFoundException("Review not found or user mismatch");
 
-            await _reviewRepository.DeleteAsync(review);
+            _mapper.Map(dto, review);
+            await _reviewRepository.UpdateReviewAsync(review);
         }
 
-        public async Task<IEnumerable<ReviewDetailDTO>> GetReviewsByProductIdAsync(Guid productId)
+        public async Task DeleteAsync(int reviewId, Guid userId)
         {
-            var reviews = await _reviewRepository.FindAllReviewsByProductIdAsync(productId);
-            return _mapper.Map<IEnumerable<ReviewDetailDTO>>(reviews);
+            var review = await _reviewRepository.GetReviewByIdAsync(reviewId);
+            if (review == null || review.UserId != userId)
+                throw new KeyNotFoundException("Review not found or user mismatch");
+
+            await _reviewRepository.DeleteReviewAsync(reviewId);
         }
 
         public async Task<double?> GetAverageRatingByProductIdAsync(Guid productId)
         {
-            var reviews = await _reviewRepository.FindAllReviewsByProductIdAsync(productId);
-            if (reviews == null || !reviews.Any())
-            {
-                return null;
-            }
+            return await _reviewRepository.GetAverageRatingByProductIdAsync(productId);
+        }
 
-            return reviews.Average(r => r.ReviewRating);
+        public async Task<bool> HasUserOrderedProductAsync(Guid userId, Guid productId)
+        {
+            return await _reviewRepository.HasUserOrderedProductAsync(userId, productId);
+        }
+
+        public async Task DeleteAsync(int id)
+        {
+            var review = await _reviewRepository.GetReviewByIdAsync(id);
+            if (review == null)
+            {
+                throw new KeyNotFoundException("Review not found");
+            }
+            await _reviewRepository.DeleteAsync(review);
         }
 
         public async Task<PagedResult<ReviewDTO>> GetReviewsWithPagingAsync(int page, int pageSize, string query)
