@@ -1,0 +1,111 @@
+﻿@page
+@model Unleashed_RP.Pages.Orders.EditModel
+
+@{
+    ViewData["Title"] = "Edit";
+    Layout = "~/Pages/Shared/_Layout.cshtml";
+}
+
+<h1>Edit</h1>
+
+<h4>Order</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form method="post">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <input type="hidden" asp-for="Order.OrderId" />
+            <div class="form-group">
+                <label asp-for="Order.UserId" class="control-label"></label>
+                <select asp-for="Order.UserId" class="form-control" asp-items="ViewBag.UserId"></select>
+                <span asp-validation-for="Order.UserId" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Order.OrderStatusId" class="control-label"></label>
+                <select asp-for="Order.OrderStatusId" class="form-control" asp-items="ViewBag.OrderStatusId"></select>
+                <span asp-validation-for="Order.OrderStatusId" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Order.PaymentMethodId" class="control-label"></label>
+                <select asp-for="Order.PaymentMethodId" class="form-control" asp-items="ViewBag.PaymentMethodId"></select>
+                <span asp-validation-for="Order.PaymentMethodId" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Order.ShippingMethodId" class="control-label"></label>
+                <select asp-for="Order.ShippingMethodId" class="form-control" asp-items="ViewBag.ShippingMethodId"></select>
+                <span asp-validation-for="Order.ShippingMethodId" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Order.DiscountId" class="control-label"></label>
+                <select asp-for="Order.DiscountId" class="form-control" asp-items="ViewBag.DiscountId"></select>
+                <span asp-validation-for="Order.DiscountId" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Order.InchargeEmployeeId" class="control-label"></label>
+                <select asp-for="Order.InchargeEmployeeId" class="form-control" asp-items="ViewBag.InchargeEmployeeId"></select>
+                <span asp-validation-for="Order.InchargeEmployeeId" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Order.OrderDate" class="control-label"></label>
+                <input asp-for="Order.OrderDate" class="form-control" />
+                <span asp-validation-for="Order.OrderDate" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Order.OrderTotalAmount" class="control-label"></label>
+                <input asp-for="Order.OrderTotalAmount" class="form-control" />
+                <span asp-validation-for="Order.OrderTotalAmount" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Order.OrderTrackingNumber" class="control-label"></label>
+                <input asp-for="Order.OrderTrackingNumber" class="form-control" />
+                <span asp-validation-for="Order.OrderTrackingNumber" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Order.OrderNote" class="control-label"></label>
+                <input asp-for="Order.OrderNote" class="form-control" />
+                <span asp-validation-for="Order.OrderNote" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Order.OrderBillingAddress" class="control-label"></label>
+                <input asp-for="Order.OrderBillingAddress" class="form-control" />
+                <span asp-validation-for="Order.OrderBillingAddress" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Order.OrderExpectedDeliveryDate" class="control-label"></label>
+                <input asp-for="Order.OrderExpectedDeliveryDate" class="form-control" />
+                <span asp-validation-for="Order.OrderExpectedDeliveryDate" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Order.OrderTransactionReference" class="control-label"></label>
+                <input asp-for="Order.OrderTransactionReference" class="form-control" />
+                <span asp-validation-for="Order.OrderTransactionReference" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Order.OrderTax" class="control-label"></label>
+                <input asp-for="Order.OrderTax" class="form-control" />
+                <span asp-validation-for="Order.OrderTax" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Order.OrderCreatedAt" class="control-label"></label>
+                <input asp-for="Order.OrderCreatedAt" class="form-control" />
+                <span asp-validation-for="Order.OrderCreatedAt" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Order.OrderUpdatedAt" class="control-label"></label>
+                <input asp-for="Order.OrderUpdatedAt" class="form-control" />
+                <span asp-validation-for="Order.OrderUpdatedAt" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Save" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-page="./Index">Back to List</a>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}
