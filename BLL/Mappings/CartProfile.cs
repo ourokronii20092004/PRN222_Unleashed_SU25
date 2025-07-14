@@ -13,17 +13,7 @@ namespace BLL.Mappings
     {
         public CartProfile() 
         {
-
-            CreateMap<Cart, CartDTO>()
-                .ForMember(dest => dest.Quantity, opt => opt.MapFrom(src => src.CartQuantity))
-                .ForMember(dest => dest.ProductName, opt => opt.MapFrom(src => src.Variation.Product.ProductName))
-                .ForMember(dest => dest.ImageUrl, opt => opt.MapFrom(src => src.Variation.VariationImage))
-                .ForMember(dest => dest.ColorName, opt => opt.MapFrom(src => src.Variation.Color.ColorName))
-                .ForMember(dest => dest.SizeName, opt => opt.MapFrom(src => src.Variation.Size.SizeName))
-                .ForMember(dest => dest.Price, opt => opt.MapFrom(src => src.Variation.VariationPrice));
-
-            CreateMap<AddToCartDTO, Cart>()
-                .ForMember(dest => dest.CartQuantity, opt => opt.MapFrom(src => src.Quantity));
+            CreateMap<Cart, CartDTO>();
         }
         
     }
