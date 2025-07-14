@@ -19,43 +19,43 @@ namespace DAL.Repositories
         {
             _unleashedcontext = unleashedcontext;
         }
-        public async Task AddAsync(Order entity, CancellationToken cancellationToken = default)
-        {
-            await _unleashedcontext.AddAsync(entity, cancellationToken);
-            await _unleashedcontext.SaveChangesAsync();
-        }
 
-        public async Task Delete(Order entity, CancellationToken cancellationToken = default)
+        public async Task AddAsync(Order order)
         {
-            _unleashedcontext.Orders.Remove(entity);
-            await _unleashedcontext.SaveChangesAsync();
-        }
-
-        public async Task<IEnumerable<Order>> FindAsync(Expression<Func<Order, bool>> predicate, CancellationToken cancellationToken = default)
-        {
-            return await _unleashedcontext.Orders.Where(predicate).ToListAsync(cancellationToken);
+            await _unleashedcontext.Orders.AddAsync(order);
         }
 
         public async Task<IEnumerable<Order>> GetAllAsync()
         {
-            return await _unleashedcontext.Orders.ToListAsync();
+            return await _unleashedcontext.Orders.Include(o => o.OrderStatus)
+                .Include(o => o.User)
+                .Include(o => o.OrderVariationSingles).ToListAsync();
         }
 
-        public async Task<Order> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
+        public async Task<Order?> GetByIdAsync(Guid id)
         {
-            return await _unleashedcontext.Orders.AsNoTracking().FirstOrDefaultAsync(x => x.OrderId == id)?? 
-                throw new ArgumentException();
+            return await _unleashedcontext.Orders.Include(o => o.OrderStatus)
+                .Include(o => o.User)
+                .Include(o => o.OrderVariationSingles)
+                .FirstOrDefaultAsync(o => o.OrderId == id);
         }
 
-        public async Task<IEnumerable<Order>> GetOrderListByUserId(Guid userId, CancellationToken cancellationToken = default)
+        public async Task<IEnumerable<Order>> GetByUserIdAsync(Guid userId)
         {
-            return await _unleashedcontext.Orders.Where(o => o.UserId == userId).ToListAsync(cancellationToken);
+            return await _unleashedcontext.Orders.Where(o => o.UserId == userId)
+                .Include(o => o.OrderStatus)
+                .Include(o => o.OrderVariationSingles).ToListAsync();
         }
 
-        public async Task Update(Order entity, CancellationToken cancellationToken = default)
+        public async Task SaveAsync()
         {
-            _unleashedcontext.Update(entity);
             await _unleashedcontext.SaveChangesAsync();
+        }
+
+        public void Update(Order order)
+        {
+            _unleashedcontext.Orders.Update(order);
+
         }
     }
 }

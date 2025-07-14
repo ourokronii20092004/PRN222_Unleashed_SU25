@@ -7,31 +7,41 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using DAL.Data;
 using DAL.Models;
-using BLL.Services;
-using BLL.Services.Interfaces;
 
 namespace Unleashed_MVC.Controllers
 {
-    [Filter.Filter(RequiredRoles = new[] { "ADMIN", "STAFF" })]
     public class OrdersController : Controller
     {
-        private readonly IOrderService _orderService;
+        private readonly UnleashedContext _context;
 
-        public OrdersController(IOrderService orderService)
+        public OrdersController(UnleashedContext context)
         {
-            _orderService = orderService;
+            _context = context;
         }
 
         // GET: Orders
         public async Task<IActionResult> Index()
         {
-            return View(await _orderService.GetAllOrdersAsync());
+            var unleashedContext = _context.Orders.Include(o => o.Discount).Include(o => o.InchargeEmployee).Include(o => o.OrderStatus).Include(o => o.PaymentMethod).Include(o => o.ShippingMethod).Include(o => o.User);
+            return View(await unleashedContext.ToListAsync());
         }
 
         // GET: Orders/Details/5
-        public async Task<IActionResult> Details(Guid id)
+        public async Task<IActionResult> Details(Guid? id)
         {
-            var order = await _orderService.GetOrderByIdAsync(id);
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            var order = await _context.Orders
+                .Include(o => o.Discount)
+                .Include(o => o.InchargeEmployee)
+                .Include(o => o.OrderStatus)
+                .Include(o => o.PaymentMethod)
+                .Include(o => o.ShippingMethod)
+                .Include(o => o.User)
+                .FirstOrDefaultAsync(m => m.OrderId == id);
             if (order == null)
             {
                 return NotFound();
@@ -43,12 +53,12 @@ namespace Unleashed_MVC.Controllers
         // GET: Orders/Create
         public IActionResult Create()
         {
-            //ViewData["DiscountId"] = new SelectList(_orderService.Discounts, "DiscountId", "DiscountCode");
-            //ViewData["InchargeEmployeeId"] = new SelectList(_context.Users, "UserId", "UserId");
-            //ViewData["OrderStatusId"] = new SelectList(_context.OrderStatuses, "OrderStatusId", "OrderStatusId");
-            //ViewData["PaymentMethodId"] = new SelectList(_context.PaymentMethods, "PaymentMethodId", "PaymentMethodId");
-            //ViewData["ShippingMethodId"] = new SelectList(_context.ShippingMethods, "ShippingMethodId", "ShippingMethodId");
-            //ViewData["UserId"] = new SelectList(_context.Users, "UserId", "UserId");
+            ViewData["DiscountId"] = new SelectList(_context.Discounts, "DiscountId", "DiscountCode");
+            ViewData["InchargeEmployeeId"] = new SelectList(_context.Users, "UserId", "UserId");
+            ViewData["OrderStatusId"] = new SelectList(_context.OrderStatuses, "OrderStatusId", "OrderStatusId");
+            ViewData["PaymentMethodId"] = new SelectList(_context.PaymentMethods, "PaymentMethodId", "PaymentMethodId");
+            ViewData["ShippingMethodId"] = new SelectList(_context.ShippingMethods, "ShippingMethodId", "ShippingMethodId");
+            ViewData["UserId"] = new SelectList(_context.Users, "UserId", "UserId");
             return View();
         }
 
@@ -61,32 +71,39 @@ namespace Unleashed_MVC.Controllers
         {
             if (ModelState.IsValid)
             {
-                await _orderService.CreateOrder(order);
+                order.OrderId = Guid.NewGuid();
+                _context.Add(order);
+                await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            //ViewData["DiscountId"] = new SelectList(_context.Discounts, "DiscountId", "DiscountCode", order.DiscountId);
-            //ViewData["InchargeEmployeeId"] = new SelectList(_context.Users, "UserId", "UserId", order.InchargeEmployeeId);
-            //ViewData["OrderStatusId"] = new SelectList(_context.OrderStatuses, "OrderStatusId", "OrderStatusId", order.OrderStatusId);
-            //ViewData["PaymentMethodId"] = new SelectList(_context.PaymentMethods, "PaymentMethodId", "PaymentMethodId", order.PaymentMethodId);
-            //ViewData["ShippingMethodId"] = new SelectList(_context.ShippingMethods, "ShippingMethodId", "ShippingMethodId", order.ShippingMethodId);
-            //ViewData["UserId"] = new SelectList(_context.Users, "UserId", "UserId", order.UserId);
+            ViewData["DiscountId"] = new SelectList(_context.Discounts, "DiscountId", "DiscountCode", order.DiscountId);
+            ViewData["InchargeEmployeeId"] = new SelectList(_context.Users, "UserId", "UserId", order.InchargeEmployeeId);
+            ViewData["OrderStatusId"] = new SelectList(_context.OrderStatuses, "OrderStatusId", "OrderStatusId", order.OrderStatusId);
+            ViewData["PaymentMethodId"] = new SelectList(_context.PaymentMethods, "PaymentMethodId", "PaymentMethodId", order.PaymentMethodId);
+            ViewData["ShippingMethodId"] = new SelectList(_context.ShippingMethods, "ShippingMethodId", "ShippingMethodId", order.ShippingMethodId);
+            ViewData["UserId"] = new SelectList(_context.Users, "UserId", "UserId", order.UserId);
             return View(order);
         }
 
         // GET: Orders/Edit/5
-        public async Task<IActionResult> Edit(Guid id)
+        public async Task<IActionResult> Edit(Guid? id)
         {
-            var order = await _orderService.GetOrderByIdAsync(id);
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            var order = await _context.Orders.FindAsync(id);
             if (order == null)
             {
                 return NotFound();
             }
-            //ViewData["DiscountId"] = new SelectList(_context.Discounts, "DiscountId", "DiscountCode", order.DiscountId);
-            //ViewData["InchargeEmployeeId"] = new SelectList(_context.Users, "UserId", "UserId", order.InchargeEmployeeId);
-            //ViewData["OrderStatusId"] = new SelectList(_context.OrderStatuses, "OrderStatusId", "OrderStatusId", order.OrderStatusId);
-            //ViewData["PaymentMethodId"] = new SelectList(_context.PaymentMethods, "PaymentMethodId", "PaymentMethodId", order.PaymentMethodId);
-            //ViewData["ShippingMethodId"] = new SelectList(_context.ShippingMethods, "ShippingMethodId", "ShippingMethodId", order.ShippingMethodId);
-            //ViewData["UserId"] = new SelectList(_context.Users, "UserId", "UserId", order.UserId);
+            ViewData["DiscountId"] = new SelectList(_context.Discounts, "DiscountId", "DiscountCode", order.DiscountId);
+            ViewData["InchargeEmployeeId"] = new SelectList(_context.Users, "UserId", "UserId", order.InchargeEmployeeId);
+            ViewData["OrderStatusId"] = new SelectList(_context.OrderStatuses, "OrderStatusId", "OrderStatusId", order.OrderStatusId);
+            ViewData["PaymentMethodId"] = new SelectList(_context.PaymentMethods, "PaymentMethodId", "PaymentMethodId", order.PaymentMethodId);
+            ViewData["ShippingMethodId"] = new SelectList(_context.ShippingMethods, "ShippingMethodId", "ShippingMethodId", order.ShippingMethodId);
+            ViewData["UserId"] = new SelectList(_context.Users, "UserId", "UserId", order.UserId);
             return View(order);
         }
 
@@ -106,29 +123,47 @@ namespace Unleashed_MVC.Controllers
             {
                 try
                 {
-                    await _orderService.UpdateOrderAsync(id, order);
-                    
+                    _context.Update(order);
+                    await _context.SaveChangesAsync();
                 }
-                catch (Exception e)
+                catch (DbUpdateConcurrencyException)
                 {
-                    Console.WriteLine(e);
+                    if (!OrderExists(order.OrderId))
+                    {
+                        return NotFound();
+                    }
+                    else
+                    {
+                        throw;
+                    }
                 }
-                
                 return RedirectToAction(nameof(Index));
             }
-            //ViewData["DiscountId"] = new SelectList(_context.Discounts, "DiscountId", "DiscountCode", order.DiscountId);
-            //ViewData["InchargeEmployeeId"] = new SelectList(_context.Users, "UserId", "UserId", order.InchargeEmployeeId);
-            //ViewData["OrderStatusId"] = new SelectList(_context.OrderStatuses, "OrderStatusId", "OrderStatusId", order.OrderStatusId);
-            //ViewData["PaymentMethodId"] = new SelectList(_context.PaymentMethods, "PaymentMethodId", "PaymentMethodId", order.PaymentMethodId);
-            //ViewData["ShippingMethodId"] = new SelectList(_context.ShippingMethods, "ShippingMethodId", "ShippingMethodId", order.ShippingMethodId);
-            //ViewData["UserId"] = new SelectList(_context.Users, "UserId", "UserId", order.UserId);
+            ViewData["DiscountId"] = new SelectList(_context.Discounts, "DiscountId", "DiscountCode", order.DiscountId);
+            ViewData["InchargeEmployeeId"] = new SelectList(_context.Users, "UserId", "UserId", order.InchargeEmployeeId);
+            ViewData["OrderStatusId"] = new SelectList(_context.OrderStatuses, "OrderStatusId", "OrderStatusId", order.OrderStatusId);
+            ViewData["PaymentMethodId"] = new SelectList(_context.PaymentMethods, "PaymentMethodId", "PaymentMethodId", order.PaymentMethodId);
+            ViewData["ShippingMethodId"] = new SelectList(_context.ShippingMethods, "ShippingMethodId", "ShippingMethodId", order.ShippingMethodId);
+            ViewData["UserId"] = new SelectList(_context.Users, "UserId", "UserId", order.UserId);
             return View(order);
         }
 
         // GET: Orders/Delete/5
-        public async Task<IActionResult> Delete(Guid id)
+        public async Task<IActionResult> Delete(Guid? id)
         {
-            var order = await _orderService.GetOrderByIdAsync(id);
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            var order = await _context.Orders
+                .Include(o => o.Discount)
+                .Include(o => o.InchargeEmployee)
+                .Include(o => o.OrderStatus)
+                .Include(o => o.PaymentMethod)
+                .Include(o => o.ShippingMethod)
+                .Include(o => o.User)
+                .FirstOrDefaultAsync(m => m.OrderId == id);
             if (order == null)
             {
                 return NotFound();
@@ -142,8 +177,19 @@ namespace Unleashed_MVC.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(Guid id)
         {
-            await _orderService.DeleteOrderAsync(id);
+            var order = await _context.Orders.FindAsync(id);
+            if (order != null)
+            {
+                _context.Orders.Remove(order);
+            }
+
+            await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
+        }
+
+        private bool OrderExists(Guid id)
+        {
+            return _context.Orders.Any(e => e.OrderId == id);
         }
     }
 }
