@@ -130,7 +130,7 @@ namespace Unleashed_MVC.Controllers
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error deleting provider with ID {ProviderId}", id);
-                // Có thể chuyển hướng đến trang lỗi
+
                 return RedirectToAction(nameof(Delete), new { id = id, saveChangesError = true });
             }
         }

@@ -3,7 +3,6 @@
 @{
     ViewData["Title"] = "Discount Details";
 
-    // Hàm chuyển đổi sang giờ Việt Nam
     TimeZoneInfo vietnamZone;
     try { vietnamZone = TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time"); }
     catch { vietnamZone = TimeZoneInfo.FindSystemTimeZoneById("Asia/Ho_Chi_Minh"); }

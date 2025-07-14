@@ -61,11 +61,11 @@ namespace BLL.Services
             var existingProvider = await _providerRepository.GetByIdAsync(id);
             if (existingProvider == null)
             {
-                // Bạn có thể tạo một exception NotFoundException tùy chỉnh
+
                 throw new KeyNotFoundException($"Provider with id {id} not found.");
             }
 
-            // Map các giá trị từ DTO vào entity đã tồn tại
+
             _mapper.Map(providerDto, existingProvider);
             existingProvider.ProviderUpdatedAt = DateTimeOffset.UtcNow;
 

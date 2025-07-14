@@ -1,9 +1,9 @@
-﻿using BLL.Services.Interfaces; // Thêm using này để truy cập DbContext
+﻿using BLL.Services.Interfaces;
 using DAL.Data;
 using DAL.DTOs.DiscountDTOs;
-using DAL.Models; // Thêm using này
+using DAL.Models; 
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering; // Thêm using này
+using Microsoft.AspNetCore.Mvc.Rendering;
 using System.Threading.Tasks;
 
 namespace Unleashed_MVC.Controllers
@@ -47,7 +47,7 @@ namespace Unleashed_MVC.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(DiscountCreateDTO discountDto)
         {
-            // Thêm logic validate nghiệp vụ của bạn ở đây nếu cần
+
             if (discountDto.DiscountStartDate >= discountDto.DiscountEndDate)
             {
                 ModelState.AddModelError("DiscountEndDate", "End date must be after start date.");
@@ -190,7 +190,6 @@ namespace Unleashed_MVC.Controllers
             return RedirectToAction(nameof(Index));
         }
 
-        // Hàm trợ giúp để tải dữ liệu cho dropdown
         private async Task LoadDropdownData(int? selectedStatusId = null, int? selectedTypeId = null)
         {
             ViewBag.DiscountStatusId = new SelectList(await _discountService.GetDiscountStatusesAsync(), "Value", "Text", selectedStatusId);

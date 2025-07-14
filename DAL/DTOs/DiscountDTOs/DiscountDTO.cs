@@ -21,7 +21,7 @@ namespace DAL.DTOs.DiscountDTOs
         public DateTimeOffset DiscountCreatedAt { get; set; }
         public DateTimeOffset? DiscountUpdatedAt { get; set; }
 
-        // Dữ liệu từ bảng liên quan
+
         public string DiscountStatusName { get; set; }
         public string DiscountTypeName { get; set; }
     }
