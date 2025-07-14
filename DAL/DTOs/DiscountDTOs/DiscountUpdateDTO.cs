@@ -9,7 +9,7 @@ namespace DAL.DTOs.DiscountDTOs
 {
     public class DiscountUpdateDTO
     {
-        public int DiscountId { get; set; } // Giữ lại ID để xác định đối tượng cần sửa
+        public int DiscountId { get; set; } 
 
         [Required(ErrorMessage = "Discount code is required.")]
         [StringLength(50, MinimumLength = 6, ErrorMessage = "Discount code must be between 6 and 50 characters.")]

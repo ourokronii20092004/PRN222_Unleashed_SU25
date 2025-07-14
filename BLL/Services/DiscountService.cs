@@ -46,7 +46,7 @@ namespace BLL.Services
 
             var discount = _mapper.Map<Discount>(discountDto);
             discount.DiscountCreatedAt = DateTimeOffset.UtcNow;
-            discount.DiscountUsageCount = 0; // Luôn bắt đầu bằng 0
+            discount.DiscountUsageCount = 0; 
 
             await _discountRepo.AddAsync(discount);
             await _discountRepo.SaveChangesAsync();
@@ -80,9 +80,6 @@ namespace BLL.Services
             {
                 throw new KeyNotFoundException($"Discount with ID {id} not found.");
             }
-
-            // Thêm logic kiểm tra xem discount có đang được sử dụng trong order nào không
-            // if (discount.Orders.Any()) { ... }
 
             await _discountRepo.DeleteAsync(discount);
             await _discountRepo.SaveChangesAsync();

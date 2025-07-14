@@ -30,7 +30,7 @@ namespace DAL.Repositories
         {
             ArgumentNullException.ThrowIfNull(provider);
             _context.Providers.Remove(provider);
-            return Task.CompletedTask; // Không cần async/await ở đây
+            return Task.CompletedTask; 
         }
 
         public async Task<bool> ExistsByProviderEmailAsync(string providerEmail)
@@ -61,7 +61,7 @@ namespace DAL.Repositories
         public async Task UpdateAsync(Provider provider)
         {
             ArgumentNullException.ThrowIfNull(provider);
-            _context.Entry(provider).State = EntityState.Modified; // Or _context.Providers.Update(provider);
+            _context.Entry(provider).State = EntityState.Modified; 
         }
 
         public async Task<int> SaveChangesAsync()

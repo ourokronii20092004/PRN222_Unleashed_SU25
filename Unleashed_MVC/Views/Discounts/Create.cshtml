@@ -106,7 +106,7 @@
     }
     <script>
         document.addEventListener('DOMContentLoaded', function () {
-            // Nhớ thay đổi các giá trị này nếu ID trong DB của bạn khác
+
             const ACTIVE_STATUS_ID = '1';
 
             const startDateInput = document.getElementById('startDate');
@@ -115,7 +115,7 @@
 
             function checkStartDate() {
                 if (!startDateInput.value || !activeOption) {
-                    activeOption.disabled = false; // Mặc định cho phép chọn
+                    activeOption.disabled = false; 
                     return;
                 }
 
@@ -123,22 +123,20 @@
                 const now = new Date();
 
                 if (selectedDate > now) {
-                    // Nếu ngày bắt đầu là trong tương lai
+
                     activeOption.disabled = true;
-                    // Nếu đang chọn "Active", tự động chuyển về tùy chọn đầu tiên
+
                     if (statusDropdown.value === ACTIVE_STATUS_ID) {
                         statusDropdown.selectedIndex = 0;
                     }
                 } else {
-                    // Nếu ngày bắt đầu là trong quá khứ hoặc hiện tại
+
                     activeOption.disabled = false;
                 }
             }
 
-            // Gắn sự kiện 'change' vào ô nhập ngày
             startDateInput.addEventListener('change', checkStartDate);
 
-            // Chạy kiểm tra lần đầu khi trang tải xong
             checkStartDate();
         });
     </script>

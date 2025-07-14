@@ -17,7 +17,6 @@ namespace BLL.Services.Interfaces
         Task UpdateDiscountAsync(int id, DiscountUpdateDTO discountDto);
         Task DeleteDiscountAsync(int id);
 
-        // Dịch vụ lấy dữ liệu cho dropdown
         Task<IEnumerable<SelectListItem>> GetDiscountStatusesAsync();
         Task<IEnumerable<SelectListItem>> GetDiscountTypesAsync();
         Task<DiscountUpdateDTO?> GetDiscountForUpdateAsync(int id);

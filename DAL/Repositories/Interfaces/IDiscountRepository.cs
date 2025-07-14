@@ -17,7 +17,6 @@ namespace DAL.Repositories.Interfaces
         Task<bool> CodeExistsAsync(string code, int? excludeId = null);
         Task<int> SaveChangesAsync();
 
-        // Thêm các phương thức để lấy danh sách status và type
         Task<List<DiscountStatus>> GetAllStatusesAsync();
         Task<List<DiscountType>> GetAllTypesAsync();
     }
