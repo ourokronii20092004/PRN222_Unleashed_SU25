@@ -9,13 +9,13 @@ namespace BLL.Services.Interfaces
     {
         Task<IEnumerable<ReviewDetailDTO>> GetReviewsByProductIdAsync(Guid productId);
         Task<ReviewDetailDTO> GetReviewByIdAsync(int reviewId);
-        Task<ReviewDetailDTO> GetUserReviewForProductAsync(Guid userId, Guid productId);
+        Task<ReviewDetailDTO> GetUserReviewForProductAsync(string username, Guid productId);
         Task CreateAsync(ReviewCreateDTO dto);
         Task UpdateAsync(int reviewId, ReviewCreateDTO dto);
-        Task DeleteAsync(int reviewId, Guid userId);
+        Task DeleteAsync(int reviewId, string username);
         Task DeleteAsync(int id);
         Task<DAL.Models.PagedResult<ReviewDTO>> GetReviewsWithPagingAsync(int page, int pageSize, string query);
         Task<double?> GetAverageRatingByProductIdAsync(Guid productId);
-        Task<bool> HasUserOrderedProductAsync(Guid userId, Guid productId);
+        Task<bool> HasUserOrderedProductAsync(string username, Guid productId);
     }
 }

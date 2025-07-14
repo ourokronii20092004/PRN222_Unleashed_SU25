@@ -11,6 +11,7 @@ using System.Threading.Tasks;
 
 namespace Unleashed_MVC.Controllers
 {
+    [Filter.Filter(RequiredRoles = new[] { "ADMIN", "STAFF" })]
     public class ReviewsController : Controller
     {
         private readonly IReviewService _reviewService;

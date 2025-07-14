@@ -1,3 +1,4 @@
+using DAL.Models;
 using System;
 
 namespace DAL.DTOs.ReviewDTOs
@@ -8,6 +9,6 @@ namespace DAL.DTOs.ReviewDTOs
         public Guid UserId { get; set; }
         public Guid OrderId { get; set; }
         public int ReviewRating { get; set; }
-        public string ReviewContent { get; set; }
+        public virtual User? User { get; set; }
     }
 }

@@ -7,7 +7,6 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
-using System.Security.Claims;
 using System.Threading.Tasks;
 
 namespace Unleashed_RP.Pages.Products
@@ -16,7 +15,6 @@ namespace Unleashed_RP.Pages.Products
     {
         private readonly IProductService _productService;
         private readonly IReviewService _reviewService;
-        private readonly ICommentService _commentService;
         private readonly ILogger<DetailsModel> _logger;
 
         public Product Product { get; set; }
@@ -25,19 +23,17 @@ namespace Unleashed_RP.Pages.Products
 
         [BindProperty]
         public ReviewCreateDTO NewReview { get; set; } = new ReviewCreateDTO();
-                            
+
         [BindProperty]
         public CommentCreateDTO NewComment { get; set; } = new CommentCreateDTO();
 
         public DetailsModel(
             IProductService productService,
             IReviewService reviewService,
-            ICommentService commentService,
             ILogger<DetailsModel> logger)
         {
             _productService = productService;
             _reviewService = reviewService;
-            _commentService = commentService;
             _logger = logger;
         }
 
@@ -80,22 +76,21 @@ namespace Unleashed_RP.Pages.Products
 
             try
             {
-                var userIdStr = User.FindFirstValue(ClaimTypes.NameIdentifier);
-                if (string.IsNullOrEmpty(userIdStr))
+                string username = HttpContext.Session.GetString("username");
+                if (string.IsNullOrEmpty(username))
                 {
                     TempData["ErrorMessage"] = "You must be logged in to add a review.";
                     return RedirectToPage("/Account/Login", new { returnUrl = Url.Page("/Products/Details", new { id = productId }) });
                 }
-                var userId = Guid.Parse(userIdStr);
 
-                var hasOrdered = await _reviewService.HasUserOrderedProductAsync(userId, productId);
+                var hasOrdered = await _reviewService.HasUserOrderedProductAsync(username, productId);
                 if (!hasOrdered)
                 {
                     TempData["ErrorMessage"] = "You must order this product before rating.";
                     return RedirectToPage(new { id = productId });
                 }
 
-                var existingReview = await _reviewService.GetUserReviewForProductAsync(userId, productId);
+                var existingReview = await _reviewService.GetUserReviewForProductAsync(username, productId);
                 if (existingReview != null)
                 {
                     TempData["ErrorMessage"] = "You have already rated this product.";
@@ -103,7 +98,7 @@ namespace Unleashed_RP.Pages.Products
                 }
 
                 NewReview.ProductId = productId;
-                NewReview.UserId = userId;
+                NewReview.User.UserUsername = username;
 
                 await _reviewService.CreateAsync(NewReview);
                 TempData["SuccessMessage"] = "Your review has been added successfully!";
@@ -126,15 +121,14 @@ namespace Unleashed_RP.Pages.Products
 
             try
             {
-                var userIdStr = User.FindFirstValue(ClaimTypes.NameIdentifier);
-                if (string.IsNullOrEmpty(userIdStr))
+                string username = HttpContext.Session.GetString("username");
+                if (string.IsNullOrEmpty(username))
                 {
                     TempData["ErrorMessage"] = "You must be logged in to edit a review.";
                     return RedirectToPage("/Account/Login", new { returnUrl = Url.Page("/Products/Details", new { id = productId }) });
                 }
-                var userId = Guid.Parse(userIdStr);
 
-                NewReview.UserId = userId;
+                NewReview.User.UserUsername = username;
                 await _reviewService.UpdateAsync(reviewId, NewReview);
                 TempData["SuccessMessage"] = "Your review has been updated!";
             }
@@ -151,107 +145,20 @@ namespace Unleashed_RP.Pages.Products
         {
             try
             {
-                var userIdStr = User.FindFirstValue(ClaimTypes.NameIdentifier);
-                if (string.IsNullOrEmpty(userIdStr))
+                string username = HttpContext.Session.GetString("username");
+                if (string.IsNullOrEmpty(username))
                 {
                     TempData["ErrorMessage"] = "You must be logged in to delete a review.";
                     return RedirectToPage("/Account/Login", new { returnUrl = Url.Page("/Products/Details", new { id = productId }) });
                 }
-                var userId = Guid.Parse(userIdStr);
 
-                await _reviewService.DeleteAsync(reviewId, userId);
+                await _reviewService.DeleteAsync(reviewId, username);
                 TempData["SuccessMessage"] = "Your review has been deleted!";
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error deleting review");
                 TempData["ErrorMessage"] = "An error occurred while deleting your review.";
-            }
-
-            return RedirectToPage(new { id = productId });
-        }
-
-        public async Task<IActionResult> OnPostAddCommentAsync(int reviewId, Guid productId)
-        {
-            if (!ModelState.IsValid)
-            {
-                return Page();
-            }
-
-            try
-            {
-                var userIdStr = User.FindFirstValue(ClaimTypes.NameIdentifier);
-                if (string.IsNullOrEmpty(userIdStr))
-                {
-                    TempData["ErrorMessage"] = "You must be logged in to add a comment.";
-                    return RedirectToPage("/Account/Login", new { returnUrl = Url.Page("/Products/Details", new { id = productId }) });
-                }
-                var userId = Guid.Parse(userIdStr);
-
-                NewComment.ReviewId = reviewId;
-                NewComment.UserId = userId;
-
-                await _commentService.CreateAsync(NewComment);
-                TempData["SuccessMessage"] = "Your comment has been added successfully!";
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error adding comment");
-                TempData["ErrorMessage"] = "An error occurred while adding your comment.";
-            }
-
-            return RedirectToPage(new { id = productId });
-        }
-
-        public async Task<IActionResult> OnPostEditCommentAsync(int commentId, int reviewId, Guid productId)
-        {
-            if (!ModelState.IsValid)
-            {
-                return Page();
-            }
-
-            try
-            {
-                var userIdStr = User.FindFirstValue(ClaimTypes.NameIdentifier);
-                if (string.IsNullOrEmpty(userIdStr))
-                {
-                    TempData["ErrorMessage"] = "You must be logged in to edit a comment.";
-                    return RedirectToPage("/Account/Login", new { returnUrl = Url.Page("/Products/Details", new { id = productId }) });
-                }
-                var userId = Guid.Parse(userIdStr);
-
-                NewComment.UserId = userId;
-                await _commentService.UpdateAsync(commentId, NewComment);
-                TempData["SuccessMessage"] = "Your comment has been updated!";
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error editing comment");
-                TempData["ErrorMessage"] = "An error occurred while editing your comment.";
-            }
-
-            return RedirectToPage(new { id = productId });
-        }
-
-        public async Task<IActionResult> OnPostDeleteCommentAsync(int commentId, int reviewId, Guid productId)
-        {
-            try
-            {
-                var userIdStr = User.FindFirstValue(ClaimTypes.NameIdentifier);
-                if (string.IsNullOrEmpty(userIdStr))
-                {
-                    TempData["ErrorMessage"] = "You must be logged in to delete a comment.";
-                    return RedirectToPage("/Account/Login", new { returnUrl = Url.Page("/Products/Details", new { id = productId }) });
-                }
-                var userId = Guid.Parse(userIdStr);
-
-                await _commentService.DeleteAsync(commentId, userId);
-                TempData["SuccessMessage"] = "Your comment has been deleted!";
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error deleting comment");
-                TempData["ErrorMessage"] = "An error occurred while deleting your comment.";
             }
 
             return RedirectToPage(new { id = productId });

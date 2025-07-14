@@ -1,16 +1,10 @@
 ﻿@page
-@using System.Security.Claims
 @model Unleashed_RP.Pages.Products.DetailsModel
 
 @{
     ViewData["Title"] = Model.Product.ProductName;
     var firstVariation = Model.Product.Variations?.FirstOrDefault();
-    var userIdStr = User.FindFirstValue(System.Security.Claims.ClaimTypes.NameIdentifier);
-    Guid? userId = null;
-    if (!string.IsNullOrEmpty(userIdStr))
-    {
-        userId = Guid.Parse(userIdStr);
-    }
+    var username = HttpContext.Session.GetString("username");
 }
 
 <style>
@@ -59,6 +53,25 @@
         border-radius: 0.5rem;
         margin-top: 1rem;
     }
+
+    .star-rating {
+        color: #ffc107;
+        font-size: 1.5rem;
+    }
+
+    .review-card {
+        border-left: 4px solid #0d6efd;
+    }
+
+    .raters-list {
+        max-height: 200px;
+        overflow-y: auto;
+    }
+
+    .rater-item {
+        padding: 0.5rem;
+        border-bottom: 1px solid #eee;
+    }
 </style>
 
 <div class="container my-5">
@@ -100,6 +113,31 @@
                 <h1 class="product-title mb-2">@Model.Product.ProductName</h1>
                 <p class="text-muted mb-3">Brand: <span class="text-primary">@Model.Product.Brand?.BrandName</span></p>
 
+                <!-- Rating Display -->
+                @if (Model.AverageRating.HasValue)
+                {
+                    <div class="mb-3">
+                        <div class="star-rating">
+                            @for (int i = 1; i <= 5; i++)
+                            {
+                                if (i <= Model.AverageRating.Value)
+                                {
+                                    <i class="fas fa-star"></i>
+                                }
+                                else if (i - 0.5 <= Model.AverageRating.Value)
+                                {
+                                    <i class="fas fa-star-half-alt"></i>
+                                }
+                                else
+                                {
+                                    <i class="far fa-star"></i>
+                                }
+                            }
+                            <span class="ms-2">@Model.AverageRating.Value.ToString("0.0") (@Model.Reviews.Count reviews)</span>
+                        </div>
+                    </div>
+                }
+
                 <div class="description mb-4">
                     <h5>Description</h5>
                     <p class="text-justify">@(string.IsNullOrEmpty(Model.Product.ProductDescription) ? "No description available" : Model.Product.ProductDescription)</p>
@@ -135,6 +173,158 @@
                     <button class="btn btn-danger btn-lg w-100" onclick="addToCart()">
                         <i class="fas fa-shopping-cart me-2"></i> Add to Cart
                     </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Reviews Section -->
+    <div class="row mt-5">
+        <div class="col-md-8">
+            <h3 class="mb-4">Customer Reviews</h3>
+
+            @if (TempData["SuccessMessage"] != null)
+            {
+                <div class="alert alert-success">@TempData["SuccessMessage"]</div>
+            }
+            @if (TempData["ErrorMessage"] != null)
+            {
+                <div class="alert alert-danger">@TempData["ErrorMessage"]</div>
+            }
+
+            <!-- Add Review Form -->
+            @if (!string.IsNullOrEmpty(username))
+            {
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <h5 class="card-title">Write a Review</h5>
+                        <form method="post" asp-page-handler="AddReview">
+                            <input type="hidden" name="productId" value="@Model.Product.ProductId" />
+                            <div class="mb-3">
+                                <label for="rating" class="form-label">Rating</label>
+                                <select class="form-select" asp-for="NewReview.ReviewRating" required>
+                                    <option value="">Select rating</option>
+                                    <option value="1">1 Star</option>
+                                    <option value="2">2 Stars</option>
+                                    <option value="3">3 Stars</option>
+                                    <option value="4">4 Stars</option>
+                                    <option value="5">5 Stars</option>
+                                </select>
+                            </div>
+                            <button type="submit" class="btn btn-primary">Submit Review</button>
+                        </form>
+                    </div>
+                </div>
+            }
+            else
+            {
+                <div class="alert alert-info">
+                    <a href="/Authentication/Login?returnUrl=@Url.Page("/Products/Details", new { id = Model.Product.ProductId })" class="alert-link">Login</a> to write a review.
+                </div>
+            }
+
+            <!-- Reviews List -->
+            @if (Model.Reviews.Any())
+            {
+                foreach (var review in Model.Reviews)
+                {
+                    <div class="card mb-3 review-card">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between">
+                                <div>
+                                    <h5 class="card-title">@review.User.UserFullname</h5>
+                                    <div class="star-rating mb-2">
+                                        @for (int i = 1; i <= 5; i++)
+                                        {
+                                            <i class="@(i <= review.ReviewRating ? "fas" : "far") fa-star"></i>
+                                        }
+                                    </div>
+                                </div>
+                                <small class="text-muted">@review.ReviewCreatedAt?.ToString("MMM dd, yyyy") ?? "N/A"</small>
+                            </div>
+
+                            <!-- Edit/Delete buttons for review owner -->
+                            @if (username == review.User.UserUsername)
+                            {
+                                <div class="d-flex gap-2 mt-2">
+                                    <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#editReviewModal-@review.ReviewId">
+                                        Edit
+                                    </button>
+                                    <form method="post" asp-page-handler="DeleteReview">
+                                        <input type="hidden" name="reviewId" value="@review.ReviewId" />
+                                        <input type="hidden" name="productId" value="@Model.Product.ProductId" />
+                                        <button type="submit" class="btn btn-sm btn-outline-danger">Delete</button>
+                                    </form>
+                                </div>
+
+                                <!-- Edit Review Modal -->
+                                <div class="modal fade" id="editReviewModal-@review.ReviewId" tabindex="-1" aria-hidden="true">
+                                    <div class="modal-dialog">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <h5 class="modal-title">Edit Review</h5>
+                                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                            </div>
+                                            <form method="post" asp-page-handler="EditReview">
+                                                <div class="modal-body">
+                                                    <input type="hidden" name="reviewId" value="@review.ReviewId" />
+                                                    <input type="hidden" name="productId" value="@Model.Product.ProductId" />
+                                                    <div class="mb-3">
+                                                        <label class="form-label">Rating</label>
+                                                        <select class="form-select" asp-for="NewReview.ReviewRating" required>
+                                                            <option value="">Select rating</option>
+                                                            @for (int i = 1; i <= 5; i++)
+                                                            {
+                                                                <option value="@i" selected="@(i == review.ReviewRating)">@i Star@(i > 1 ? "s" : "")</option>
+                                                            }
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                                <div class="modal-footer">
+                                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                                    <button type="submit" class="btn btn-primary">Save changes</button>
+                                                </div>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                }
+            }
+        </div>
+
+        <!-- Raters List Section -->
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title">People who rated this product</h5>
+                </div>
+                <div class="card-body raters-list">
+                    @if (Model.Reviews.Any())
+                    {
+                        foreach (var review in Model.Reviews)
+                        {
+                            <div class="rater-item">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <span>@review.User.UserFullname</span>
+                                    <div class="star-rating small">
+                                        @for (int i = 1; i <= 5; i++)
+                                        {
+                                            <i class="@(i <= review.ReviewRating ? "fas" : "far") fa-star"></i>
+                                        }
+                                    </div>
+                                </div>
+                                <small class="text-muted">@review.ReviewCreatedAt?.ToString("MMM dd, yyyy") ?? "N/A"</small>
+
+                            </div>
+                        }
+                    }
+                    else
+                    {
+                        <div class="text-muted">No ratings yet</div>
+                    }
                 </div>
             </div>
         </div>
