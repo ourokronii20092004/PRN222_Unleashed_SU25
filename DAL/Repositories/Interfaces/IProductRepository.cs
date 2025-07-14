@@ -37,7 +37,9 @@ namespace DAL.Repositories.Interfaces
         Task<int> CountAllProductsAsync();
         Task<int> CountSearchResultsAsync(string query);
         Task<List<Product>> GetProductsWithPagingAsync(int skip, int take, string query);
+        Task<List<Product>> GetProductsWithPagingHomePageAsync(int skip, int take, string query);
         Task<int> GetProductsCountAsync(string query);
+        Task<int> GetProductsCountHomePageAsync(string query);
     }
 
 }

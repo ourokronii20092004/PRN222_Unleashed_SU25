@@ -259,7 +259,6 @@ namespace BLL.Services
 
             return product;
         }
-
         public async Task<List<ProductDetailDTO>> GetProductsInStockAsync()
         {
             var productsInStock = await _productRepository.FindProductsInStockAsync();
@@ -500,6 +499,52 @@ namespace BLL.Services
                 PageSize = pageSize
             };
         }
+        public async Task<DAL.Models.PagedResult<ProductListDTO>> GetProductsWithPagingHomePageAsync(int page, int pageSize, string query)
+        {
+            int skip = (page - 1) * pageSize;
 
+            var products = await _productRepository.GetProductsWithPagingHomePageAsync(skip, pageSize, query);
+            var totalCount = await _productRepository.GetProductsCountHomePageAsync(query);
+
+            var productIds = products.Select(p => p.ProductId).ToList();
+            if (!productIds.Any())
+            {
+                return new DAL.Models.PagedResult<ProductListDTO>
+                {
+                    Items = new List<ProductListDTO>(),
+                    TotalCount = 0,
+                    CurrentPage = page,
+                    PageSize = pageSize
+                };
+            }
+            var variations = await _variationRepository.GetVariationsByProductIdsAsync(productIds);
+
+            var variationsByProductId = variations
+                .GroupBy(v => v.ProductId)
+                .ToDictionary(g => g.Key, g => g.ToList());
+
+            var productListDTOs = new List<ProductListDTO>();
+
+            foreach (var product in products)
+            {
+                var productDTO = MapToProductListDTO(product, variationsByProductId);
+                productListDTOs.Add(productDTO);
+            }
+            var ratingsDictionary = await _reviewRepository.GetAverageRatingsForProductsAsync(productIds);
+            foreach (var dto in productListDTOs)
+            {
+                if (ratingsDictionary.TryGetValue(dto.ProductId, out double? avgRating))
+                {
+                    dto.AverageRating = avgRating;
+                }
+            }
+            return new DAL.Models.PagedResult<ProductListDTO>
+            {
+                Items = productListDTOs,
+                TotalCount = totalCount,
+                CurrentPage = page,
+                PageSize = pageSize
+            };
+        }
     }
 }

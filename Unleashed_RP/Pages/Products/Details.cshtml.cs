@@ -1,5 +1,4 @@
 ﻿using BLL.Services.Interfaces;
-using DAL.DTOs.CommentDTOs;
 using DAL.DTOs.ReviewDTOs;
 using DAL.Models;
 using Microsoft.AspNetCore.Mvc;
@@ -23,9 +22,6 @@ namespace Unleashed_RP.Pages.Products
 
         [BindProperty]
         public ReviewCreateDTO NewReview { get; set; } = new ReviewCreateDTO();
-
-        [BindProperty]
-        public CommentCreateDTO NewComment { get; set; } = new CommentCreateDTO();
 
         public DetailsModel(
             IProductService productService,
@@ -97,8 +93,13 @@ namespace Unleashed_RP.Pages.Products
                     return RedirectToPage(new { id = productId });
                 }
 
+                if (NewReview.User == null)
+                {
+                    NewReview.User = new DAL.Models.User();
+                }
                 NewReview.ProductId = productId;
                 NewReview.User.UserUsername = username;
+                NewReview.ReviewCreatedAt = DateTimeOffset.UtcNow;
 
                 await _reviewService.CreateAsync(NewReview);
                 TempData["SuccessMessage"] = "Your review has been added successfully!";
@@ -128,6 +129,10 @@ namespace Unleashed_RP.Pages.Products
                     return RedirectToPage("/Account/Login", new { returnUrl = Url.Page("/Products/Details", new { id = productId }) });
                 }
 
+                if (NewReview.User == null)
+                {
+                    NewReview.User = new DAL.Models.User();
+                }
                 NewReview.User.UserUsername = username;
                 await _reviewService.UpdateAsync(reviewId, NewReview);
                 TempData["SuccessMessage"] = "Your review has been updated!";
