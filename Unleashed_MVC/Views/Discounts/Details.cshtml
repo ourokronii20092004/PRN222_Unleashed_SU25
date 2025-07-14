@@ -1,96 +1,81 @@
-﻿@model DAL.Models.Discount
+﻿@model DAL.DTOs.DiscountDTOs.DiscountDTO
 
 @{
-    ViewData["Title"] = "Details";
+    ViewData["Title"] = "Discount Details";
+
+    // Hàm chuyển đổi sang giờ Việt Nam
+    TimeZoneInfo vietnamZone;
+    try { vietnamZone = TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time"); }
+    catch { vietnamZone = TimeZoneInfo.FindSystemTimeZoneById("Asia/Ho_Chi_Minh"); }
+
+    string FormatVietnamTime(DateTimeOffset? dto)
+    {
+        if (!dto.HasValue) return "N/A";
+        var vietnamTime = TimeZoneInfo.ConvertTime(dto.Value, vietnamZone);
+        return vietnamTime.ToString("dd/MM/yyyy HH:mm");
+    }
 }
 
-<h1>Details</h1>
+<div class="container mt-4">
+    <div class="card shadow-sm">
+        <div class="card-header bg-info text-white d-flex justify-content-between align-items-center">
+            <h4 class="mb-0"><i class="bi bi-ticket-detailed"></i> Details for: @Model.DiscountCode</h4>
+            <a asp-action="Index" class="btn btn-sm btn-light">Back to List</a>
+        </div>
+        <div class="card-body">
+            <dl class="row">
+                <dt class="col-sm-3">ID</dt>
+                <dd class="col-sm-9">@Model.DiscountId</dd>
 
-<div>
-    <h4>Discount</h4>
-    <hr />
-    <dl class="row">
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.DiscountCode)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.DiscountCode)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.DiscountValue)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.DiscountValue)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.DiscountDescription)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.DiscountDescription)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.DiscountMinimumOrderValue)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.DiscountMinimumOrderValue)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.DiscountMaximumValue)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.DiscountMaximumValue)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.DiscountUsageLimit)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.DiscountUsageLimit)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.DiscountStartDate)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.DiscountStartDate)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.DiscountEndDate)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.DiscountEndDate)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.DiscountCreatedAt)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.DiscountCreatedAt)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.DiscountUpdatedAt)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.DiscountUpdatedAt)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.DiscountUsageCount)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.DiscountUsageCount)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.DiscountStatus)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.DiscountStatus.DiscountStatusId)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.DiscountType)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.DiscountType.DiscountTypeId)
-        </dd>
-    </dl>
-</div>
-<div>
-    <a asp-action="Edit" asp-route-id="@Model?.DiscountId">Edit</a> |
-    <a asp-action="Index">Back to List</a>
+                <dt class="col-sm-3">Code</dt>
+                <dd class="col-sm-9"><code>@Model.DiscountCode</code></dd>
+
+                <dt class="col-sm-3">Description</dt>
+                <dd class="col-sm-9">@Model.DiscountDescription</dd>
+
+                <hr class="my-2" />
+
+                <dt class="col-sm-3">Type</dt>
+                <dd class="col-sm-9"><span class="badge bg-primary">@Model.DiscountTypeName</span></dd>
+
+                <dt class="col-sm-3">Value</dt>
+                <dd class="col-sm-9">@Model.DiscountValue.ToString("N0")</dd>
+
+                <dt class="col-sm-3">Maximum Value</dt>
+                <dd class="col-sm-9">@(Model.DiscountMaximumValue?.ToString("N0") ?? "N/A")</dd>
+
+                <dt class="col-sm-3">Minimum Order Value</dt>
+                <dd class="col-sm-9">@(Model.DiscountMinimumOrderValue?.ToString("N0") ?? "N/A")</dd>
+
+                <hr class="my-2" />
+
+                <dt class="col-sm-3">Status</dt>
+                <dd class="col-sm-9"><span class="badge bg-success">@Model.DiscountStatusName</span></dd>
+
+                <dt class="col-sm-3">Usage Limit</dt>
+                <dd class="col-sm-9">@(Model.DiscountUsageLimit?.ToString() ?? "Unlimited")</dd>
+
+                <dt class="col-sm-3">Times Used</dt>
+                <dd class="col-sm-9">@Model.DiscountUsageCount</dd>
+
+                <hr class="my-2" />
+
+                <dt class="col-sm-3">Start Date (VN Time)</dt>
+                <dd class="col-sm-9">@FormatVietnamTime(Model.DiscountStartDate)</dd>
+
+                <dt class="col-sm-3">End Date (VN Time)</dt>
+                <dd class="col-sm-9">@FormatVietnamTime(Model.DiscountEndDate)</dd>
+
+                <dt class="col-sm-3">Created At (VN Time)</dt>
+                <dd class="col-sm-9">@FormatVietnamTime(Model.DiscountCreatedAt)</dd>
+
+                <dt class="col-sm-3">Last Updated (VN Time)</dt>
+                <dd class="col-sm-9">@FormatVietnamTime(Model.DiscountUpdatedAt)</dd>
+            </dl>
+        </div>
+        <div class="card-footer">
+            <a asp-action="Edit" asp-route-id="@Model.DiscountId" class="btn btn-primary"><i class="bi bi-pencil-fill"></i> Edit</a>
+            <a asp-action="Delete" asp-route-id="@Model.DiscountId" class="btn btn-danger"><i class="bi bi-trash3-fill"></i> Delete</a>
+        </div>
+    </div>
 </div>
