@@ -10,12 +10,9 @@ namespace DAL.Repositories.Interfaces
     public interface ICartRepository 
         //: IGenericRepository<Cart,( Guid,int )>
     {
-        Task<List<Cart>> GetCartByUserIdAsync(Guid? userId);
-        Task<Cart?> GetCartItemAsync(Guid userId, int variationId);
-        Task AddToCartAsync(Cart cart);
-        Task UpdateCartItemAsync(Cart cart);
-        Task RemoveCartItemAsync(Guid userId, int variationId);
-        Task<Guid?> GetUserIdByUserNameAsync(string username);
-        //Task ClearCartAsync(Guid userId);
+        Task<List<Cart>> GetAllByUserIdAsync(Guid userId);
+        Task AddOrUpdateAsync(Cart cart);
+        Task RemoveAsync(Guid userId, int variationId);
+        Task RemoveAllAsync(Guid userId);
     }
 }

@@ -19,97 +19,50 @@ namespace DAL.Repositories
             _unleashedContext = unleashedContext;
         }
 
-        public async Task AddToCartAsync(Cart cart)
+        public async Task AddOrUpdateAsync(Cart cart)
         {
-            _unleashedContext.Carts.Add(cart);
+            var existing = await _unleashedContext.Carts.FirstOrDefaultAsync(c => c.UserId == cart.UserId && c.VariationId == cart.VariationId);
+            if (existing == null)
+            {
+                await _unleashedContext.Carts.AddAsync(cart);
+            }
+            else
+            {
+                existing.CartQuantity = (existing.CartQuantity ?? 0) + (cart.CartQuantity ?? 0);
+                _unleashedContext.Carts.Update(existing);
+            }
             await _unleashedContext.SaveChangesAsync();
         }
 
-        //    public async Task AddAsync(Cart entity, CancellationToken cancellationToken = default)
-        //    {
-        //        await _unleashedContext.AddAsync(entity, cancellationToken);
-        //        await _unleashedContext.SaveChangesAsync(cancellationToken);
-        //    }
-
-        //    public async Task AddToCartAsync(List<Cart> cart)
-        //    {
-        //        foreach (var cartItem in cart)
-        //        {
-        //            _unleashedContext.Carts.Add(cartItem);
-        //        }
-        //        await _unleashedContext.SaveChangesAsync();
-        //    }
-
-        //    public async Task Delete(Cart entity, CancellationToken cancellationToken = default)
-        //    {
-        //        _unleashedContext.Remove(entity);
-        //        await _unleashedContext.SaveChangesAsync(cancellationToken);
-        //    }
-
-        //    public async Task<IEnumerable<Cart>> FindAsync(Expression<Func<Cart, bool>> predicate, CancellationToken cancellationToken = default)
-        //    {
-        //        return await _unleashedContext.Carts.Where(predicate).ToListAsync(cancellationToken);
-        //    }
-
-        //    public async Task<IEnumerable<Cart>> GetAllAsync()
-        //    {
-        //        return await _unleashedContext.Carts.ToListAsync();
-        //    }
-
-        //    public async Task<Cart> GetByIdAsync((Guid, int) id, CancellationToken cancellationToken = default)
-        //    {
-        //        var (userId, variationId) = id;
-        //        return await _unleashedContext.Carts.AsNoTracking().FirstOrDefaultAsync(x => x.UserId == userId && x.VariationId == variationId) ??
-        //            throw new Exception();
-        //    }
-
-        public async Task<List<Cart>> GetCartByUserIdAsync(Guid? userId)
+        public async Task<List<Cart>> GetAllByUserIdAsync(Guid userId)
         {
-            return await _unleashedContext.Carts
-            .Include(c => c.Variation)
-            .ThenInclude(v => v.Product)
-            .Include(c => c.Variation.Color)
-            .Include(c => c.Variation.Size)
-            .Where(c => c.UserId == userId)
-            .ToListAsync();
+            return await _unleashedContext.Carts.Include(c => c.Variation).ThenInclude(v => v.Product).Where(c => c.UserId == userId).ToListAsync();
         }
 
-        public async Task<Cart?> GetCartItemAsync(Guid userId, int variationId)
+        public async Task RemoveAllAsync(Guid userId)
         {
-            return await _unleashedContext.Carts
-                .FirstOrDefaultAsync(c => c.UserId == userId && c.VariationId == variationId);
-        }
-
-        public async Task<Guid?> GetUserIdByUserNameAsync(string username)
-        {
-            var user = await _unleashedContext.Users
-           .Where(u => u.UserUsername.ToLower() == username.ToLower())
-           .Select(u => u.UserId)
-           .FirstOrDefaultAsync();
-            return user == Guid.Empty ? null : user;
-        }
-
-        public async Task RemoveCartItemAsync(Guid userId, int variationId)
-        {
-            var cartItem = await GetCartItemAsync(userId, variationId);
-            if (cartItem != null)
+            var carts = _unleashedContext.Carts.Where(c => c.UserId == userId);
+            if (!carts.Any())
             {
-                _unleashedContext.Carts.Remove(cartItem);
+                throw new Exception("no item in cart");
+                _unleashedContext.Carts.RemoveRange(carts);
                 await _unleashedContext.SaveChangesAsync();
             }
         }
 
-        //public async Task Update(Cart entity, CancellationToken cancellationToken = default)
-        //{
-        //    _unleashedContext.Update(entity);
-        //    await _unleashedContext.SaveChangesAsync(cancellationToken);
-        //}
-
-        public async Task UpdateCartItemAsync(Cart cart)
+        public async Task RemoveAsync(Guid userId, int variationId)
         {
-            _unleashedContext.Carts.Update(cart);
-            await _unleashedContext.SaveChangesAsync();
+            
+            var cart = await _unleashedContext.Carts.FirstOrDefaultAsync(c => c.UserId == userId && c.VariationId == variationId);
+            if (cart == null)
+            {
+                _unleashedContext.Carts.Remove(cart);
+                await _unleashedContext.SaveChangesAsync();
+            }
+            else
+            {
+                throw new Exception("Cart not found");
+            }
         }
-
     }
 }

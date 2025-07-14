@@ -43,5 +43,6 @@ namespace DAL.DTOs.UserDTOs
         public DateTimeOffset? UserCreatedAt { get; set; }
         [DisplayName("Updated At")]
         public DateTimeOffset? UserUpdatedAt { get; set; }
+        public Guid UserId { get; set; }
     }
 }
