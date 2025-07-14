@@ -72,6 +72,18 @@
         padding: 0.5rem;
         border-bottom: 1px solid #eee;
     }
+
+    .star-select {
+        font-size: 2rem;
+        color: #ccc;
+        cursor: pointer;
+        transition: color 0.3s;
+    }
+
+        .star-select.hovered,
+        .star-select.selected {
+            color: #ffc107;
+        }
 </style>
 
 <div class="container my-5">
@@ -197,21 +209,20 @@
             {
                 <div class="card mb-4">
                     <div class="card-body">
-                        <h5 class="card-title">Write a Review</h5>
+                        <h5 class="card-title">Add Rating</h5>
                         <form method="post" asp-page-handler="AddReview">
                             <input type="hidden" name="productId" value="@Model.Product.ProductId" />
                             <div class="mb-3">
                                 <label for="rating" class="form-label">Rating</label>
-                                <select class="form-select" asp-for="NewReview.ReviewRating" required>
-                                    <option value="">Select rating</option>
-                                    <option value="1">1 Star</option>
-                                    <option value="2">2 Stars</option>
-                                    <option value="3">3 Stars</option>
-                                    <option value="4">4 Stars</option>
-                                    <option value="5">5 Stars</option>
-                                </select>
+                                <div class="star-rating-select mb-2" id="starRatingInput">
+                                    @for (int i = 1; i <= 5; i++)
+                                    {
+                                        <i class="far fa-star star-select" data-value="@i"></i>
+                                    }
+                                </div>
+                                <input type="hidden" asp-for="NewReview.ReviewRating" id="ratingValue" required />
                             </div>
-                            <button type="submit" class="btn btn-primary">Submit Review</button>
+                            <button type="submit" class="btn btn-primary">Submit Rating</button>
                         </form>
                     </div>
                 </div>
@@ -219,7 +230,7 @@
             else
             {
                 <div class="alert alert-info">
-                    <a href="/Authentication/Login?returnUrl=@Url.Page("/Products/Details", new { id = Model.Product.ProductId })" class="alert-link">Login</a> to write a review.
+                    <a href="/Authentication/Login?returnUrl=@Url.Page("/Products/Details", new { id = Model.Product.ProductId })" class="alert-link">Login</a> to rating.
                 </div>
             }
 
@@ -370,6 +381,36 @@
             const selectedSize = document.getElementById('variationSize').textContent;
 
             alert(`Added ${quantity} item(s) to cart\nColor: ${selectedColor}\nSize: ${selectedSize}`);
+        }
+
+
+                document.querySelectorAll('.star-select').forEach(star => {
+            star.addEventListener('mouseover', function () {
+                const value = parseInt(this.getAttribute('data-value'));
+                highlightStars(value);
+            });
+
+            star.addEventListener('mouseout', function () {
+                const current = parseInt(document.getElementById('ratingValue').value) || 0;
+                highlightStars(current);
+            });
+
+            star.addEventListener('click', function () {
+                const selected = parseInt(this.getAttribute('data-value'));
+                document.getElementById('ratingValue').value = selected;
+                highlightStars(selected);
+            });
+        });
+
+        function highlightStars(value) {
+            document.querySelectorAll('.star-select').forEach(star => {
+                const starValue = parseInt(star.getAttribute('data-value'));
+                if (starValue <= value) {
+                    star.classList.add('selected');
+                } else {
+                    star.classList.remove('selected');
+                }
+            });
         }
     </script>
 }
