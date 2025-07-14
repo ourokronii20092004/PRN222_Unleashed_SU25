@@ -438,6 +438,29 @@ namespace DAL.Repositories
                 .Take(take)
                 .ToListAsync();
         }
+        public async Task<List<Product>> GetProductsWithPagingHomePageAsync(int skip, int take, string query)
+        {
+            var products = _context.Products
+                .Include(p => p.Brand)
+                .Include(p => p.ProductStatus)
+                .Include(p => p.Categories)
+                .Where(p => p.Variations.Any(v => v.StockVariations.Any(sv => sv.StockQuantity > 0)))
+                .AsQueryable();
+
+            if (!string.IsNullOrEmpty(query))
+            {
+                products = products.Where(p =>
+                    p.ProductName.Contains(query) ||
+                    p.ProductDescription.Contains(query) ||
+                    p.Categories.Any(c => c.CategoryName.Contains(query)));
+            }
+
+            return await products
+                .OrderBy(p => p.ProductName)
+                .Skip(skip)
+                .Take(take)
+                .ToListAsync();
+        }
 
         public async Task<int> GetProductsCountAsync(string query)
         {
@@ -452,7 +475,21 @@ namespace DAL.Repositories
 
             return await queryable.CountAsync();
         }
+        public async Task<int> GetProductsCountHomePageAsync(string query)
+        {
+            var queryable = _context.Products
+                .Where(p => p.Variations.Any(v => v.StockVariations.Any(sv => sv.StockQuantity > 0)));
 
+            if (!string.IsNullOrEmpty(query))
+            {
+                queryable = queryable.Where(p =>
+                    p.ProductName.Contains(query) ||
+                    p.ProductDescription.Contains(query) ||
+                    p.Categories.Any(c => c.CategoryName.Contains(query)));
+            }
+
+            return await queryable.CountAsync();
+        }
 
         public async Task<List<ProductImportSelectionDTO>> GetProductsForImportSelectionAsync(int stockId)
         {

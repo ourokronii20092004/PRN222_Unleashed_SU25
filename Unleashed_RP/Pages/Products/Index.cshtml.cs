@@ -38,7 +38,7 @@ namespace Unleashed_RP.Pages.Products
                 pageSize = Math.Clamp(pageSize, 1, 100);
                 Query = Query ?? string.Empty;
 
-                var pagedResult = await _productService.GetProductsWithPagingAsync(CurrentPage, pageSize, Query);
+                var pagedResult = await _productService.GetProductsWithPagingHomePageAsync(CurrentPage, pageSize, Query);
 
                 Product = pagedResult.Items;
                 TotalCount = pagedResult.TotalCount;
