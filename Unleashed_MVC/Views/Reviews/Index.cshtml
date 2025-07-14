@@ -136,7 +136,7 @@
                                     <td>
                                         <div class="star-rating">
                                             @{
-                                                int rating = item.ReviewRating ?? 0;
+                                                int rating = item.ReviewRating;
                                                 rating = Math.Clamp(rating, 0, 5);
                                             }
                                             @for (int i = 0; i < rating; i++)

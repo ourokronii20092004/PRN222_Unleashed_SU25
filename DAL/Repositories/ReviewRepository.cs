@@ -76,10 +76,10 @@ namespace DAL.Repositories
             return await _context.Reviews.AnyAsync(r => r.ReviewId == id);
         }
 
-        public async Task<bool> HasUserReviewedProductAsync(Guid userId, Guid productId)
+        public async Task<bool> HasUserReviewedProductAsync(string username, Guid productId)
         {
             return await _context.Reviews
-                .AnyAsync(r => r.UserId == userId && r.ProductId == productId);
+                .AnyAsync(r => r.User.UserUsername == username && r.ProductId == productId);
         }
 
         public async Task<List<Review>> GetReviewsWithPagingAsync(int skip, int take, string query)
@@ -151,10 +151,11 @@ namespace DAL.Repositories
                 .FirstOrDefaultAsync(r => r.ReviewId == reviewId);
         }
 
-        public async Task<Review> GetUserReviewForProductAsync(Guid userId, Guid productId)
+        public async Task<Review> GetUserReviewForProductAsync(string username, Guid productId)
         {
             return await _context.Reviews
-                .FirstOrDefaultAsync(r => r.UserId == userId && r.ProductId == productId);
+                .Include(r => r.User)
+                .FirstOrDefaultAsync(r => r.User.UserUsername == username && r.ProductId == productId);
         }
 
         public async Task AddReviewAsync(Review review)
@@ -186,10 +187,10 @@ namespace DAL.Repositories
                 .AverageAsync(r => (double?)r.ReviewRating);
         }
 
-        public async Task<bool> HasUserOrderedProductAsync(Guid userId, Guid productId)
+        public async Task<bool> HasUserOrderedProductAsync(string username, Guid productId)
         {
             return await _context.Orders
-                .AnyAsync(o => o.UserId == userId &&
+                .AnyAsync(o => o.User.UserUsername == username &&
                     _context.Reviews.Any(r => r.OrderId == o.OrderId && r.ProductId == productId));
         }
 

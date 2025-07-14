@@ -33,9 +33,9 @@ namespace BLL.Services
             return _mapper.Map<ReviewDetailDTO>(review);
         }
 
-        public async Task<ReviewDetailDTO> GetUserReviewForProductAsync(Guid userId, Guid productId)
+        public async Task<ReviewDetailDTO> GetUserReviewForProductAsync(string username, Guid productId)
         {
-            var review = await _reviewRepository.GetUserReviewForProductAsync(userId, productId);
+            var review = await _reviewRepository.GetUserReviewForProductAsync(username, productId);
             return _mapper.Map<ReviewDetailDTO>(review);
         }
 
@@ -48,17 +48,17 @@ namespace BLL.Services
         public async Task UpdateAsync(int reviewId, ReviewCreateDTO dto)
         {
             var review = await _reviewRepository.GetReviewByIdAsync(reviewId);
-            if (review == null || review.UserId != dto.UserId)
+            if (review == null || review.User.UserUsername != dto.User.UserUsername)
                 throw new KeyNotFoundException("Review not found or user mismatch");
 
             _mapper.Map(dto, review);
             await _reviewRepository.UpdateReviewAsync(review);
         }
 
-        public async Task DeleteAsync(int reviewId, Guid userId)
+        public async Task DeleteAsync(int reviewId, string username)
         {
             var review = await _reviewRepository.GetReviewByIdAsync(reviewId);
-            if (review == null || review.UserId != userId)
+            if (review == null || review.User.UserUsername != username)
                 throw new KeyNotFoundException("Review not found or user mismatch");
 
             await _reviewRepository.DeleteReviewAsync(reviewId);
@@ -69,9 +69,9 @@ namespace BLL.Services
             return await _reviewRepository.GetAverageRatingByProductIdAsync(productId);
         }
 
-        public async Task<bool> HasUserOrderedProductAsync(Guid userId, Guid productId)
+        public async Task<bool> HasUserOrderedProductAsync(string username, Guid productId)
         {
-            return await _reviewRepository.HasUserOrderedProductAsync(userId, productId);
+            return await _reviewRepository.HasUserOrderedProductAsync(username, productId);
         }
 
         public async Task DeleteAsync(int id)

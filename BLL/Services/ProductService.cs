@@ -22,7 +22,6 @@ namespace BLL.Services
         private readonly IColorRepository _colorRepository;
         private readonly IBrandRepository _brandRepository;
         private readonly IReviewRepository _reviewRepository;
-        private readonly ICommentRepository _commentRepository;
 
         private readonly IMapper _mapper;
         private readonly ILogger<ProductService> _logger;
@@ -37,8 +36,7 @@ namespace BLL.Services
             IMapper mapper,
             ILogger<ProductService> logger,
             IBrandRepository brandRepository,
-            IReviewRepository reviewRepository,
-            ICommentRepository commentRepository
+            IReviewRepository reviewRepository
             )
         {
             _productRepository = productRepository;
@@ -50,7 +48,6 @@ namespace BLL.Services
             _mapper = mapper;
             _logger = logger;
             _reviewRepository = reviewRepository;
-            _commentRepository = commentRepository;
         }
 
         public async Task<Product?> AddVariationsToExistingProductAsync(
