@@ -70,6 +70,7 @@ namespace Unleashed_MVC
             builder.Services.AddScoped<IOrderRepository, OrderRepository>();
             builder.Services.AddScoped<IReviewRepository, ReviewRepository>();
             builder.Services.AddScoped<ICommentRepository, CommentRepository>();
+            builder.Services.AddScoped<IDiscountRepository, DiscountRepository>();
 
             // --- Services ---  
             builder.Services.AddScoped<IBrandService, BrandService>();

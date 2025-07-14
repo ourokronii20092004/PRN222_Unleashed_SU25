@@ -1,9 +1,10 @@
-﻿using DAL.Models; // Thêm using này
-using Microsoft.AspNetCore.Mvc;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc.Rendering; // Thêm using này
+﻿using BLL.Services.Interfaces; // Thêm using này để truy cập DbContext
 using DAL.Data;
-using BLL.Services.Interfaces; // Thêm using này để truy cập DbContext
+using DAL.DTOs.DiscountDTOs;
+using DAL.Models; // Thêm using này
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering; // Thêm using này
+using System.Threading.Tasks;
 
 namespace Unleashed_MVC.Controllers
 {
@@ -11,159 +12,189 @@ namespace Unleashed_MVC.Controllers
     public class DiscountsController : Controller
     {
         private readonly IDiscountService _discountService;
-        private readonly UnleashedContext _context; // Thêm DbContext để lấy list cho dropdown
+        private readonly ILogger<DiscountsController> _logger;
+        private const int FIXED_AMOUNT_TYPE_ID = 1;
+        private const int PERCENTAGE_TYPE_ID = 2;
+        private const int ACTIVE_STATUS_ID = 1;
+        private const int INACTIVE_STATUS_ID = 3;
 
-        // Sửa constructor
-        public DiscountsController(IDiscountService discountService, UnleashedContext context)
+        public DiscountsController(IDiscountService discountService, ILogger<DiscountsController> logger)
         {
             _discountService = discountService;
-            _context = context;
+            _logger = logger;
         }
 
-        // GET: Discounts
         public async Task<IActionResult> Index()
         {
             var discounts = await _discountService.GetAllDiscountsAsync();
             return View(discounts);
         }
 
-        // --- CÁC ACTION MỚI ---
-
-        // GET: Discounts/Details/5
-        public async Task<IActionResult> Details(int? id)
+        public async Task<IActionResult> Details(int id)
         {
-            if (id == null) return NotFound();
-            var discount = await _discountService.GetDiscountByIdAsync(id.Value);
+            var discount = await _discountService.GetDiscountByIdAsync(id);
             if (discount == null) return NotFound();
             return View(discount);
         }
 
-        // GET: Discounts/Create
-        public IActionResult Create()
+        public async Task<IActionResult> Create()
         {
-            ViewData["DiscountStatusId"] = new SelectList(_context.DiscountStatuses, "DiscountStatusId", "DiscountStatusName");
-            ViewData["DiscountTypeId"] = new SelectList(_context.DiscountTypes, "DiscountTypeId", "DiscountTypeName");
-            return View();
+            await LoadDropdownData();
+            return View(new DiscountCreateDTO());
         }
 
-        // POST: Discounts/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("DiscountStatusId,DiscountTypeId,DiscountCode,DiscountValue,DiscountDescription,DiscountMinimumOrderValue,DiscountMaximumValue,DiscountUsageLimit,DiscountStartDate,DiscountEndDate,DiscountUsageCount")] Discount discount)
+        public async Task<IActionResult> Create(DiscountCreateDTO discountDto)
         {
-            if (ModelState.IsValid)
+            // Thêm logic validate nghiệp vụ của bạn ở đây nếu cần
+            if (discountDto.DiscountStartDate >= discountDto.DiscountEndDate)
             {
-                await _discountService.CreateDiscountAsync(discount);
-                return RedirectToAction(nameof(Index));
-            }
-            ViewData["DiscountStatusId"] = new SelectList(_context.DiscountStatuses, "DiscountStatusId", "DiscountStatusName", discount.DiscountStatusId);
-            ViewData["DiscountTypeId"] = new SelectList(_context.DiscountTypes, "DiscountTypeId", "DiscountTypeName", discount.DiscountTypeId);
-            return View(discount);
-        }
-
-        // GET: Discounts/Edit/5
-        public async Task<IActionResult> Edit(int? id)
-        {
-            if (id == null) return NotFound();
-            var discount = await _discountService.GetDiscountByIdAsync(id.Value);
-            if (discount == null) return NotFound();
-
-            ViewData["DiscountStatusId"] = new SelectList(_context.DiscountStatuses, "DiscountStatusId", "DiscountStatusName", discount.DiscountStatusId);
-            ViewData["DiscountTypeId"] = new SelectList(_context.DiscountTypes, "DiscountTypeId", "DiscountTypeName", discount.DiscountTypeId);
-            return View(discount);
-        }
-
-        // POST: Discounts/Edit/5
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("DiscountId,DiscountStatusId,DiscountTypeId,DiscountCode,DiscountValue,DiscountDescription,DiscountMinimumOrderValue,DiscountMaximumValue,DiscountUsageLimit,DiscountStartDate,DiscountEndDate,DiscountCreatedAt,DiscountUsageCount")] Discount discount)
-        {
-            if (id != discount.DiscountId)
-            {
-                return NotFound();
+                ModelState.AddModelError("DiscountEndDate", "End date must be after start date.");
             }
 
-            ModelState.Remove("DiscountType");
-            ModelState.Remove("DiscountStatus");
-
-            // --- LOGIC NGHIỆP VỤ ---
-            // Giả sử ID của "FIXED AMOUNT" là 1, và của "ACTIVE" / "INACTIVE" là 1 và 2
-            // Bạn nên lấy các ID này từ database thay vì hard-code
-            const int PERCENTAGE_TYPE_ID = 2; // THAY ĐỔI NẾU CẦN
-            const int FIXED_AMOUNT_TYPE_ID = 1;
-            const int ACTIVE_STATUS_ID = 1;     // THAY ĐỔI NẾU CẦN
-            const int INACTIVE_STATUS_ID = 3;   // THAY ĐỔI NẾU CẦN
-
-            // Kiểm tra logic cho FIXED AMOUNT
-            if (discount.DiscountTypeId == PERCENTAGE_TYPE_ID)
+            if (discountDto.DiscountTypeId == PERCENTAGE_TYPE_ID)
             {
-                if (discount.DiscountValue < 1 || discount.DiscountValue > 100)
+                if (discountDto.DiscountValue < 1 || discountDto.DiscountValue > 100)
                 {
-                    ModelState.AddModelError("DiscountValue", "For PERCENTAGE, value must be between 1 and 100.");
+                    ModelState.AddModelError(nameof(discountDto.DiscountValue), "For PERCENTAGE type, the value must be between 1 and 100.");
                 }
             }
-            if (discount.DiscountTypeId == FIXED_AMOUNT_TYPE_ID)
+            else if (discountDto.DiscountTypeId == FIXED_AMOUNT_TYPE_ID)
             {
-                if (discount.DiscountValue > discount.DiscountMaximumValue)
+                if (discountDto.DiscountValue < 10000 || discountDto.DiscountValue > 99999999)
                 {
-                    ModelState.AddModelError("DiscountValue", "DiscountValue can not higher DiscountMaximumValue");
+                    ModelState.AddModelError(nameof(discountDto.DiscountValue), "For FIXED AMOUNT type, the value must be at least 10,000 and lower than 99999999");
                 }
             }
-            // Tự động cập nhật status dựa trên ngày bắt đầu
-            if (discount.DiscountStartDate <= DateTime.Now && discount.DiscountEndDate >= DateTime.Now)
-            {
-                discount.DiscountStatusId = ACTIVE_STATUS_ID;
-            }
-            else if (discount.DiscountStartDate > DateTime.Now || discount.DiscountEndDate < DateTime.Now)
-            {
-                discount.DiscountStatusId = INACTIVE_STATUS_ID;
-            }
-            else if (discount.DiscountStartDate > discount.DiscountEndDate)
-            {
-                ModelState.AddModelError("DiscountEndDate", "End time not before start date.");
-            }
-            else
-            {
-                discount.DiscountStatusId = ACTIVE_STATUS_ID;
-            }
 
-            // --- KẾT THÚC LOGIC NGHIỆP VỤ ---
+            if (discountDto.DiscountStatusId == ACTIVE_STATUS_ID && discountDto.DiscountStartDate > DateTimeOffset.UtcNow)
+            {
+                ModelState.AddModelError(nameof(discountDto.DiscountStatusId), "Cannot set status to Active before the start date.");
+            }
 
             if (ModelState.IsValid)
             {
-                var result = await _discountService.UpdateDiscountAsync(discount);
-                if (result)
+                try
                 {
+                    await _discountService.CreateDiscountAsync(discountDto);
+                    TempData["SuccessMessage"] = "Discount created successfully!";
                     return RedirectToAction(nameof(Index));
                 }
-                else
+                catch (InvalidOperationException ex)
+                {
+                    ModelState.AddModelError("DiscountCode", ex.Message);
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "Error creating discount.");
+                    ModelState.AddModelError("", "An unexpected error occurred. Please try again.");
+                }
+            }
+            await LoadDropdownData();
+            return View(discountDto);
+        }
+
+        public async Task<IActionResult> Edit(int id)
+        {
+            var discountDto = await _discountService.GetDiscountForUpdateAsync(id);
+            if (discountDto == null) return NotFound();
+
+            await LoadDropdownData(discountDto.DiscountStatusId, discountDto.DiscountTypeId);
+            return View(discountDto);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Edit(int id, DiscountUpdateDTO discountDto)
+        {
+            if (id != discountDto.DiscountId) return NotFound();
+
+            if (discountDto.DiscountStartDate >= discountDto.DiscountEndDate)
+            {
+                ModelState.AddModelError("DiscountEndDate", "End date must be after start date.");
+            }
+
+            if (discountDto.DiscountTypeId == PERCENTAGE_TYPE_ID)
+            {
+                if (discountDto.DiscountValue < 1 || discountDto.DiscountValue > 100)
+                {
+                    ModelState.AddModelError(nameof(discountDto.DiscountValue), "For PERCENTAGE type, the value must be between 1 and 100.");
+                }
+            }
+            else if (discountDto.DiscountTypeId == FIXED_AMOUNT_TYPE_ID)
+            {
+                if (discountDto.DiscountValue < 10000)
+                {
+                    ModelState.AddModelError(nameof(discountDto.DiscountValue), "For FIXED AMOUNT type, the value must be at least 10,000.");
+                }
+            }
+
+            if (discountDto.DiscountStatusId == ACTIVE_STATUS_ID && discountDto.DiscountStartDate > DateTimeOffset.UtcNow)
+            {
+                ModelState.AddModelError(nameof(discountDto.DiscountStatusId), "Cannot set status to Active before the start date.");
+            }
+
+            if (ModelState.IsValid)
+            {
+                try
+                {
+                    await _discountService.UpdateDiscountAsync(id, discountDto);
+                    TempData["SuccessMessage"] = "Discount updated successfully!";
+                    return RedirectToAction(nameof(Index));
+                }
+                catch (KeyNotFoundException)
                 {
                     return NotFound();
                 }
+                catch (InvalidOperationException ex)
+                {
+                    ModelState.AddModelError("DiscountCode", ex.Message);
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "Error updating discount {DiscountId}", id);
+                    ModelState.AddModelError("", "An unexpected error occurred. Please try again.");
+                }
             }
 
-            // Nếu model state không hợp lệ, tải lại dropdown list và trả về view
-            ViewData["DiscountStatusId"] = new SelectList(_context.DiscountStatuses, "DiscountStatusId", "DiscountStatusName", discount.DiscountStatusId);
-            ViewData["DiscountTypeId"] = new SelectList(_context.DiscountTypes, "DiscountTypeId", "DiscountTypeName", discount.DiscountTypeId);
-            return View(discount);
+            await LoadDropdownData(discountDto.DiscountStatusId, discountDto.DiscountTypeId);
+            return View(discountDto);
         }
 
-        // GET: Discounts/Delete/5
-        public async Task<IActionResult> Delete(int? id)
+        public async Task<IActionResult> Delete(int id)
         {
-            if (id == null) return NotFound();
-            var discount = await _discountService.GetDiscountByIdAsync(id.Value);
+            var discount = await _discountService.GetDiscountByIdAsync(id);
             if (discount == null) return NotFound();
             return View(discount);
         }
 
-        // POST: Discounts/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            await _discountService.DeleteDiscountAsync(id);
+            try
+            {
+                await _discountService.DeleteDiscountAsync(id);
+                TempData["SuccessMessage"] = "Discount deleted successfully.";
+            }
+            catch (KeyNotFoundException)
+            {
+                return NotFound();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error deleting discount {DiscountId}", id);
+                TempData["ErrorMessage"] = "Error deleting discount. It might be in use.";
+            }
             return RedirectToAction(nameof(Index));
+        }
+
+        // Hàm trợ giúp để tải dữ liệu cho dropdown
+        private async Task LoadDropdownData(int? selectedStatusId = null, int? selectedTypeId = null)
+        {
+            ViewBag.DiscountStatusId = new SelectList(await _discountService.GetDiscountStatusesAsync(), "Value", "Text", selectedStatusId);
+            ViewBag.DiscountTypeId = new SelectList(await _discountService.GetDiscountTypesAsync(), "Value", "Text", selectedTypeId);
         }
     }
 }

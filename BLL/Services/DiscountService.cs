@@ -1,87 +1,118 @@
-﻿using BLL.Services.Interfaces;
+﻿using AutoMapper;
+using BLL.Services.Interfaces;
 using DAL.Data;
+using DAL.DTOs.DiscountDTOs;
 using DAL.Models;
+using DAL.Repositories.Interfaces;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using System.Web.Mvc;
 
 namespace BLL.Services
 {
     public class DiscountService : IDiscountService
     {
-        private readonly UnleashedContext _context;
+        private readonly IDiscountRepository _discountRepo;
+        private readonly IMapper _mapper;
+        private readonly ILogger<DiscountService> _logger;
 
-        public DiscountService(UnleashedContext context)
+        public DiscountService(IDiscountRepository discountRepo, IMapper mapper, ILogger<DiscountService> logger)
         {
-            _context = context;
+            _discountRepo = discountRepo;
+            _mapper = mapper;
+            _logger = logger;
         }
 
-        public async Task<List<Discount>> GetAllDiscountsAsync()
+        public async Task<List<DiscountDTO>> GetAllDiscountsAsync()
         {
-            return await _context.Discounts
-                                 .Include(d => d.DiscountStatus)
-                                 .Include(d => d.DiscountType)
-                                 .ToListAsync();
+            var discounts = await _discountRepo.GetAllAsync();
+            return _mapper.Map<List<DiscountDTO>>(discounts);
         }
 
-        // --- CÁC PHƯƠNG THỨC MỚI ---
-
-        public async Task<Discount?> GetDiscountByIdAsync(int id)
+        public async Task<DiscountDTO?> GetDiscountByIdAsync(int id)
         {
-            return await _context.Discounts
-                                 .Include(d => d.DiscountStatus)
-                                 .Include(d => d.DiscountType)
-                                 .FirstOrDefaultAsync(d => d.DiscountId == id);
+            var discount = await _discountRepo.GetByIdAsync(id);
+            return _mapper.Map<DiscountDTO>(discount);
         }
 
-        public async Task CreateDiscountAsync(Discount discount)
+        public async Task<DiscountDTO> CreateDiscountAsync(DiscountCreateDTO discountDto)
         {
-            discount.DiscountCreatedAt = DateTime.UtcNow; // Set ngày tạo
-            _context.Discounts.Add(discount);
-            await _context.SaveChangesAsync();
+            if (await _discountRepo.CodeExistsAsync(discountDto.DiscountCode))
+            {
+                throw new InvalidOperationException($"Discount code '{discountDto.DiscountCode}' already exists.");
+            }
+
+            var discount = _mapper.Map<Discount>(discountDto);
+            discount.DiscountCreatedAt = DateTimeOffset.UtcNow;
+            discount.DiscountUsageCount = 0; // Luôn bắt đầu bằng 0
+
+            await _discountRepo.AddAsync(discount);
+            await _discountRepo.SaveChangesAsync();
+            return _mapper.Map<DiscountDTO>(discount);
         }
 
-        public async Task<bool> UpdateDiscountAsync(Discount discount)
+        public async Task UpdateDiscountAsync(int id, DiscountUpdateDTO discountDto)
         {
-            // Lấy đối tượng gốc từ database
-            var existingDiscount = await _context.Discounts.FindAsync(discount.DiscountId);
+            var existingDiscount = await _discountRepo.GetByIdAsync(id);
             if (existingDiscount == null)
             {
-                return false;
+                throw new KeyNotFoundException($"Discount with ID {id} not found.");
             }
 
-            // Chỉ cập nhật các trường được gửi từ form, không chạm vào các navigation property
-            _context.Entry(existingDiscount).CurrentValues.SetValues(discount);
+            if (await _discountRepo.CodeExistsAsync(discountDto.DiscountCode, id))
+            {
+                throw new InvalidOperationException($"Discount code '{discountDto.DiscountCode}' already exists.");
+            }
 
-            // Gán lại các ID từ đối tượng được bind (đảm bảo chúng được cập nhật)
-            existingDiscount.DiscountStatusId = discount.DiscountStatusId;
-            existingDiscount.DiscountTypeId = discount.DiscountTypeId;
-
-            // Gán ngày cập nhật
+            _mapper.Map(discountDto, existingDiscount);
             existingDiscount.DiscountUpdatedAt = DateTimeOffset.UtcNow;
 
-            try
-            {
-                await _context.SaveChangesAsync();
-                return true;
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                return false;
-            }
+            await _discountRepo.UpdateAsync(existingDiscount);
+            await _discountRepo.SaveChangesAsync();
         }
 
-        public async Task<bool> DeleteDiscountAsync(int id)
+        public async Task DeleteDiscountAsync(int id)
         {
-            var discount = await _context.Discounts.FindAsync(id);
+            var discount = await _discountRepo.GetByIdAsync(id);
             if (discount == null)
             {
-                return false;
+                throw new KeyNotFoundException($"Discount with ID {id} not found.");
             }
 
-            _context.Discounts.Remove(discount);
-            await _context.SaveChangesAsync();
-            return true;
+            // Thêm logic kiểm tra xem discount có đang được sử dụng trong order nào không
+            // if (discount.Orders.Any()) { ... }
+
+            await _discountRepo.DeleteAsync(discount);
+            await _discountRepo.SaveChangesAsync();
+        }
+
+        public async Task<IEnumerable<SelectListItem>> GetDiscountStatusesAsync()
+        {
+            var statuses = await _discountRepo.GetAllStatusesAsync();
+            return statuses.Select(s => new SelectListItem
+            {
+                Value = s.DiscountStatusId.ToString(),
+                Text = s.DiscountStatusName
+            }).ToList();
+        }
+
+        public async Task<IEnumerable<SelectListItem>> GetDiscountTypesAsync()
+        {
+            var types = await _discountRepo.GetAllTypesAsync();
+            return types.Select(t => new SelectListItem
+            {
+                Value = t.DiscountTypeId.ToString(),
+                Text = t.DiscountTypeName
+            }).ToList();
+        }
+
+        public async Task<DiscountUpdateDTO?> GetDiscountForUpdateAsync(int id)
+        {
+            var discount = await _discountRepo.GetByIdAsync(id);
+            if (discount == null) return null;
+            return _mapper.Map<DiscountUpdateDTO>(discount);
         }
     }
 }

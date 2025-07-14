@@ -1,4 +1,4 @@
-﻿@model IEnumerable<DAL.Models.Discount>
+﻿@model IEnumerable<DAL.DTOs.DiscountDTOs.DiscountDTO>
 
 @{
     ViewData["Title"] = "Discount Management";
@@ -6,16 +6,23 @@
 
 <h1>Discount List</h1>
 
-<p>
-    <a asp-action="Create">Create New</a>
-</p>
+<p><a asp-action="Create" class="btn btn-primary">Create New</a></p>
+
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success">@TempData["SuccessMessage"]</div>
+}
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="alert alert-danger">@TempData["ErrorMessage"]</div>
+}
+
 <table class="table">
     <thead>
         <tr>
             <th>Code</th>
-            <th>Description</th>
-            <th>Value</th>
             <th>Type</th>
+            <th>Value</th>
             <th>Status</th>
             <th>Start Date</th>
             <th>End Date</th>
@@ -26,13 +33,12 @@
         @foreach (var item in Model)
         {
             <tr>
-                <td>@Html.DisplayFor(modelItem => item.DiscountCode)</td>
-                <td>@Html.DisplayFor(modelItem => item.DiscountDescription)</td>
-                <td>@Html.DisplayFor(modelItem => item.DiscountValue)</td>
-                <td>@Html.DisplayFor(modelItem => item.DiscountType.DiscountTypeName)</td>
-                <td>@Html.DisplayFor(modelItem => item.DiscountStatus.DiscountStatusName)</td>
-                <td>@item.DiscountStartDate.DateTime.ToShortDateString()</td>
-                <td>@item.DiscountEndDate.DateTime.ToShortDateString()</td>
+                <td>@item.DiscountCode</td>
+                <td>@item.DiscountTypeName</td>
+                <td>@item.DiscountValue.ToString("N0")</td>
+                <td>@item.DiscountStatusName</td>
+                <td>@item.DiscountStartDate.ToString("g")</td>
+                <td>@item.DiscountEndDate.ToString("g")</td>
                 <td>
                     <a asp-action="Edit" asp-route-id="@item.DiscountId">Edit</a> |
                     <a asp-action="Details" asp-route-id="@item.DiscountId">Details</a> |

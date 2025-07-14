@@ -1,18 +1,25 @@
-﻿using DAL.Models;
+﻿using DAL.DTOs.DiscountDTOs;
+using DAL.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Web.Mvc;
 
 namespace BLL.Services.Interfaces
 {
     public interface IDiscountService
     {
-        Task<List<Discount>> GetAllDiscountsAsync();
-        Task<Discount?> GetDiscountByIdAsync(int id); // Mới
-        Task CreateDiscountAsync(Discount discount);   // Mới
-        Task<bool> UpdateDiscountAsync(Discount discount); // Mới
-        Task<bool> DeleteDiscountAsync(int id);      // Mới
+        Task<List<DiscountDTO>> GetAllDiscountsAsync();
+        Task<DiscountDTO?> GetDiscountByIdAsync(int id);
+        Task<DiscountDTO> CreateDiscountAsync(DiscountCreateDTO discountDto);
+        Task UpdateDiscountAsync(int id, DiscountUpdateDTO discountDto);
+        Task DeleteDiscountAsync(int id);
+
+        // Dịch vụ lấy dữ liệu cho dropdown
+        Task<IEnumerable<SelectListItem>> GetDiscountStatusesAsync();
+        Task<IEnumerable<SelectListItem>> GetDiscountTypesAsync();
+        Task<DiscountUpdateDTO?> GetDiscountForUpdateAsync(int id);
     }
 }

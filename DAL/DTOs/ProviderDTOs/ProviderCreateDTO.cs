@@ -11,7 +11,7 @@ namespace DAL.DTOs.ProviderDTOs
     {
         [Required(ErrorMessage = "Tên nhà cung cấp là bắt buộc.")]
         [StringLength(100, MinimumLength = 6, ErrorMessage = "Tên nhà cung cấp phải có từ 6 đến 100 ký tự.")]
-        [RegularExpression(@"^[\p{L}\p{N} ]+$", ErrorMessage = "Tên nhà cung cấp không được chứa ký tự đặc biệt.")]
+        [RegularExpression(@"^[a-zA-Z0-9 ]+$", ErrorMessage = "Tên nhà cung cấp không được chứa ký tự đặc biệt.")]
         public string ProviderName { get; set; }
 
         public string? ProviderImageUrl { get; set; }
