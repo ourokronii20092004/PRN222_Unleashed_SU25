@@ -1,4 +1,6 @@
-﻿using BLL.Services.Interfaces;
+﻿using AutoMapper;
+using BLL.Services.Interfaces;
+using DAL.DTOs.OderDTOs;
 using DAL.Models;
 using DAL.Repositories.Interfaces;
 using System;
@@ -11,45 +13,61 @@ namespace BLL.Services
 {
     public class OrderService : IOrderService
     {
-        public IOrderRepository _orderRepo;
-        public OrderService(IOrderRepository orderRepo)
+        private readonly IOrderRepository _orderRepo;
+        private readonly IMapper _mapper;
+        public OrderService(IOrderRepository orderRepo, IMapper mapper)
         {
             _orderRepo = orderRepo;
-        }
-        public async Task CreateOrder(Order order)
-        {
-            order.OrderId = Guid.NewGuid();
-            order.OrderCreatedAt = DateTime.Now;
-            await _orderRepo.AddAsync(order);
+            _mapper = mapper;
         }
 
-        public async Task DeleteOrderAsync(Guid id)
+        public async Task ApproveOrderAsync(Guid orderId)
+        {
+            var order = await _orderRepo.GetByIdAsync(orderId);
+            if (order != null)
+            {
+                order.OrderStatusId = 2; // APPROVED
+                _orderRepo.Update(order);
+                await _orderRepo.SaveAsync();
+            }
+        }
+
+        public async Task CancelOrderAsync(Guid orderId)
+        {
+            var order = await _orderRepo.GetByIdAsync(orderId);
+            if (order != null)
+            {
+                order.OrderStatusId = 1; // CANCELLED
+                _orderRepo.Update(order);
+                await _orderRepo.SaveAsync();
+            }
+        }
+
+        public async Task CreateOrderAsync(OrderDTO dto)
+        {
+            var order = _mapper.Map<Order>(dto);
+            order.OrderDate = DateTimeOffset.Now;
+            order.OrderStatusId = 5; // Default to PENDING
+            await _orderRepo.AddAsync(order);
+            await _orderRepo.SaveAsync();
+        }
+
+        public async Task<OrderDTO?> GetOrderDetailAsync(Guid id)
         {
             var order = await _orderRepo.GetByIdAsync(id);
-            await _orderRepo.Delete(order);
+            return _mapper.Map<OrderDTO>(order);
         }
 
-        public async Task<IEnumerable<Order>> GetAllOrdersAsync()
+        public async Task<IEnumerable<OrderDTO>> GetOrdersAsync()
         {
-            return await _orderRepo.GetAllAsync();
+            var orders = await _orderRepo.GetAllAsync();
+            return _mapper.Map<IEnumerable<OrderDTO>>(orders);
         }
 
-        public async Task<Order> GetOrderByIdAsync(Guid id)
+        public async Task<IEnumerable<OrderDTO>> GetOrdersByUserAsync(Guid userId)
         {
-            return await _orderRepo.GetByIdAsync(id);
-        }
-
-        public async Task<IEnumerable<Order>> GetOrderListByUserId(Guid userId)
-        {
-            var orders = await _orderRepo.FindAsync(o =>  o.UserId == userId);
-            return orders;
-        }
-
-        public async Task UpdateOrderAsync(Guid id, Order order)
-        {
-            var existingorder = await _orderRepo.GetByIdAsync(id);
-            existingorder.OrderUpdatedAt = DateTime.Now;
-            await _orderRepo.Update(existingorder);
+            var orders = await _orderRepo.GetByUserIdAsync(userId);
+            return _mapper.Map<IEnumerable<OrderDTO>>(orders);
         }
     }
 }

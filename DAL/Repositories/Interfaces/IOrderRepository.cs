@@ -7,8 +7,13 @@ using System.Threading.Tasks;
 
 namespace DAL.Repositories.Interfaces
 {
-    public interface IOrderRepository : IGenericRepository<Order, Guid>
+    public interface IOrderRepository //: IGenericRepository<Order, Guid>
     {
-        Task<IEnumerable<Order>> GetOrderListByUserId(Guid userId,CancellationToken cancellationToken = default);
+        Task<IEnumerable<Order>> GetAllAsync();
+        Task<IEnumerable<Order>> GetByUserIdAsync(Guid userId);
+        Task<Order?> GetByIdAsync(Guid id);
+        Task AddAsync(Order order);
+        void Update(Order order);
+        Task SaveAsync();
     }
 }
