@@ -134,6 +134,7 @@ namespace Unleashed_RP.Pages.Products
                     NewReview.User = new DAL.Models.User();
                 }
                 NewReview.User.UserUsername = username;
+                NewReview.ReviewUpdatedAt = DateTimeOffset.UtcNow;
                 await _reviewService.UpdateAsync(reviewId, NewReview);
                 TempData["SuccessMessage"] = "Your review has been updated!";
             }

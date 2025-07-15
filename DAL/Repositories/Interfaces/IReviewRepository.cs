@@ -21,6 +21,7 @@ namespace DAL.Repositories.Interfaces
         Task<List<Review>> GetReviewsWithPagingAsync(int skip, int take, string query);
         Task<int> GetTotalCountAsync(string query);
         Task<Dictionary<Guid, double?>> GetAverageRatingsForProductsAsync(IEnumerable<Guid> productIds);
+        Task<IEnumerable<Review>> GetReviewsByUsernameAsync(string username);
     }
 }
 

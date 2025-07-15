@@ -10,6 +10,7 @@ namespace DAL.DTOs.ReviewDTOs
         public Guid OrderId { get; set; }
         public int ReviewRating { get; set; }
         public DateTimeOffset? ReviewCreatedAt { get; set; }
+        public DateTimeOffset? ReviewUpdatedAt { get; set; }
         public virtual User? User { get; set; }
     }
 }
