@@ -1,35 +1,49 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using BLL.Services;
+using BLL.Services.Interfaces;
+using DAL.Data;
+using DAL.DTOs.OderDTOs;
+using DAL.Models;
+using DAL.Repositories.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
-using DAL.Data;
-using DAL.Models;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace Unleashed_RP.Pages.Orders
 {
     public class IndexModel : PageModel
     {
-        private readonly DAL.Data.UnleashedContext _context;
+        private readonly IOrderService _orderService;
+        private readonly ICartService _cartService;
 
-        public IndexModel(DAL.Data.UnleashedContext context)
+        public List<OrderDTO> Orders { get; set; }
+
+        public IndexModel(IOrderService orderService, ICartService cartService)
         {
-            _context = context;
+            _orderService = orderService;
+            _cartService = cartService;
         }
-
-        public IList<Order> Order { get;set; } = default!;
 
         public async Task OnGetAsync()
         {
-            Order = await _context.Orders
-                .Include(o => o.Discount)
-                .Include(o => o.InchargeEmployee)
-                .Include(o => o.OrderStatus)
-                .Include(o => o.PaymentMethod)
-                .Include(o => o.ShippingMethod)
-                .Include(o => o.User).ToListAsync();
+            string? username = HttpContext.Session.GetString("username");
+            ArgumentNullException.ThrowIfNullOrEmpty(username);
+            var userId = await _cartService.GetUserIdByUsername(username);
+            Orders = (await _orderService.GetOrdersByUserAsync(userId)).ToList();
         }
+
+        public async Task<IActionResult> OnPostCancelOrderAsync(Guid orderId)
+        {
+            var order = await _orderService.GetOrderDetailAsync(orderId);
+            if (order?.OrderStatusId == 5) // Only allow cancel for Pending orders
+            {
+                await _orderService.CancelOrderAsync(orderId);
+            }
+            return RedirectToPage();
+        }
+        
     }
 }

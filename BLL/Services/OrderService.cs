@@ -2,6 +2,7 @@
 using BLL.Services.Interfaces;
 using DAL.DTOs.OderDTOs;
 using DAL.Models;
+using DAL.Repositories;
 using DAL.Repositories.Interfaces;
 using System;
 using System.Collections.Generic;
@@ -11,15 +12,12 @@ using System.Threading.Tasks;
 
 namespace BLL.Services
 {
-    public class OrderService : IOrderService
+    public class OrderService(IOrderRepository orderRepo, IMapper mapper, ICartRepository cartRepo, ICartService cartService) : IOrderService
     {
-        private readonly IOrderRepository _orderRepo;
-        private readonly IMapper _mapper;
-        public OrderService(IOrderRepository orderRepo, IMapper mapper)
-        {
-            _orderRepo = orderRepo;
-            _mapper = mapper;
-        }
+        private readonly IOrderRepository _orderRepo = orderRepo;
+        private readonly ICartRepository _cartRepo = cartRepo;
+        private readonly IMapper _mapper = mapper;
+        private readonly ICartService _cartService = cartService;
 
         public async Task ApproveOrderAsync(Guid orderId)
         {
@@ -41,6 +39,36 @@ namespace BLL.Services
                 _orderRepo.Update(order);
                 await _orderRepo.SaveAsync();
             }
+        }
+
+        public async Task<Guid> ConvertCartToOrderAsync(string username)
+        {
+            var userId = await _cartService.GetUserIdByUsername(username);
+            var cartItems = await _cartRepo.GetAllByUserIdAsync(userId);
+            if(cartItems == null)
+            {
+                throw new Exception("Cart is empty");
+            }
+            var order = new OrderDTO
+            {
+                OrderId = new Guid(),
+                UserId = userId,
+                OrderStatusId = 5,
+                OrderDate = DateTime.Now,
+                OrderTotalAmount = cartItems.Sum(item =>
+                item.Variation.VariationPrice * (item.CartQuantity ?? 0)),
+                OrderDetails = cartItems.Select(item => new OrderDetailDTO
+                {
+                    VariationSingleId = item.VariationId,
+                    VariationPriceAtPurchase = (decimal)item.Variation.VariationPrice,
+                    Quantity = item.CartQuantity ?? 0
+                }).ToList()
+            };
+            await _orderRepo.AddAsync(order);
+            await _orderRepo.SaveAsync();
+            await _cartRepo.RemoveAllAsync(userId);
+
+            return order.OrderId;
         }
 
         public async Task CreateOrderAsync(OrderDTO dto)

@@ -30,7 +30,12 @@
                         <li class="nav-item">
                             <a class="nav-link text-dark" asp-area="" asp-page="/Products/Index">Products</a>
                         </li>
-
+                        <li class="nav-item">
+                            <a class="nav-link text-dark" asp-area="" asp-page="/Carts/Index">Cart</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-dark" asp-area="" asp-page="/Orders/Index">Order</a>
+                        </li>
                     </ul>
                     <ul class="navbar-nav ms-auto">
                         @if (Context.Session.GetString("username") == null)
@@ -41,9 +46,7 @@
                         }
                         else
                         {
-                            <li class="nav-item">
-                                <a class="nav-link text-dark" asp-area="" asp-page="/Carts/Index">Carts</a>
-                            </li>
+                            
                             <li class="nav-item dropdown">
                                 @* Added 'dropdown' class here *@
                                 <span class="nav-link text-dark dropdown-toggle" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
