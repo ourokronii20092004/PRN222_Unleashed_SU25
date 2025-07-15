@@ -13,24 +13,30 @@ using System.Threading.Tasks;
 
 namespace BLL.Services
 {
-    public class CartService : ICartService
+    public class CartService(ICartRepository cartRepository, IVariationRepository variationRepository, IUserRepository userRepository, IMapper mapper) : ICartService
     {
-        private readonly ICartRepository _cartRepository;
-        private readonly IVariationRepository _variationRepository;
-        private readonly IUserRepository _userRepository;
+        private readonly ICartRepository _cartRepository = cartRepository;
+        private readonly IVariationRepository _variationRepository = variationRepository;
+        private readonly IUserRepository _userRepository = userRepository;
+        private readonly IMapper _mapper =mapper;
 
-        public CartService(ICartRepository cartRepository, IVariationRepository variationRepository, IUserRepository userRepository)
+        public async Task AddToCartAsync(string username, int variationId, int quantity)
         {
-            _cartRepository = cartRepository;
-            _variationRepository = variationRepository;
-            _userRepository = userRepository;
-        }
+            var userId = await GetUserIdByUsername(username);
+            var cart = new Cart
+            {
+                UserId = userId,
+                VariationId = variationId,
+                CartQuantity = quantity
+            };
 
-        public Task AddToCartAsync(string username, int variationId, int quantity)
+            await _cartRepository.AddOrUpdateAsync(cart);
+        }
+        public async Task UpdateQuantityAsync(string username, int variationId, int quantity)
         {
-            throw new NotImplementedException();
+            var userId = await GetUserIdByUsername(username);
+            await _cartRepository.UpdateQuantityAsync(userId, variationId, quantity);
         }
-
         public async Task<Dictionary<string, List<CartDTO>>> GetCartByUsernameAsync(string username)
         {
             var userId = await GetUserIdByUsername(username);
@@ -63,8 +69,7 @@ namespace BLL.Services
 
         public async Task RemoveFromCartAsync(string username, int variationId)
         {
-            var userId = await GetUserIdByUsername(username);
-            await _cartRepository.RemoveAsync(userId, variationId);
+            await _cartRepository.RemoveAsync(await GetUserIdByUsername(username), variationId);
         }
     }
 }

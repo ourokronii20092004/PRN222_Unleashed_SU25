@@ -12,6 +12,7 @@ namespace DAL.Repositories.Interfaces
     {
         Task<List<Cart>> GetAllByUserIdAsync(Guid userId);
         Task AddOrUpdateAsync(Cart cart);
+        Task UpdateQuantityAsync(Guid userId, int variationId, int quantity);
         Task RemoveAsync(Guid userId, int variationId);
         Task RemoveAllAsync(Guid userId);
     }

@@ -41,20 +41,18 @@ namespace DAL.Repositories
 
         public async Task RemoveAllAsync(Guid userId)
         {
-            var carts = _unleashedContext.Carts.Where(c => c.UserId == userId);
-            if (!carts.Any())
+            if (_unleashedContext.Carts.Any(c => c.UserId == userId))
             {
-                throw new Exception("no item in cart");
-                _unleashedContext.Carts.RemoveRange(carts);
+                await _unleashedContext.Carts.Where(x => x.User.UserId == userId).ExecuteDeleteAsync();
                 await _unleashedContext.SaveChangesAsync();
             }
         }
 
         public async Task RemoveAsync(Guid userId, int variationId)
         {
-            
+
             var cart = await _unleashedContext.Carts.FirstOrDefaultAsync(c => c.UserId == userId && c.VariationId == variationId);
-            if (cart == null)
+            if (cart != null)
             {
                 _unleashedContext.Carts.Remove(cart);
                 await _unleashedContext.SaveChangesAsync();
@@ -62,6 +60,19 @@ namespace DAL.Repositories
             else
             {
                 throw new Exception("Cart not found");
+            }
+        }
+
+        public async Task UpdateQuantityAsync(Guid userId, int variationId, int quantity)
+        {
+            var existing = await _unleashedContext.Carts
+        .FirstOrDefaultAsync(c => c.UserId == userId && c.VariationId == variationId);
+
+            if (existing != null)
+            {
+                existing.CartQuantity = quantity;
+                _unleashedContext.Carts.Update(existing);
+                await _unleashedContext.SaveChangesAsync();
             }
         }
     }

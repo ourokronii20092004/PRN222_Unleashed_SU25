@@ -14,6 +14,7 @@ namespace BLL.Services.Interfaces
         Task<Guid> GetUserIdByUsername(string username);
         Task<Dictionary<string, List<CartDTO>>> GetCartByUsernameAsync(string username);
         Task AddToCartAsync(string username, int variationId, int quantity);
+        Task UpdateQuantityAsync(string username, int variationId, int quantity);
         Task RemoveFromCartAsync(string username, int variationId);
         Task RemoveAllFromCartAsync(string username);
     }
