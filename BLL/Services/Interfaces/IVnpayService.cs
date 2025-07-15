@@ -11,9 +11,9 @@ namespace BLL.Services.Interfaces
     public interface IVnpayService
     {
 
-        public VnpayRespond ProcessVnpayResponse(IQueryCollection query);
+        string CreatePaymentUrl(PaymentInfoModel model, HttpContext context);
 
-        string CreatePaymentUrl(PaymentInfoModel model);
+        VnpayTransactionResponse GetPaymentResponse(IQueryCollection queryString);
 
 
     }

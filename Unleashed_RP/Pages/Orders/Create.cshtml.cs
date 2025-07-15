@@ -7,16 +7,22 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using DAL.Data;
 using DAL.Models;
+using BLL.Services.Interfaces;
+using Microsoft.IdentityModel.Tokens;
 
 namespace Unleashed_RP.Pages.Orders
 {
     public class CreateModel : PageModel
     {
         private readonly DAL.Data.UnleashedContext _context;
+        private readonly IVnpayService _vnpayService;
 
-        public CreateModel(DAL.Data.UnleashedContext context)
+        private const int PENDING_STATUS_ID = 5;
+
+        public CreateModel(DAL.Data.UnleashedContext context, IVnpayService vnpayService)
         {
             _context = context;
+            _vnpayService = vnpayService;
         }
 
         public IActionResult OnGet()
@@ -41,10 +47,21 @@ namespace Unleashed_RP.Pages.Orders
                 return Page();
             }
 
+            Order.OrderStatusId = PENDING_STATUS_ID;
+            Order.OrderDate = DateTime.Now;
+
             _context.Orders.Add(Order);
             await _context.SaveChangesAsync();
 
-            return RedirectToPage("./Index");
+            var paymentModel = new PaymentInfoModel
+            {
+                OrderId = Order.OrderId,
+                Amount = Order.OrderTotalAmount,
+                Name = Order.User.UserFullname,
+                OrderDescription = $"Payment for order #{Order.OrderId}"
+            };
+
+            return RedirectToPage(_vnpayService.CreatePaymentUrl(paymentModel, HttpContext));
         }
     }
 }
