@@ -1,4 +1,5 @@
-﻿using System;
+﻿using DAL.Models;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -13,7 +14,9 @@ namespace DAL.DTOs.OderDTOs
         public int? OrderStatusId { get; set; }
         public decimal? OrderTotalAmount { get; set; }
         public DateTimeOffset? OrderDate { get; set; }
-        public string? OrderNote { get; set; }
+        // Navigation properties
+        public User User { get; set; }
+        public ICollection<OrderDetailDTO> OrderDetails { get; set; } = new List<OrderDetailDTO>();
         public List<OrderVariationSingleDTO> OrderItems { get; set; } = new();
     }
 }

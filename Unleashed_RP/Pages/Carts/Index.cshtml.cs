@@ -1,4 +1,5 @@
-﻿using BLL.Services.Interfaces;
+﻿using BLL.Services;
+using BLL.Services.Interfaces;
 using DAL.DTOs.CartDTOs;
 using DAL.Models;
 using Microsoft.AspNetCore.Mvc;
@@ -10,10 +11,12 @@ namespace Unleashed_RP.Pages.Carts
     {
         private readonly ICartService _cartService;
         private readonly IUserService _userService;
-        public IndexModel(ICartService cartService, IUserService userService)
+        private readonly IOrderService _orderService;
+        public IndexModel(ICartService cartService, IUserService userService, IOrderService orderService)
         {
             _cartService = cartService;
             _userService = userService;
+            _orderService = orderService;
         }
         public Dictionary<string, List<CartDTO>> GroupedCartItems { get; set; } = new();
         public IList<Cart> Cart { get; set; } = default!;
@@ -55,6 +58,21 @@ namespace Unleashed_RP.Pages.Carts
                 await _cartService.UpdateQuantityAsync(username, variationId, quantity);
             }
             return RedirectToPage();
+        }
+        public async Task<IActionResult> OnPostCheckoutAsync()
+        {
+            try
+            {
+                string? username = HttpContext.Session.GetString("username");
+                ArgumentNullException.ThrowIfNullOrEmpty(username);
+                var orderId = await _orderService.ConvertCartToOrderAsync(username);
+                return RedirectToPage("/Orders/Index", new { id = orderId });
+            }
+            catch (Exception ex)
+            {
+                ModelState.AddModelError("", ex.Message);
+                return Page();
+            }
         }
     }
 }

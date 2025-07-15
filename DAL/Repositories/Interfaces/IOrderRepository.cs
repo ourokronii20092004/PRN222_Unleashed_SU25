@@ -1,4 +1,5 @@
-﻿using DAL.Models;
+﻿using DAL.DTOs.OderDTOs;
+using DAL.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,5 +16,6 @@ namespace DAL.Repositories.Interfaces
         Task AddAsync(Order order);
         void Update(Order order);
         Task SaveAsync();
+        Task AddAsync(OrderDTO order);
     }
 }

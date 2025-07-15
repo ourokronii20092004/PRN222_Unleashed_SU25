@@ -1,4 +1,6 @@
-﻿using DAL.Data;
+﻿using AutoMapper;
+using DAL.Data;
+using DAL.DTOs.OderDTOs;
 using DAL.Models;
 using DAL.Repositories.Interfaces;
 using Microsoft.EntityFrameworkCore;
@@ -14,16 +16,44 @@ namespace DAL.Repositories
     public class OrderRepository : IOrderRepository
     {
         public UnleashedContext _unleashedcontext;
-
-        public OrderRepository(UnleashedContext unleashedcontext)
+        private readonly IMapper _mapper;
+        public OrderRepository(UnleashedContext unleashedcontext, IMapper mapper)
         {
             _unleashedcontext = unleashedcontext;
+            _mapper = mapper;
         }
 
         public async Task AddAsync(Order order)
         {
             await _unleashedcontext.Orders.AddAsync(order);
         }
+
+        public async Task AddAsync(OrderDTO order)
+        {
+            // Map OrderDTO to Order entity
+            var order1 = _mapper.Map<Order>(order);
+
+            // Set default values if needed
+            order.OrderId = Guid.NewGuid();
+            order.OrderDate = DateTimeOffset.Now;
+            order.OrderStatusId = 5; // Pending status
+
+            await _unleashedcontext.Orders.AddAsync(order1);
+
+            // Add order details if they exist in the DTO
+            if (order.OrderItems != null && order.OrderItems.Any())
+            {
+                foreach (var itemDto in order.OrderItems)
+                {
+                    var orderDetail = _mapper.Map<OrderDetailDTO>(itemDto);
+                    orderDetail.OrderId = order.OrderId;
+                    await _unleashedcontext.AddAsync(orderDetail);
+                }
+            }
+
+            await _unleashedcontext.SaveChangesAsync();
+        }
+        
 
         public async Task<IEnumerable<Order>> GetAllAsync()
         {
