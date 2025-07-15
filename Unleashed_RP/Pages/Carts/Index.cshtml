@@ -1,49 +1,63 @@
 ﻿@page
 @model Unleashed_RP.Pages.Carts.IndexModel
-
 @{
-    ViewData["Title"] = "Index";
+    ViewData["Title"] = "Your Shopping Cart";
     Layout = "~/Pages/Shared/_Layout.cshtml";
 }
 
-<h1>Index</h1>
+<h2 class="mt-4 mb-3 text-primary">🛒 Your Shopping Cart</h2>
 
-<p>
-    <a asp-page="Create">Create New</a>
-</p>
-<table class="table">
-    <thead>
-        <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.Cart[0].CartQuantity)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Cart[0].User)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Cart[0].Variation)
-            </th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-@foreach (var item in Model.Cart) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.CartQuantity)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.User.UserId)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Variation.VariationId)
-            </td>
-            <td>
-                @Html.ActionLink("Edit", "Edit", new { /* id=item.PrimaryKey */ }) |
-                @Html.ActionLink("Details", "Details", new { /* id=item.PrimaryKey */ }) |
-                @Html.ActionLink("Delete", "Delete", new { /* id=item.PrimaryKey */ })
-            </td>
-        </tr>
+@if (!Model.GroupedCartItems.Any())
+{
+    <div class="alert alert-info">Your cart is currently empty.</div>
 }
-    </tbody>
-</table>
+else
+{
+    foreach (var group in Model.GroupedCartItems)
+    {
+        <div class="card shadow-sm mb-4">
+            <div class="card-header bg-secondary text-white">
+                <strong>@group.Key</strong>
+            </div>
+            <div class="card-body p-0">
+                <table class="table table-striped mb-0">
+                    <thead class="thead-light">
+                        <tr>
+                            <th>Variation Price</th>
+                            <th>Quantity</th>
+                            <th style="width: 180px;">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in group.Value)
+                        {
+                            <tr>
+                                <td>
+                                    @item.Variation.VariationPrice
+                                </td>
+                                <td>
+                                    <form method="post" asp-page-handler="Update" class="d-flex align-items-center">
+                                        <input type="hidden" name="variationId" value="@item.Quantity" />
+                                        <input type="number" name="quantity" value="@item.Quantity" min="1" class="form-control form-control-sm me-2" style="width: 80px;" />
+                                        <button type="submit" class="btn btn-sm btn-success">Update</button>
+                                    </form>
+                                </td>
+                                <td>
+                                    <form method="post" asp-page-handler="Remove" class="d-inline">
+                                        <input type="hidden" name="variationId" value="@item.Variation.VariationId" />
+                                        <button type="submit" class="btn btn-sm btn-danger">Remove</button>
+                                    </form>
+                                </td>
+                                
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    }
+
+    <form method="post" asp-page-handler="Clear">
+        <button type="submit" class="btn btn-outline-danger mt-3">🧹 Clear Entire Cart</button>
+    </form>
+}
