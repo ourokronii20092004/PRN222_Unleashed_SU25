@@ -8,8 +8,8 @@ namespace DAL.Models
 {
     public class PaymentInfoModel
     {
-        public long OrderId { get; set; }
-        public decimal Amount { get; set; }
+        public Guid OrderId { get; set; }
+        public decimal? Amount { get; set; }
         public string OrderDescription { get; set; }
         public string Name { get; set; }
     }
