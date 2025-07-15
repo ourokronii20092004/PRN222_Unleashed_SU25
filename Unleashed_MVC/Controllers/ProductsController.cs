@@ -86,7 +86,7 @@ namespace Unleashed_MVC.Controllers
                 ViewBag.ProductStatusId = new SelectList(dropdowns.Statuses, "ProductStatusId", "ProductStatusName");
                 ViewBag.SizeId = new SelectList(dropdowns.Sizes, "SizeId", "SizeName");
                 ViewBag.ColorId = new SelectList(dropdowns.Colors, "ColorId", "ColorName");
-
+                ViewBag.Categories = dropdowns.Categories;
                 var model = new ProductDTO
                 {
                     Variations = new List<ProductDTO.ProductVariationDTO> { new() }
@@ -171,6 +171,7 @@ namespace Unleashed_MVC.Controllers
                 ViewBag.ProductStatusId = new SelectList(dropdowns.Statuses, "ProductStatusId", "ProductStatusName", product.ProductStatusId);
                 ViewBag.SizeId = new SelectList(dropdowns.Sizes, "SizeId", "SizeName");
                 ViewBag.ColorId = new SelectList(dropdowns.Colors, "ColorId", "ColorName");
+                ViewBag.Categories = dropdowns.Categories;
 
                 var productDTO = MapProductToDTO(product);
                 return View(productDTO);
@@ -298,7 +299,7 @@ namespace Unleashed_MVC.Controllers
             ViewBag.ProductStatusId = new SelectList(dropdowns.Statuses, "ProductStatusId", "ProductStatusName", productDTO.ProductStatusId);
             ViewBag.SizeId = new SelectList(dropdowns.Sizes, "SizeId", "SizeName");
             ViewBag.ColorId = new SelectList(dropdowns.Colors, "ColorId", "ColorName");
-
+            ViewBag.Categories = dropdowns.Categories;
             productDTO.Variations ??= new List<ProductDTO.ProductVariationDTO> { new() };
         }
 
@@ -314,13 +315,15 @@ namespace Unleashed_MVC.Controllers
                 ProductStatusId = product.ProductStatusId,
                 CreatedAt = product.ProductCreatedAt,
                 UpdatedAt = product.ProductUpdatedAt,
+                SelectedCategoryIds = product.Categories?.Select(c => c.CategoryId).ToList() ?? new List<int>(),
                 Variations = product.Variations?.Select(v => new ProductDTO.ProductVariationDTO
                 {
                     SizeId = v.SizeId,
                     ColorId = v.ColorId,
                     ProductPrice = v.VariationPrice,
                     ProductVariationImageUrl = v.VariationImage
-                }).ToList() ?? new List<ProductDTO.ProductVariationDTO>()
+                }).ToList() ?? new List<ProductDTO.ProductVariationDTO>(),
+                Categories = product.Categories?.ToList() ?? new List<Category>()
             };
         }
     }

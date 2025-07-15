@@ -50,6 +50,18 @@
 
                                         <dt class="col-sm-4 fw-bold">Brand</dt>
                                         <dd class="col-sm-8">@Model.Brand?.BrandName</dd>
+
+                                        <dt class="col-sm-4 fw-bold">Categories</dt>
+                                        <dd class="col-sm-8">
+                                            @if (Model.Categories != null && Model.Categories.Any())
+                                            {
+                                                @string.Join(", ", Model.Categories.Select(c => c.CategoryName))
+                                            }
+                                            else
+                                            {
+                                                <span class="text-muted">No categories assigned</span>
+                                            }
+                                        </dd>
                                     </dl>
                                 </div>
                                 <div class="col-md-6">

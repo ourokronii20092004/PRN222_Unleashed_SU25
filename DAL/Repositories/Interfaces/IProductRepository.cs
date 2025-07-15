@@ -40,6 +40,7 @@ namespace DAL.Repositories.Interfaces
         Task<List<Product>> GetProductsWithPagingHomePageAsync(int skip, int take, string query);
         Task<int> GetProductsCountAsync(string query);
         Task<int> GetProductsCountHomePageAsync(string query);
+        Task RemoveAllCategoriesFromProductAsync(Guid productId);
     }
 
 }

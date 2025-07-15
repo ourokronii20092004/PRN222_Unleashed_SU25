@@ -28,7 +28,7 @@ namespace DAL.DTOs.ProductDTOs
 
         [StringLength(1000, ErrorMessage = "Product description cannot exceed 1000 characters.")]
         public string? ProductDescription { get; set; }
-
+        public List<int> SelectedCategoryIds { get; set; } = new List<int>();
         public DateTimeOffset? CreatedAt { get; set; }
         public DateTimeOffset? UpdatedAt { get; set; }
         public List<ProductVariationDTO>? Variations { get; set; }

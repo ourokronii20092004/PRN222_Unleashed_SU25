@@ -92,7 +92,42 @@
                                 </div>
                             </div>
                         </div>
+                        <!-- Categories Section -->
+                        <div class="card mb-4">
+                            <div class="card-header bg-light">
+                                <h5 class="mb-0">Categories</h5>
+                            </div>
+                            <div class="card-body">
+                                @{
+                                    var allCategories = ViewBag.Categories as List<DAL.Models.Category> ?? new List<DAL.Models.Category>();
+                                }
 
+                                @if (allCategories.Any())
+                                {
+                                    <div class="row">
+                                        @foreach (var category in allCategories)
+                                        {
+                                            <div class="col-md-3 mb-3">
+                                                <div class="form-check">
+                                                    <input type="checkbox"
+                                                           class="form-check-input category-checkbox"
+                                                           name="SelectedCategoryIds"
+                                                           value="@category.CategoryId"
+                                                           id="category-@category.CategoryId" />
+                                                    <label class="form-check-label" for="category-@category.CategoryId">
+                                                        @category.CategoryName
+                                                    </label>
+                                                </div>
+                                            </div>
+                                        }
+                                    </div>
+                                }
+                                else
+                                {
+                                    <div class="alert alert-warning">No categories available.</div>
+                                }
+                            </div>
+                        </div>
                         <!-- Variations Section -->
                         <div class="card mb-4">
                             <div class="card-header d-flex justify-content-between align-items-center">
@@ -223,35 +258,50 @@
 
     <script>
         $(document).ready(function() {
+                        try {
+                // 1. Chuyển danh sách các ID đã chọn từ C# Model sang một mảng JavaScript.
+                const selectedCategoryIds = @Html.Raw(Json.Serialize(Model.SelectedCategoryIds ?? new List<int>()));
+
+                // 2. Kiểm tra xem mảng có phần tử không.
+                if (selectedCategoryIds && selectedCategoryIds.length > 0) {
+                    // 3. Lặp qua từng ID trong mảng.
+                    selectedCategoryIds.forEach(function(id) {
+                        // 4. Tìm đến checkbox có `value` bằng với ID hiện tại và đặt thuộc tính 'checked' cho nó.
+                        $('input.category-checkbox[value="' + id + '"]').prop('checked', true);
+                    });
+                }
+            } catch (e) {
+                console.error("Lỗi khi xử lý các checkbox category:", e);
+            }
             // Initialize image preview for existing variations
             @for (var i = 0; i < Model.Variations.Count; i++)
             {
-                    <text>
-                    $('#Variations_@(i)__ProductVariationFile').change(function(e) {
-                        var previewId = 'newImagePreview-@i';
-                        var previewTextId = 'newImagePreviewText-@i';
-                        var isNewVariation = $(this).data('is-new') === 'true';
+                        <text>
+                        $('#Variations_@(i)__ProductVariationFile').change(function(e) {
+                            var previewId = 'newImagePreview-@i';
+                            var previewTextId = 'newImagePreviewText-@i';
+                            var isNewVariation = $(this).data('is-new') === 'true';
 
-                        if (e.target.files && e.target.files[0]) {
-                            var reader = new FileReader();
-                            reader.onload = function(event) {
-                                $('#' + previewId).attr('src', event.target.result);
-                                $('#' + previewId).show();
-                                $('#' + previewTextId).hide();
+                            if (e.target.files && e.target.files[0]) {
+                                var reader = new FileReader();
+                                reader.onload = function(event) {
+                                    $('#' + previewId).attr('src', event.target.result);
+                                    $('#' + previewId).show();
+                                    $('#' + previewTextId).hide();
+                                }
+                                reader.readAsDataURL(e.target.files[0]);
+                            } else {
+                                $('#' + previewId).hide();
+                                $('#' + previewTextId).show();
                             }
-                            reader.readAsDataURL(e.target.files[0]);
-                        } else {
-                            $('#' + previewId).hide();
-                            $('#' + previewTextId).show();
-                        }
 
-                        // Clear validation error when file is selected for new variation
-                        if (isNewVariation && e.target.files && e.target.files[0]) {
-                            $(this).removeClass('is-invalid');
-                            $(this).siblings('.text-danger').hide();
-                        }
-                    });
-                    </text>
+                            // Clear validation error when file is selected for new variation
+                            if (isNewVariation && e.target.files && e.target.files[0]) {
+                                $(this).removeClass('is-invalid');
+                                $(this).siblings('.text-danger').hide();
+                            }
+                        });
+                        </text>
             }
 
             // Add new variation
@@ -270,7 +320,7 @@
                                     <select name="Variations[${index}].SizeId" class="form-control">
                                         @foreach (var item in (SelectList)ViewBag.SizeId)
                                         {
-                                                <option value="@item.Value">@item.Text</option>
+                                                    <option value="@item.Value">@item.Text</option>
                                         }
                                     </select>
                                 </div>
@@ -281,7 +331,7 @@
                                     <select name="Variations[${index}].ColorId" class="form-control">
                                         @foreach (var item in (SelectList)ViewBag.ColorId)
                                         {
-                                                <option value="@item.Value">@item.Text</option>
+                                                    <option value="@item.Value">@item.Text</option>
                                         }
                                     </select>
                                 </div>
