@@ -17,5 +17,6 @@ namespace BLL.Services.Interfaces
         Task<DAL.Models.PagedResult<ReviewDTO>> GetReviewsWithPagingAsync(int page, int pageSize, string query);
         Task<double?> GetAverageRatingByProductIdAsync(Guid productId);
         Task<bool> HasUserOrderedProductAsync(string username, Guid productId);
+        Task<IEnumerable<ReviewDetailDTO>> GetReviewsByUsernameAsync(string username);
     }
 }

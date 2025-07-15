@@ -1,6 +1,8 @@
 ﻿using AutoMapper;
 using DAL.DTOs.ProductDTOs;
 using DAL.DTOs.ReviewDTOs;
+using DAL.DTOs.UserDTOs;
+using DAL.DTOs.VariationDTOs;
 using DAL.Models;
 using System;
 using System.Collections.Generic;
@@ -19,7 +21,9 @@ namespace BLL.Mappings
                 .ForMember(dest => dest.Product, opt => opt.MapFrom(src => src.Product))
                 .ForMember(dest => dest.User, opt => opt.MapFrom(src => src.User));
 
-            CreateMap<ReviewCreateDTO, Review>();
-        }
+            CreateMap<Product, ProductDTO>();
+            CreateMap<User, UserDetailDTO>();
+            CreateMap<Variation, VariationDetailDTO>();
+        } 
     }
 }

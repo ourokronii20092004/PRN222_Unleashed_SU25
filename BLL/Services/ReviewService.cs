@@ -98,5 +98,35 @@ namespace BLL.Services
                 PageSize = pageSize
             };
         }
+        public async Task<IEnumerable<ReviewDetailDTO>> GetReviewsByUsernameAsync(string username)
+        {
+            var reviews = await _reviewRepository.GetReviewsByUsernameAsync(username);
+
+            // Cách 1: Dùng AutoMapper
+            return _mapper.Map<IEnumerable<ReviewDetailDTO>>(reviews);
+
+            // Hoặc Cách 2: Map thủ công
+            /*
+            return reviews.Select(r => new ReviewDetailDTO
+            {
+                ReviewId = r.ReviewId,
+                ReviewRating = r.ReviewRating,
+                ReviewComment = r.ReviewComment,
+                ReviewCreatedAt = r.ReviewCreatedAt,
+                ProductId = r.ProductId,
+                Product = new ProductDTO
+                {
+                    ProductId = r.Product.ProductId,
+                    ProductName = r.Product.ProductName,
+                    // Các thông tin khác nếu cần
+                },
+                User = new UserDTO
+                {
+                    UserId = r.User.UserId,
+                    UserUsername = r.User.UserUsername
+                }
+            });
+            */
+        }
     }
 }

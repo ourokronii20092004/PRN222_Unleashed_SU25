@@ -1,0 +1,66 @@
+﻿@page
+@model Unleashed_RP.Pages.ReviewHistory.IndexModel
+@{
+    ViewData["Title"] = "My Review History";
+}
+
+<div class="container">
+    <h2>My Product Reviews</h2>
+
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger">@TempData["ErrorMessage"]</div>
+    }
+    @if (TempData["InfoMessage"] != null)
+    {
+        <div class="alert alert-info">@TempData["InfoMessage"]</div>
+    }
+
+    @if (Model.Reviews.Any())
+    {
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Product Image</th>
+                    <th>Product Name</th>
+                    <th>Rating</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var review in Model.Reviews)
+                {
+                    <tr>
+                        <td>
+                            @if (review.Product.Variations.Any())
+                            {
+                                <img src="@review.Product.Variations.First().ProductVariationImageUrl"
+                                     alt="@review.Product.ProductName"
+                                     style="width: 100px; height: auto;" />
+                            }
+                            else
+                            {
+                                <span>No image</span>
+                            }
+                        </td>
+                        <td>@review.Product.ProductName</td>
+                        <td>
+                            @for (int i = 0; i < review.ReviewRating; i++)
+                            {
+                                <span class="text-warning">★</span>
+                            }
+                            @for (int i = review.ReviewRating; i < 5; i++)
+                            {
+                                <span class="text-secondary">★</span>
+                            }
+                        </td>
+                        <td>
+                            <a asp-page="/Products/Details" asp-route-id="@review.ProductId" class="btn btn-info">View Product</a>
+                            <a asp-page="/ReviewHistory/Edit" asp-route-id="@review.ReviewId" class="btn btn-warning">Edit</a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+</div>

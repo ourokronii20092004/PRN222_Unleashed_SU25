@@ -200,5 +200,14 @@ namespace DAL.Repositories
                 .Where(c => c.ReviewId == reviewId)
                 .ToListAsync();
         }
+        public async Task<IEnumerable<Review>> GetReviewsByUsernameAsync(string username)
+        {
+            return await _context.Reviews
+                .Include(r => r.Product)
+                .ThenInclude(p => p.Variations)
+                .Include(r => r.User)     
+                .Where(r => r.User.UserUsername == username)
+                .ToListAsync();
+        }
     }
 }
