@@ -17,13 +17,13 @@ namespace BLL.Services
     {
         private readonly ICartRepository _cartRepository;
         private readonly IVariationRepository _variationRepository;
-        private readonly IUserService _userService;
+        private readonly IUserRepository _userRepository;
 
-        public CartService(ICartRepository cartRepository, IVariationRepository variationRepository, IUserService userService)
+        public CartService(ICartRepository cartRepository, IVariationRepository variationRepository, IUserRepository userRepository)
         {
             _cartRepository = cartRepository;
             _variationRepository = variationRepository;
-            _userService = userService;
+            _userRepository = userRepository;
         }
 
         public Task AddToCartAsync(string username, int variationId, int quantity)
@@ -47,7 +47,7 @@ namespace BLL.Services
 
         public async Task<Guid> GetUserIdByUsername(string username)
         {
-            var user = await _userService.GetUserByUsernameAsync(username);
+            var user = await _userRepository.GetByUsernameAsync(username);
             if (user == null)
             {
                 throw new Exception("User not found");
