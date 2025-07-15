@@ -215,6 +215,61 @@ namespace DAL.Repositories
                .ToListAsync();
         }
 
+       public async Task DeleteVariationWithDependenciesAsync(int variationId)
+{
+    // Sử dụng transaction để đảm bảo tính toàn vẹn
+    using var dbtransaction = await _context.Database.BeginTransactionAsync();
+    
+    try
+    {
+        // Lấy variation và tất cả các bản ghi liên quan
+        var variation = await _context.Variations
+            .Include(v => v.StockVariations)
+            .Include(v => v.Transactions) // Thêm include cho transactions
+            .FirstOrDefaultAsync(v => v.VariationId == variationId);
 
+        if (variation != null)
+        {
+            // 1. Xóa các stock_variation liên quan
+            if (variation.StockVariations.Any())
+            {
+                _context.StockVariations.RemoveRange(variation.StockVariations);
+            }
+            
+            // 2. Xử lý các transaction liên quan
+            if (variation.Transactions.Any())
+            {
+                // Có 3 cách xử lý:
+                // Cách 1: Xóa luôn các transaction (nếu business logic cho phép)
+                // _context.Transactions.RemoveRange(variation.Transactions);
+                
+                // Cách 2: Set variation_id thành null (nếu thiết kế cho phép)
+                foreach (var transaction in variation.Transactions)
+                {
+                    transaction.VariationId = null;
+                    _context.Transactions.Update(transaction);
+                }
+                
+                // Cách 3: Đánh dấu là không hoạt động thay vì xóa
+                // foreach (var transaction in variation.Transactions)
+                // {
+                //     transaction.IsActive = false;
+                //     _context.Transactions.Update(transaction);
+                // }
+            }
+            
+            // 3. Cuối cùng mới xóa variation
+            _context.Variations.Remove(variation);
+            
+            await _context.SaveChangesAsync();
+            await dbtransaction.CommitAsync();
+        }
+    }
+    catch
+    {
+        await dbtransaction.RollbackAsync();
+        throw; // Re-throw exception để xử lý ở tầng trên
+    }
+}
     }
 }

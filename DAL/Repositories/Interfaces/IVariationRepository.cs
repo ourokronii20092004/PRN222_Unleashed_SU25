@@ -33,11 +33,10 @@ namespace DAL.Repositories.Interfaces
         Task<List<Variation>> GetVariationsByProductIdsAsync(List<Guid> productIds);
         Task<int> SaveChangesAsync();
 
-
         Task<List<Variation>> GetVariationsForProductsAsync(List<Guid> productIds);
 
 
-
+        Task DeleteVariationWithDependenciesAsync(int variationId);
 
 
 

@@ -22,6 +22,7 @@ namespace BLL.Services
         private readonly IColorRepository _colorRepository;
         private readonly IBrandRepository _brandRepository;
         private readonly IReviewRepository _reviewRepository;
+        private readonly ICategoryRepository _categoryRepository;
 
         private readonly IMapper _mapper;
         private readonly ILogger<ProductService> _logger;
@@ -36,7 +37,8 @@ namespace BLL.Services
             IMapper mapper,
             ILogger<ProductService> logger,
             IBrandRepository brandRepository,
-            IReviewRepository reviewRepository
+            IReviewRepository reviewRepository,
+            ICategoryRepository categoryRepository
             )
         {
             _productRepository = productRepository;
@@ -48,6 +50,7 @@ namespace BLL.Services
             _mapper = mapper;
             _logger = logger;
             _reviewRepository = reviewRepository;
+            _categoryRepository = categoryRepository;
         }
 
         public async Task<Product?> AddVariationsToExistingProductAsync(
@@ -108,14 +111,15 @@ namespace BLL.Services
             await _productRepository.AddAsync(product);
             await _productRepository.SaveChangesAsync();
 
-            if (productDTO.Categories != null && productDTO.Categories.Any())
+            if (productDTO.SelectedCategoryIds != null && productDTO.SelectedCategoryIds.Any())
             {
-                foreach (var category in productDTO.Categories)
+                foreach (var categoryId in productDTO.SelectedCategoryIds)
                 {
-                    await _productRepository.AddProductCategoryAsync(product.ProductId, category.CategoryId);
+                    
+                    await _productRepository.AddProductCategoryAsync(product.ProductId, categoryId);
                 }
             }
-            
+
             var variations = new List<Variation>();
             foreach (var variationDTO in productDTO.Variations)
             {
@@ -301,32 +305,51 @@ namespace BLL.Services
             {
                 throw new InvalidOperationException("Product not found!");
             }
+
+            // Update basic product info
             product.ProductName = productDTO.ProductName;
             product.ProductCode = productDTO.ProductCode;
             product.ProductDescription = productDTO.ProductDescription;
             product.ProductStatusId = productDTO.ProductStatusId;
             product.BrandId = productDTO.BrandId;
             product.ProductUpdatedAt = productDTO.UpdatedAt ?? DateTimeOffset.UtcNow;
-            product.ProductCreatedAt = productDTO.CreatedAt ?? DateTimeOffset.UtcNow;
 
-            await UpdateProductVariations(product, productDTO.Variations);
-            await _productRepository.UpdateAsync(product);
-            await _productRepository.SaveChangesAsync();
-            return product;
-        }
-
-        private async Task UpdateProductVariations(Product product, List<ProductDTO.ProductVariationDTO> variationDTOs)
-        {
-            if (variationDTOs == null) return;
-            
-            foreach (var dto in variationDTOs)
+            // Update categories
+            product.Categories.Clear();
+            if (productDTO.SelectedCategoryIds != null && productDTO.SelectedCategoryIds.Any())
             {
-                var exists = product.Variations.Any(v =>
+                foreach (var categoryId in productDTO.SelectedCategoryIds)
+                {
+                    var categoryToAdd = await _categoryRepository.GetByIdAsync(categoryId);
+                    if (categoryToAdd != null)
+                    {
+                        await _productRepository.AddProductCategoryAsync(product.ProductId, categoryId);
+                    }
+                }
+            }
+
+            // Xử lý biến thể
+            var existingVariations = (await _variationRepository.FindProductVariationByProductIdAsync(product.ProductId)).ToList();
+            var updatedVariations = new List<Variation>();
+
+            foreach (var dto in productDTO.Variations)
+            {
+                // Tìm biến thể hiện có cùng SizeId và ColorId
+                var existingVariation = existingVariations.FirstOrDefault(v =>
                     v.SizeId == dto.SizeId &&
                     v.ColorId == dto.ColorId);
 
-                if (!exists)
+                if (existingVariation != null)
                 {
+                    // Cập nhật biến thể hiện có
+                    existingVariation.VariationPrice = dto.ProductPrice ?? 0;
+                    existingVariation.VariationImage = dto.ProductVariationImageUrl;
+                    await _variationRepository.UpdateAsync(existingVariation);
+                    updatedVariations.Add(existingVariation);
+                }
+                else
+                {
+                    // Thêm biến thể mới
                     var size = await _sizeRepository.GetByIdAsync(dto.SizeId);
                     var color = await _colorRepository.GetByIdAsync(dto.ColorId);
                     if (size != null && color != null)
@@ -340,13 +363,66 @@ namespace BLL.Services
                             VariationImage = dto.ProductVariationImageUrl
                         };
                         await _variationRepository.AddAsync(newVariation);
-                        product.Variations.Add(newVariation);
+                        updatedVariations.Add(newVariation);
                     }
                 }
             }
-            
-            await _variationRepository.SaveChangesAsync();
+
+            // Xác định biến thể cần xóa
+            var variationsToRemove = existingVariations
+                .Where(ev => !productDTO.Variations.Any(dto =>
+                    dto.SizeId == ev.SizeId &&
+                    dto.ColorId == ev.ColorId))
+                .ToList();
+
+            // Xóa các biến thể không còn tồn tại trong DTO thông qua repository
+            foreach (var variation in variationsToRemove)
+            {
+                // Sử dụng repository method để xóa variation và các stock_variation liên quan
+                await _variationRepository.DeleteVariationWithDependenciesAsync(variation.VariationId);
+            }
+
+            // Cập nhật danh sách biến thể của sản phẩm
+            product.Variations = updatedVariations;
+
+            await _productRepository.UpdateAsync(product);
+            await _productRepository.SaveChangesAsync();
+            return product;
         }
+
+        /*private async Task UpdateProductVariations(Product product, List<ProductDTO.ProductVariationDTO> variationDTOs)
+         {
+             if (variationDTOs == null) return;
+
+             foreach (var dto in variationDTOs)
+             {
+                 var exists = product.Variations.Any(v =>
+                     v.SizeId == dto.SizeId &&
+                     v.ColorId == dto.ColorId);
+
+                 if (!exists)
+                 {
+                     var size = await _sizeRepository.GetByIdAsync(dto.SizeId);
+                     var color = await _colorRepository.GetByIdAsync(dto.ColorId);
+                     if (size != null && color != null)
+                     {
+                         var newVariation = new Variation
+                         {
+                             ProductId = product.ProductId,
+                             SizeId = size.SizeId,
+                             ColorId = color.ColorId,
+                             VariationPrice = dto.ProductPrice ?? 0,
+                             VariationImage = dto.ProductVariationImageUrl
+                         };
+                         await _variationRepository.AddAsync(newVariation);
+                         product.Variations.Add(newVariation);
+                     }
+                 }
+             }
+
+              await _variationRepository.SaveChangesAsync();
+       
+    }  */
 
         public async Task<(List<ProductSearchResultDTO> Products, int TotalCount)> SearchProductsAsync(string? query, int skip, int take)
         {
@@ -437,13 +513,15 @@ namespace BLL.Services
             var statuses = await _productStatusRepository.GetAllAsync();
             var sizes = await _sizeRepository.GetAllAsync();
             var colors = await _colorRepository.GetAllAsync();
+            var categories = await _categoryRepository.GetAllAsync();
 
             return new ProductDropdownsDTO
             {
                 Brands = brands.ToList(),
                 Statuses = statuses.ToList(),
                 Sizes = sizes.ToList(),
-                Colors = colors.ToList()
+                Colors = colors.ToList(),
+                Categories = categories.ToList()
             };
         }
         public async Task<bool> SoftDeleteProductAsync(Guid productId)

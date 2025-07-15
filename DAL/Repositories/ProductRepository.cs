@@ -490,7 +490,17 @@ namespace DAL.Repositories
 
             return await queryable.CountAsync();
         }
+        public async Task RemoveAllCategoriesFromProductAsync(Guid productId)
+        {
+            var product = await _context.Products
+                .Include(p => p.Categories) 
+                .FirstOrDefaultAsync(p => p.ProductId == productId);
 
+            if (product != null && product.Categories != null)
+            {   
+                product.Categories.Clear();
+            }
+        }
         public async Task<List<ProductImportSelectionDTO>> GetProductsForImportSelectionAsync(int stockId)
         {
             var sql = $@"

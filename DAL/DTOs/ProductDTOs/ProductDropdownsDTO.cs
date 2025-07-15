@@ -13,5 +13,6 @@ namespace DAL.DTOs.ProductDTOs
         public List<ProductStatus> Statuses { get; set; } = new List<ProductStatus>();
         public List<Size> Sizes { get; set; } = new List<Size>();
         public List<Color> Colors { get; set; } = new List<Color>();
+        public List<Category> Categories { get; set; }
     }
 }
