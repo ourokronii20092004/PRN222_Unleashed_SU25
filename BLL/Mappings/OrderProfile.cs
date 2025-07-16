@@ -13,7 +13,9 @@ namespace BLL.Mappings
     {
         public OrderProfile()
         {
-            CreateMap<Order, OrderDTO>();
+            CreateMap<Order, OrderDTO>()
+            .ForMember(dest => dest.OrderStatusId, opt => opt.MapFrom(src => src.OrderStatusId)); // QUAN TRỌNG
+            
             CreateMap<OrderDTO, Order>();
             CreateMap<OrderVariationSingle, OrderDetailDTO>();
             CreateMap<OrderDetailDTO, OrderVariationSingle>();

@@ -1,0 +1,63 @@
+﻿@page
+@model Unleashed_RP.Pages.Orders.DetailsModel
+@{
+    ViewData["Title"] = "Order Details";
+    Layout = "~/Pages/Shared/_Layout.cshtml";
+}
+
+<div class="container mt-4">
+    <h2>Order Details</h2>
+
+    <div class="card mb-4">
+        <div class="card-header bg-primary text-white">
+            <h4>Order Information</h4>
+        </div>
+        <div class="card-body">
+            <dl class="row">
+                <dt class="col-sm-3">Order ID</dt>
+                <dd class="col-sm-9">@Model.Order.OrderId</dd>
+
+                <dt class="col-sm-3">Date</dt>
+                <dd class="col-sm-9">@Model.Order.OrderDate</dd>
+
+                <dt class="col-sm-3">Total Amount</dt>
+                <dd class="col-sm-9">@Model.Order.OrderTotalAmount</dd> 
+
+                <dt class="col-sm-3">Status</dt>
+                <dd class="col-sm-9">
+                    <span class="badge @GetStatusBadgeClass(Model.Order.OrderStatusId)">
+                        @GetStatusName(Model.Order.OrderStatusId)
+                    </span>
+                </dd>
+            </dl>
+        </div>
+    </div>
+
+    <div class="mt-3">
+        <a asp-page="./Index" class="btn btn-secondary">Back to Orders</a>
+    </div>
+</div>
+
+@functions {
+    string GetStatusName(int? statusId)
+    {
+        return (statusId ?? 0) switch
+        {
+            1 => "Cancelled",
+            2 => "Approved",
+            5 => "Pending",
+            _ => "Unknown"
+        };
+    }
+
+    string GetStatusBadgeClass(int? statusId)
+    {
+        return (statusId ?? 0) switch
+        {
+            1 => "bg-danger",
+            2 => "bg-success",
+            5 => "bg-warning",
+            _ => "bg-secondary"
+        };
+    }
+}

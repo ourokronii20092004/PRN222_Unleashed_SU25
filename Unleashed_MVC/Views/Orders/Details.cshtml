@@ -41,7 +41,7 @@
                 <div class="row mb-3">
                     <div class="col-md-6">
                         <span class="badge @GetStatusBadge(Model.OrderStatus?.OrderStatusId ?? 0)">
-                            Model.OrderStatus?.OrderStatusId
+                            @GetStatusName(Model.OrderStatus?.OrderStatusId ?? 0)
                         </span>
                     </div>
                     <div class="col-md-6 text-end">
@@ -70,16 +70,13 @@
                 <div class="mt-4">
                     <a asp-action="Index" class="btn btn-secondary">Back to List</a>
 
-                    @if (Model.OrderStatus?.OrderStatusId == 5)
+                    @if (Model.OrderStatus?.OrderStatusId == 5) // Pending
                     {
                         <form asp-action="Approve" method="post" class="d-inline">
                             <input type="hidden" name="id" value="@Model.OrderId" />
                             <button type="submit" class="btn btn-success">Approve</button>
                         </form>
-                    }
 
-                    @if (Model.OrderStatus?.OrderStatusId != 1)
-                    {
                         <form asp-action="Cancel" method="post" class="d-inline">
                             <input type="hidden" name="id" value="@Model.OrderId" />
                             <button type="submit" class="btn btn-danger">Cancel</button>
