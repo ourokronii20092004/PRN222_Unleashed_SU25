@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Http;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
@@ -15,6 +16,8 @@ namespace DAL.DTOs.ProviderDTOs
         public string ProviderName { get; set; }
 
         public string? ProviderImageUrl { get; set; }
+
+        public IFormFile? ProviderImageFile { get; set; }
 
         [EmailAddress(ErrorMessage = "Invalid email format.")]
         public string? ProviderEmail { get; set; }
