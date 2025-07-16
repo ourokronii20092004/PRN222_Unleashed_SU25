@@ -41,7 +41,7 @@
                 <div class="row mb-3">
                     <div class="col-md-6">
                         <span class="badge @GetStatusBadge(Model.OrderStatus?.OrderStatusId ?? 0)">
-                            @GetStatusName(Model.OrderStatus?.OrderStatusId ?? 0)
+                            Model.OrderStatus?.OrderStatusId
                         </span>
                     </div>
                     <div class="col-md-6 text-end">
