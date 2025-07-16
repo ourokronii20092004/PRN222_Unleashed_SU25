@@ -12,9 +12,9 @@ namespace Unleashed_RP.Pages
             _logger = logger;
         }
 
-        public void OnGet()
+        public IActionResult OnGet()
         {
-
+           return RedirectToPage("Products/Index");
         }
     }
 }
