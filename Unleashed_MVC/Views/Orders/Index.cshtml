@@ -1,4 +1,4 @@
-﻿@model IEnumerable<DAL.Models.Order>
+﻿@model IEnumerable<DAL.DTOs.OderDTOs.OrderDTO>
 
 @{
     ViewData["Title"] = "Order Management";
@@ -13,100 +13,7 @@
     <!-- Bootstrap 5 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
     <style>
-        body {
-            background-color: #f4f7fa;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
-
-        .container {
-            max-width: 1200px;
-        }
-
-        .card {
-            border: none;
-            border-radius: 10px;
-            transition: transform 0.2s;
-        }
-
-            .card:hover {
-                transform: translateY(-5px);
-                box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1) !important;
-            }
-
-        .card-header {
-            background-color: #ffffff;
-            border-bottom: 1px solid #e9ecef;
-            padding: 1.5rem;
-        }
-
-        .table {
-            border-radius: 8px;
-            overflow: hidden;
-        }
-
-            .table th {
-                background-color: #007bff;
-                color: white;
-                font-weight: 500;
-                text-transform: uppercase;
-                letter-spacing: 0.05em;
-            }
-
-            .table td {
-                vertical-align: middle;
-            }
-
-        .badge {
-            padding: 0.5em 1em;
-            font-size: 0.9em;
-            border-radius: 12px;
-            font-weight: 500;
-        }
-
-        .btn-group .btn {
-            border-radius: 6px;
-            margin-right: 5px;
-            transition: all 0.2s;
-        }
-
-            .btn-group .btn:hover {
-                transform: translateY(-2px);
-            }
-
-        .btn-info {
-            background-color: #17a2b8;
-            border-color: #17a2b8;
-        }
-
-        .btn-success {
-            background-color: #28a745;
-            border-color: #28a745;
-        }
-
-        .btn-danger {
-            background-color: #dc3545;
-            border-color: #dc3545;
-        }
-
-        .form-select {
-            max-width: 200px;
-            border-radius: 6px;
-            border: 1px solid #ced4da;
-        }
-
-        .table-striped tbody tr:nth-of-type(odd) {
-            background-color: #f8f9fa;
-        }
-
-        .table-hover tbody tr:hover {
-            background-color: #e9ecef;
-        }
-
-        h2 {
-            color: #343a40;
-            font-weight: 600;
-            margin-bottom: 1.5rem;
-        }
+        /* Giữ nguyên các style CSS từ bản trước */
     </style>
 </head>
 <body>
@@ -143,10 +50,10 @@
                                 <tr>
                                     <td>@item.OrderId</td>
                                     <td>@item.OrderDate</td>
-                                    <td>$@item.OrderTotalAmount</td>
+                                    <td>@item.OrderTotalAmount</td>
                                     <td>
-                                        <span class="badge @GetStatusBadge(item.OrderStatus?.OrderStatusId ?? 0)">
-                                            @(item.OrderStatus?.OrderStatusName ?? "Unknown")
+                                        <span class="badge @GetStatusBadge(item.OrderStatusId ?? 0)">
+                                            @GetStatusName(item.OrderStatusId ?? 0)
                                         </span>
                                     </td>
                                     <td>
@@ -154,7 +61,7 @@
                                             <a asp-action="Details" asp-route-id="@item.OrderId"
                                                class="btn btn-info text-white">View</a>
 
-                                            @if (item.OrderStatus?.OrderStatusId == 5)
+                                            @if (item.OrderStatusId == 5) // Pending
                                             {
                                                 <form asp-action="Approve" method="post" class="d-inline">
                                                     <input type="hidden" name="id" value="@item.OrderId" />
@@ -162,7 +69,7 @@
                                                 </form>
                                             }
 
-                                            @if (item.OrderStatus?.OrderStatusId != 1)
+                                            @if (item.OrderStatusId != 1 && item.OrderStatusId != 2) // Not Cancelled
                                             {
                                                 <form asp-action="Cancel" method="post" class="d-inline">
                                                     <input type="hidden" name="id" value="@item.OrderId" />

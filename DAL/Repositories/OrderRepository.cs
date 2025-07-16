@@ -58,13 +58,16 @@ namespace DAL.Repositories
 
             await _unleashedcontext.SaveChangesAsync();
         }
-        
+
 
         public async Task<IEnumerable<Order>> GetAllAsync()
         {
-            return await _unleashedcontext.Orders.Include(o => o.OrderStatus)
+            return await _unleashedcontext.Orders
+                .Include(o => o.OrderStatus) // Đảm bảo include status
                 .Include(o => o.User)
-                .Include(o => o.OrderVariationSingles).ToListAsync();
+                .Include(o => o.OrderVariationSingles)
+                .AsNoTracking() // Tối ưu performance
+                .ToListAsync();
         }
 
         public async Task<Order?> GetByIdAsync(Guid id)

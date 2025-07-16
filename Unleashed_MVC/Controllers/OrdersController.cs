@@ -33,10 +33,8 @@ namespace Unleashed_MVC.Controllers
                 orderDtos = orderDtos.Where(o => o.OrderStatusId == statusId.Value);
             }
 
-            // Map DTOs to Models
-            var orderModels = _mapper.Map<IEnumerable<Order>>(orderDtos);
-
-            return View(orderModels);
+            // Truyền cả DTO sang view thay vì map ngược
+            return View(orderDtos);
         }
 
         // GET: Orders/Details/5

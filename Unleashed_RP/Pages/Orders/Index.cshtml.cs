@@ -14,13 +14,13 @@ using System.Threading.Tasks;
 
 namespace Unleashed_RP.Pages.Orders
 {
-    [Filter.Filter(RequiredRoles = new[] { "CUSTOMER" })]
     public class IndexModel : PageModel
     {
         private readonly IOrderService _orderService;
         private readonly ICartService _cartService;
+        
 
-        public List<OrderDTO> Orders { get; set; }
+        public List<OrderDTO> Orders { get; set; } = new List<OrderDTO>();
 
         public IndexModel(IOrderService orderService, ICartService cartService)
         {
@@ -47,13 +47,17 @@ namespace Unleashed_RP.Pages.Orders
 
         public async Task<IActionResult> OnPostCancelOrderAsync(Guid orderId)
         {
-            var order = await _orderService.GetOrderDetailAsync(orderId);
-            if (order?.OrderStatusId == 5) // Only allow cancel for Pending orders
+            try
             {
                 await _orderService.CancelOrderAsync(orderId);
+                TempData["SuccessMessage"] = "Order has been cancelled successfully.";
+            }
+            catch (Exception ex)
+            {
+                TempData["ErrorMessage"] = "An error occurred while canceling the order.";
+                // Log the exception
             }
             return RedirectToPage();
         }
-        
     }
 }
