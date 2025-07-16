@@ -26,28 +26,33 @@ namespace DAL.Repositories
         public async Task AddAsync(Order order)
         {
             await _unleashedcontext.Orders.AddAsync(order);
+            await _unleashedcontext.SaveChangesAsync();
         }
 
         public async Task AddAsync(OrderDTO order)
         {
             // Map OrderDTO to Order entity
-            var order1 = _mapper.Map<Order>(order);
+            var orderdto = _mapper.Map<Order>(order);
 
-            // Set default values if needed
-            order.OrderId = Guid.NewGuid();
+            // Set default values for the ENTITY, not the DTO
+            if (order.OrderId == Guid.Empty)
+            {
+                order.OrderId = Guid.NewGuid();
+            }
+
             order.OrderDate = DateTimeOffset.Now;
             order.OrderStatusId = 5; // Pending status
 
-            await _unleashedcontext.Orders.AddAsync(order1);
+            await _unleashedcontext.Orders.AddAsync(orderdto);
 
             // Add order details if they exist in the DTO
             if (order.OrderItems != null && order.OrderItems.Any())
             {
                 foreach (var itemDto in order.OrderItems)
                 {
-                    var orderDetail = _mapper.Map<OrderDetailDTO>(itemDto);
+                    var orderDetail = _mapper.Map<OrderDetailDTO>(itemDto); // Map to Entity, not DTO
                     orderDetail.OrderId = order.OrderId;
-                    await _unleashedcontext.AddAsync(orderDetail);
+                    await _unleashedcontext.Orders.AddAsync(orderdto); // Sử dụng DbSet chính xác
                 }
             }
 

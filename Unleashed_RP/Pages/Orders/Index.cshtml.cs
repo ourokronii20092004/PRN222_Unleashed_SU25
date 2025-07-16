@@ -29,10 +29,19 @@ namespace Unleashed_RP.Pages.Orders
 
         public async Task OnGetAsync()
         {
-            string? username = HttpContext.Session.GetString("username");
-            ArgumentNullException.ThrowIfNullOrEmpty(username);
-            var userId = await _cartService.GetUserIdByUsername(username);
-            Orders = (await _orderService.GetOrdersByUserAsync(userId)).ToList();
+            try
+            {
+                string? username = HttpContext.Session.GetString("username");
+                ArgumentNullException.ThrowIfNullOrEmpty(username);
+                var userId = await _cartService.GetUserIdByUsername(username);
+                var orders = await _orderService.GetOrdersByUserAsync(userId);
+                Orders = orders?.ToList() ?? new List<OrderDTO>();
+            }
+            catch (Exception ex)
+            {
+                // Log error here
+                Orders = new List<OrderDTO>();
+            }
         }
 
         public async Task<IActionResult> OnPostCancelOrderAsync(Guid orderId)

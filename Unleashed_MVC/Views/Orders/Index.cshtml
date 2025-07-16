@@ -146,7 +146,7 @@
                                     <td>$@item.OrderTotalAmount</td>
                                     <td>
                                         <span class="badge @GetStatusBadge(item.OrderStatus?.OrderStatusId ?? 0)">
-                                            @GetStatusName(item.OrderStatus?.OrderStatusId ?? 0)
+                                            @(item.OrderStatus?.OrderStatusName ?? "Unknown")
                                         </span>
                                     </td>
                                     <td>

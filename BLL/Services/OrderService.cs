@@ -4,6 +4,7 @@ using DAL.DTOs.OderDTOs;
 using DAL.Models;
 using DAL.Repositories;
 using DAL.Repositories.Interfaces;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,12 +13,13 @@ using System.Threading.Tasks;
 
 namespace BLL.Services
 {
-    public class OrderService(IOrderRepository orderRepo, IMapper mapper, ICartRepository cartRepo, ICartService cartService) : IOrderService
+    public class OrderService(IOrderRepository orderRepo, IMapper mapper, ICartRepository cartRepo, ICartService cartService, ILogger<OrderService> logger) : IOrderService
     {
         private readonly IOrderRepository _orderRepo = orderRepo;
         private readonly ICartRepository _cartRepo = cartRepo;
         private readonly IMapper _mapper = mapper;
         private readonly ICartService _cartService = cartService;
+        private readonly ILogger<OrderService> _logger = logger;
 
         public async Task ApproveOrderAsync(Guid orderId)
         {
@@ -41,22 +43,25 @@ namespace BLL.Services
             }
         }
 
-        public async Task<Guid> ConvertCartToOrderAsync(string username)
+        public async Task<(Guid OrderId, decimal? TotalAmount)> ConvertCartToOrderAsync(string username)
         {
             var userId = await _cartService.GetUserIdByUsername(username);
             var cartItems = await _cartRepo.GetAllByUserIdAsync(userId);
-            if(cartItems == null)
+            if (cartItems == null || !cartItems.Any())
             {
                 throw new Exception("Cart is empty");
             }
+
+            var totalAmount = cartItems.Sum(item =>
+                item.Variation.VariationPrice * (item.CartQuantity ?? 0));
+
             var order = new OrderDTO
             {
-                OrderId = new Guid(),
+                OrderId = Guid.NewGuid(), // Changed from new Guid() to Guid.NewGuid()
                 UserId = userId,
                 OrderStatusId = 5,
                 OrderDate = DateTime.Now,
-                OrderTotalAmount = cartItems.Sum(item =>
-                item.Variation.VariationPrice * (item.CartQuantity ?? 0)),
+                OrderTotalAmount = totalAmount,
                 OrderDetails = cartItems.Select(item => new OrderDetailDTO
                 {
                     VariationSingleId = item.VariationId,
@@ -64,11 +69,12 @@ namespace BLL.Services
                     Quantity = item.CartQuantity ?? 0
                 }).ToList()
             };
+
             await _orderRepo.AddAsync(order);
             await _orderRepo.SaveAsync();
             await _cartRepo.RemoveAllAsync(userId);
-
-            return order.OrderId;
+            _logger.LogCritical(order.OrderId.ToString());
+            return (order.OrderId, totalAmount);
         }
 
         public async Task CreateOrderAsync(OrderDTO dto)
@@ -97,5 +103,6 @@ namespace BLL.Services
             var orders = await _orderRepo.GetByUserIdAsync(userId);
             return _mapper.Map<IEnumerable<OrderDTO>>(orders);
         }
+
     }
 }

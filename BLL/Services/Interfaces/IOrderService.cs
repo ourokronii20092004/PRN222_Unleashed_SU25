@@ -16,6 +16,6 @@ namespace BLL.Services.Interfaces
         Task CreateOrderAsync(OrderDTO dto);
         Task ApproveOrderAsync(Guid orderId);
         Task CancelOrderAsync(Guid orderId);
-        Task<Guid> ConvertCartToOrderAsync(string username);
+        Task<(Guid OrderId, decimal? TotalAmount)> ConvertCartToOrderAsync(string username);
     }
 }
