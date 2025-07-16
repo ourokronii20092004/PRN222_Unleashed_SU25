@@ -12,11 +12,13 @@ namespace Unleashed_RP.Pages.Carts
         private readonly ICartService _cartService;
         private readonly IUserService _userService;
         private readonly IOrderService _orderService;
-        public IndexModel(ICartService cartService, IUserService userService, IOrderService orderService)
+        private readonly IVnpayService _vnpayService;
+        public IndexModel(ICartService cartService, IUserService userService, IOrderService orderService, IVnpayService vnpayService)
         {
             _cartService = cartService;
             _userService = userService;
             _orderService = orderService;
+            _vnpayService = vnpayService;
         }
         public Dictionary<string, List<CartDTO>> GroupedCartItems { get; set; } = new();
         public IList<Cart> Cart { get; set; } = default!;
@@ -65,14 +67,37 @@ namespace Unleashed_RP.Pages.Carts
             {
                 string? username = HttpContext.Session.GetString("username");
                 ArgumentNullException.ThrowIfNullOrEmpty(username);
-                var orderId = await _orderService.ConvertCartToOrderAsync(username);
-                return RedirectToPage("/Orders/Index", new { id = orderId });
+
+                // Get user info
+                var user = await _userService.GetUserByUsernameAsync(username);
+                if (user == null)
+                {
+                    throw new Exception("User not found");
+                }
+
+                // Convert cart to order and get order details
+                var (orderId, totalAmount) = await _orderService.ConvertCartToOrderAsync(username);
+
+                // Create payment info
+                var paymentModel = new PaymentInfoModel
+                {
+                    OrderId = orderId,
+                    Amount = totalAmount,
+                    Name = user.UserFullname ?? "Customer",
+                    OrderDescription = $"Payment for order #{orderId}"
+                };
+
+                // Create payment URL and redirect
+                var paymentUrl = _vnpayService.CreatePaymentUrl(paymentModel, HttpContext);
+                return Redirect(paymentUrl);
             }
             catch (Exception ex)
             {
                 ModelState.AddModelError("", ex.Message);
+                await OnGetAsync(); // Reload cart items
                 return Page();
             }
         }
-    }
+
+        }
 }

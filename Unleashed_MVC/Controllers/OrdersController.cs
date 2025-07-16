@@ -41,9 +41,12 @@ namespace Unleashed_MVC.Controllers
         // GET: Orders/Details/5
         public async Task<IActionResult> Details(Guid id)
         {
-            var order = await _orderService.GetOrderDetailAsync(id);
-            if (order == null) return NotFound();
-            return View(order);
+            var orderDto = await _orderService.GetOrderDetailAsync(id);
+            if (orderDto == null) return NotFound();
+
+            // Map DTO to Model
+            var orderModel = _mapper.Map<Order>(orderDto);
+            return View(orderModel);
         }
 
         [HttpPost]
