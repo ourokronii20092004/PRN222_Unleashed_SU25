@@ -1,4 +1,5 @@
 ﻿using BLL.Services.Interfaces;
+using BLL.Utilities.Interfaces;
 using DAL.DTOs.ProviderDTOs;
 using Microsoft.AspNetCore.Mvc;
 
@@ -9,11 +10,13 @@ namespace Unleashed_MVC.Controllers
     {
         private readonly IProviderService _providerService;
         private readonly ILogger<ProvidersController> _logger;
+        private readonly IImageUploader _imageUploader;
 
-        public ProvidersController(IProviderService providerService, ILogger<ProvidersController> logger)
+        public ProvidersController(IProviderService providerService, ILogger<ProvidersController> logger, IImageUploader imageUploader)
         {
             _providerService = providerService;
             _logger = logger;
+            _imageUploader = imageUploader;
         }
 
         // GET: Providers
@@ -37,25 +40,40 @@ namespace Unleashed_MVC.Controllers
         // GET: Providers/Create
         public IActionResult Create()
         {
-            return View();
+            return View(new ProviderCreateDTO());
         }
 
         // POST: Providers/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("ProviderName,ProviderImageUrl,ProviderEmail,ProviderPhone,ProviderAddress")] ProviderCreateDTO providerDto)
+        public async Task<IActionResult> Create(ProviderCreateDTO providerDto)
         {
             if (ModelState.IsValid)
             {
+                if (providerDto.ProviderImageFile != null && providerDto.ProviderImageFile.Length > 0)
+                {
+                    var uploadResult = await _imageUploader.UploadImageAsync(providerDto.ProviderImageFile);
+                    if (uploadResult != null)
+                    {
+                        providerDto.ProviderImageUrl = uploadResult.Url;
+                    }
+                    else
+                    {
+                        ModelState.AddModelError("ProviderImageFile", "Image upload failed. Please try again.");
+                        return View(providerDto);
+                    }
+                }
+
                 try
                 {
                     await _providerService.CreateProviderAsync(providerDto);
+                    TempData["SuccessMessage"] = "Provider created successfully!";
                     return RedirectToAction(nameof(Index));
                 }
                 catch (Exception ex)
                 {
                     _logger.LogError(ex, "Error creating provider.");
-                    ModelState.AddModelError("", "Không thể tạo nhà cung cấp. Vui lòng thử lại.");
+                    ModelState.AddModelError("", "Could not create the provider. Please try again.");
                 }
             }
             return View(providerDto);
@@ -68,7 +86,6 @@ namespace Unleashed_MVC.Controllers
 
             var providerDto = await _providerService.GetProviderForEditAsync(id.Value);
             if (providerDto == null) return NotFound();
-            Console.WriteLine(providerDto);
 
             return View(providerDto);
         }
@@ -76,16 +93,31 @@ namespace Unleashed_MVC.Controllers
         // POST: Providers/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("ProviderId,ProviderName,ProviderImageUrl,ProviderEmail,ProviderPhone,ProviderAddress")] ProviderEditDTO providerDto)
+        public async Task<IActionResult> Edit(int id, ProviderEditDTO providerDto)
         {
-            Console.WriteLine(providerDto);
             if (id != providerDto.ProviderId) return NotFound();
 
             if (ModelState.IsValid)
             {
+                if (providerDto.ProviderImageFile != null && providerDto.ProviderImageFile.Length > 0)
+                {
+                    var uploadResult = await _imageUploader.UploadImageAsync(providerDto.ProviderImageFile);
+                    if (uploadResult != null)
+                    {
+                        providerDto.ProviderImageUrl = uploadResult.Url;
+                    }
+                    else
+                    {
+                        ModelState.AddModelError("ProviderImageFile", "New image upload failed. Please try again.");
+                        return View(providerDto);
+                    }
+                }
+
                 try
                 {
                     await _providerService.UpdateProviderAsync(id, providerDto);
+                    TempData["SuccessMessage"] = "Provider updated successfully!";
+                    return RedirectToAction(nameof(Index));
                 }
                 catch (KeyNotFoundException)
                 {
@@ -94,10 +126,9 @@ namespace Unleashed_MVC.Controllers
                 catch (Exception ex)
                 {
                     _logger.LogError(ex, "Error updating provider with ID {ProviderId}", id);
-                    ModelState.AddModelError("", "Không thể cập nhật nhà cung cấp. Vui lòng thử lại.");
+                    ModelState.AddModelError("", "Could not update the provider.");
                     return View(providerDto);
                 }
-                return RedirectToAction(nameof(Index));
             }
             return View(providerDto);
         }
