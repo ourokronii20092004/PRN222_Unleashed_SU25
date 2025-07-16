@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 
 namespace Unleashed_RP.Pages.Carts
 {
+    [Filter.Filter(RequiredRoles = new[] { "CUSTOMER" })]
     public class IndexModel : PageModel
     {
         private readonly ICartService _cartService;

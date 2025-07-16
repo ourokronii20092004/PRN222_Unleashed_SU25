@@ -14,6 +14,7 @@ using System.Threading.Tasks;
 
 namespace Unleashed_RP.Pages.Orders
 {
+    [Filter.Filter(RequiredRoles = new[] { "CUSTOMER" })]
     public class IndexModel : PageModel
     {
         private readonly IOrderService _orderService;

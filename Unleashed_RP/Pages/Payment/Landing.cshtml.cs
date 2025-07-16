@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Unleashed_RP.Pages.Payment
 {
+    [Filter.Filter(RequiredRoles = new[] { "CUSTOMER" })]
     public class LandingModel : PageModel
     {
         private readonly IVnpayService _vnpayService;
