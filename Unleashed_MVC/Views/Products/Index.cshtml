@@ -1,5 +1,4 @@
-﻿@using System.Text.RegularExpressions
-@model IEnumerable<DAL.DTOs.ProductDTOs.ProductListDTO>
+﻿@model IEnumerable<DAL.DTOs.ProductDTOs.ProductListDTO>
 
 @{
     ViewData["Title"] = "Product Management";
@@ -7,257 +6,244 @@
 
 @section Styles {
     <style>
-        .table th, .table td {
-            vertical-align: middle;
+        .page-header h1 {
+            font-weight: 700;
         }
 
-        .img-thumbnail-table {
-            width: 60px;
-            height: 60px;
-            object-fit: cover;
-            border-radius: .25rem;
-            padding: .1rem;
+        .controls-toolbar {
+            padding: 1rem;
+            background-color: #fff;
+            border-radius: 0.75rem;
+            border: 1px solid #dee2e6;
         }
 
-        .table-description {
-            max-width: 300px;
-            white-space: nowrap;
+        .product-card {
+            border: 1px solid #e9ecef;
+            border-radius: 0.75rem;
+            transition: all 0.3s ease;
             overflow: hidden;
-            text-overflow: ellipsis;
+            background-color: #fff;
         }
 
-        .search-container {
-            position: relative;
-        }
-
-        .search-clear {
-            position: absolute;
-            right: 40px;
-            top: 50%;
-            transform: translateY(-50%);
-            cursor: pointer;
-            color: #6c757d;
-            display: none;
-        }
-
-            .search-clear:hover {
-                color: #dc3545;
+            .product-card:hover {
+                transform: translateY(-5px);
+                box-shadow: 0 0.75rem 1.5rem rgba(0,0,0,0.1);
+                border-color: var(--bs-primary);
             }
 
-        .search-highlight {
-            background-color: yellow;
-            font-weight: bold;
+        .product-card-img-container {
+            position: relative;
+            width: 100%;
+            aspect-ratio: 1 / 1;
+            background-color: #f8f9fa;
+        }
+
+            /* Styles for both the image and the placeholder content */
+            .product-card-img-container img,
+            .product-card-img-container .placeholder-content {
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+            }
+
+            .product-card-img-container img {
+                object-fit: contain;
+                padding: 0.5rem;
+            }
+
+            /* Centers the placeholder icon */
+            .product-card-img-container .placeholder-content {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                color: #ced4da; /* Light gray for the icon */
+                font-size: 4rem; /* Makes the icon large */
+            }
+
+        .product-card-title {
+            font-weight: 600;
+            color: #212529;
+            text-decoration: none;
+        }
+
+            .product-card-title:hover {
+                color: var(--bs-primary);
+            }
+
+        .status-badge {
+            font-size: 0.75rem;
+            font-weight: 600;
+            padding: 0.3em 0.6em;
+        }
+
+        .page-item.active .page-link {
+            background-color: var(--bs-primary);
+            border-color: var(--bs-primary);
+        }
+
+        .page-link {
+            color: var(--bs-primary);
         }
     </style>
 }
 
-<div class="container-fluid mt-4">
-    <div class="d-flex justify-content-between align-items-center mb-3">
-        <h1><i class="bi bi-box-seam"></i> @ViewData["Title"]</h1>
-        <a asp-action="Create" class="btn btn-success">
-            <i class="bi bi-plus-circle-fill"></i> Create New Product
+<div class="container-xl mt-4">
+    <!-- Page Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4 page-header">
+        <h1><i class="bi bi-box-seam-fill me-2"></i>@ViewData["Title"]</h1>
+        <a asp-action="Create" class="btn btn-primary fw-bold">
+            <i class="bi bi-plus-circle-fill me-2"></i>Create New Product
         </a>
     </div>
 
-    <!-- Search Box -->
-    <div class="card shadow-sm mb-3">
-        <div class="card-body">
-            <form method="get" asp-action="Index" class="row g-3">
-                <div class="col-md-8">
-                    <div class="input-group search-container">
-                        <input type="text" name="query" id="searchInput" class="form-control"
-                               placeholder="Search by product name, code or description..."
-                               value="@ViewBag.Query">
-                        <span class="search-clear" id="searchClear" title="Clear search">
-                            <i class="bi bi-x-circle-fill"></i>
-                        </span>
-                        <button class="btn btn-outline-primary" type="submit" id="searchButton">
-                            <i class="bi bi-search"></i> Search
-                        </button>
+    <!-- Controls Toolbar -->
+    <div class="controls-toolbar mb-4 shadow-sm">
+        <form method="get" asp-action="Index">
+            <div class="row g-3 align-items-center">
+                <div class="col-xl-8 col-lg-7">
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="bi bi-search"></i></span>
+                        <input type="text" name="query" class="form-control" placeholder="Search by name, code, brand..." value="@ViewBag.Query">
                     </div>
                 </div>
-                <div class="col-md-2">
-                    <select name="pageSize" class="form-select" onchange="this.form.submit()">
-                        <option value="10" selected="@(ViewBag.PageSize == 10)">10 per page</option>
-                        <option value="20" selected="@(ViewBag.PageSize == 20)">20 per page</option>
-                        <option value="50" selected="@(ViewBag.PageSize == 50)">50 per page</option>
+                <div class="col-xl-2 col-lg-2">
+                     <select name="pageSize" class="form-select" onchange="this.form.submit()">
+                        <option value="12" selected="@(ViewBag.PageSize == 12)">12 per page</option>
+                        <option value="24" selected="@(ViewBag.PageSize == 24)">24 per page</option>
+                        <option value="48" selected="@(ViewBag.PageSize == 48)">48 per page</option>
                     </select>
                 </div>
-                <div class="col-md-2 text-end">
-                    <a asp-action="Index" class="btn btn-outline-danger">
-                        <i class="bi bi-arrow-counterclockwise"></i> Reset
-                    </a>
+                <div class="col-xl-2 col-lg-3">
+                    <div class="d-grid d-lg-flex gap-2">
+                         <button class="btn btn-outline-primary" type="submit">Filter</button>
+                         <a asp-action="Index" class="btn btn-outline-secondary"><i class="bi bi-arrow-counterclockwise"></i></a>
+                    </div>
                 </div>
-            </form>
-        </div>
+            </div>
+        </form>
     </div>
 
-    @if (!string.IsNullOrEmpty(ViewBag.Query))
+    @if (!Model.Any())
     {
-        <div class="alert alert-info mb-3">
-            <i class="bi bi-info-circle"></i> Showing results for: <strong>"@ViewBag.Query"</strong>
-            <span class="float-end">@ViewBag.TotalCount results found</span>
+        <div class="text-center py-5 card shadow-sm">
+            <i class="bi bi-dropbox" style="font-size: 4rem; color: #ced4da;"></i>
+            <h4 class="mt-3">No Products Found</h4>
+            <p class="text-muted">Try adjusting your search or create a new product.</p>
         </div>
     }
-
-    <div class="card shadow-sm">
-        <div class="card-body p-0">
-            @if (!Model.Any())
+    else
+    {
+        <!-- Product Cards Grid -->
+        <div class="row row-cols-1 row-cols-sm-2 row-cols-lg-3 row-cols-xl-4 g-4">
+            @foreach (var item in Model)
             {
-                <div class="alert alert-info m-3" role="alert">
-                    <i class="bi bi-exclamation-circle"></i> No products found.
-                    @if (!string.IsNullOrEmpty(ViewBag.Query))
-                    {
-                        <span>Try a different search term or <a asp-action="Index" class="alert-link">clear search</a>.</span>
-                    }
-                    else
-                    {
-                        <span>Click "Create New Product" to add one.</span>
-                    }
-                </div>
-            }
-            else
-            {
-                <div class="table-responsive">
-                    <table class="table table-hover table-striped mb-0">
-                        <thead class="table-light">
-                            <tr>
-                                <th>Product Name</th>
-                                <th>Code</th>
-                                <th>Description</th>
-                                <th>Brand</th>
-                                <th>Status</th>
-                                <th style="width: 80px;">Image</th>
-                                <th class="text-nowrap">Created At</th>
-                                <th style="width: 120px;" class="text-center">Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach (var item in Model)
-                            {
-                                <tr>
-                                    <td class="data-highlight"><strong>@item.ProductName</strong></td>
-                                    <td class="data-highlight">@item.ProductCode</td>
-                                    <td class="table-description data-highlight" title="@item.ProductDescription">
-                                        @item.ProductDescription
-                                    </td>
-                                    <td>@item.BrandName</td>
-                                    <td>@item.ProductStatusName</td>
-                                    <td>
-                                        @{
-                                            var variationWithImage = item.Variations?.FirstOrDefault(v => !string.IsNullOrEmpty(v.ProductVariationImage));
-                                        }
-                                        @if (variationWithImage != null)
-                                        {
-                                            <img src="@variationWithImage.ProductVariationImage" alt="@item.ProductName" class="img-thumbnail-table"
-                                                 onerror="this.src='/images/placeholder-image.png';" />
-                                        }
-                                        else
-                                        {
-                                            <div class="d-flex align-items-center justify-content-center bg-light img-thumbnail-table">
-                                                <i class="bi bi-image text-muted fs-4"></i>
-                                            </div>
-                                        }
-                                    </td>
-                                    <td class="small text-nowrap">
-                                        @(item.ProductCreatedAt?.ToString("yyyy-MM-dd") ?? "N/A")
-                                    </td>
-                                    <td class="text-center">
-                                        <div class="btn-group btn-group-sm" role="group">
-                                            <a asp-action="Details" asp-route-id="@item.ProductId" class="btn btn-outline-info" title="Details"><i class="bi bi-eye-fill"></i></a>
-                                            <a asp-action="Edit" asp-route-id="@item.ProductId" class="btn btn-outline-primary" title="Edit"><i class="bi bi-pencil-fill"></i></a>
-                                            <a asp-action="Delete" asp-route-id="@item.ProductId" class="btn btn-outline-danger" title="Delete"><i class="bi bi-trash3-fill"></i></a>
-                                        </div>
-                                    </td>
-                                </tr>
+                <div class="col">
+                    <div class="card h-100 product-card shadow-sm">
+                        <div class="product-card-img-container">
+                            @{
+                                var imageUrl = item.Variations?.FirstOrDefault(v => !string.IsNullOrEmpty(v.ProductVariationImage))?.ProductVariationImage;
                             }
-                        </tbody>
-                    </table>
+
+                            @if (!string.IsNullOrEmpty(imageUrl))
+                            {
+                                <img src="@imageUrl" alt="@item.ProductName" onerror="this.parentElement.innerHTML = document.getElementById('image-error-template').innerHTML;" />
+                            }
+                            else
+                            {
+                                <div class="placeholder-content">
+                                    <i class="bi bi-card-image"></i>
+                                </div>
+                            }
+                        </div>
+                        <div class="card-body d-flex flex-column">
+                            <h6 class="card-title">
+                                <a asp-action="Details" asp-route-id="@item.ProductId" class="product-card-title">
+                                    @item.ProductName
+                                </a>
+                            </h6>
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <small class="text-muted">by @item.BrandName</small>
+                                @{
+                                    var statusClass = "secondary";
+                                    var statusIcon = "bi-question-circle";
+                                    if(item.ProductStatusName == "In Stock") { statusClass = "success"; statusIcon = "bi-check-circle-fill"; }
+                                    if(item.ProductStatusName == "Out of Stock") { statusClass = "danger"; statusIcon = "bi-x-circle-fill"; }
+                                    if(item.ProductStatusName == "Archived") { statusClass = "dark"; statusIcon = "bi-archive-fill"; }
+                                }
+                                <span class="badge rounded-pill text-bg-@statusClass status-badge">
+                                    <i class="bi @statusIcon me-1"></i> @item.ProductStatusName
+                                </span>
+                            </div>
+                             <small class="text-muted">Code: @item.ProductCode</small>
+                        </div>
+                        <div class="card-footer bg-white border-top-0 pt-0 d-flex justify-content-between align-items-center">
+                             <small class="text-muted">
+                                <i class="bi bi-clock-history"></i> @(item.ProductCreatedAt?.ToString("yyyy-MM-dd"))
+                            </small>
+                            <div class="dropdown">
+                                <button class="btn btn-light btn-sm" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <i class="bi bi-three-dots"></i>
+                                </button>
+                                <ul class="dropdown-menu dropdown-menu-end">
+                                    <li><a class="dropdown-item" asp-action="Details" asp-route-id="@item.ProductId"><i class="bi bi-eye me-2"></i>Details</a></li>
+                                    <li><a class="dropdown-item" asp-action="Edit" asp-route-id="@item.ProductId"><i class="bi bi-pencil me-2"></i>Edit</a></li>
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li><a class="dropdown-item text-danger" asp-action="Delete" asp-route-id="@item.ProductId"><i class="bi bi-trash me-2"></i>Delete</a></li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             }
         </div>
-    </div>
-</div>
 
-<!-- Pagination -->
-@if (ViewBag.TotalCount != null && ViewBag.PageSize != null && ViewBag.Page != null)
-{
-    var totalCount = (int)ViewBag.TotalCount;
-    var pageSize = (int)ViewBag.PageSize;
-    var page = (int)ViewBag.Page;
+        <!-- Pagination -->
+        @if (ViewBag.TotalCount != null && ViewBag.PageSize != null && ViewBag.Page != null)
+        {
+            var totalCount = (int)ViewBag.TotalCount;
+            var pageSize = (int)ViewBag.PageSize;
+            var page = (int)ViewBag.Page;
+            var totalPages = (int)Math.Ceiling((double)totalCount / pageSize);
 
-    if (totalCount > pageSize)
-    {
-        <nav class="mt-3">
-            <ul class="pagination justify-content-center">
-                @if (page > 1)
-                {
-                    <li class="page-item">
-                        <a class="page-link"
-                           asp-action="Index"
-                           asp-route-query="@ViewBag.Query"
-                           asp-route-page="@(page - 1)"
-                           asp-route-pageSize="@pageSize">
-                            <i class="bi bi-chevron-left"></i> Previous
-                        </a>
-                    </li>
-                }
+            if (totalPages > 1)
+            {
+                 <nav class="mt-4" aria-label="Product navigation">
+                    <ul class="pagination justify-content-center">
+                        <li class="page-item @(page == 1 ? "disabled" : "")">
+                            <a class="page-link" asp-action="Index" asp-route-query="@ViewBag.Query" asp-route-page="1" asp-route-pageSize="@pageSize"><i class="bi bi-chevron-bar-left"></i></a>
+                        </li>
+                        <li class="page-item @(page == 1 ? "disabled" : "")">
+                            <a class="page-link" asp-action="Index" asp-route-query="@ViewBag.Query" asp-route-page="@(page - 1)" asp-route-pageSize="@pageSize"><i class="bi bi-chevron-left"></i></a>
+                        </li>
+                        
+                        @for (int i = 1; i <= totalPages; i++)
+                        {
+                            <li class="page-item @(i == page ? "active" : "")"><a class="page-link" asp-action="Index" asp-route-query="@ViewBag.Query" asp-route-page="@i" asp-route-pageSize="@pageSize">@i</a></li>
+                        }
 
-                @for (int i = 1; i <= Math.Ceiling((double)totalCount / pageSize); i++)
-                {
-                    <li class="page-item @(i == page ? "active" : "")">
-                        <a class="page-link"
-                           asp-action="Index"
-                           asp-route-query="@ViewBag.Query"
-                           asp-route-page="@i"
-                           asp-route-pageSize="@pageSize">
-                            @i
-                        </a>
-                    </li>
-                }
-
-                @if ((page * pageSize) < totalCount)
-                {
-                    <li class="page-item">
-                        <a class="page-link"
-                           asp-action="Index"
-                           asp-route-query="@ViewBag.Query"
-                           asp-route-page="@(page + 1)"
-                           asp-route-pageSize="@pageSize">
-                            Next <i class="bi bi-chevron-right"></i>
-                        </a>
-                    </li>
-                }
-            </ul>
-        </nav>
+                        <li class="page-item @(page == totalPages ? "disabled" : "")">
+                            <a class="page-link" asp-action="Index" asp-route-query="@ViewBag.Query" asp-route-page="@(page + 1)" asp-route-pageSize="@pageSize"><i class="bi bi-chevron-right"></i></a>
+                        </li>
+                         <li class="page-item @(page == totalPages ? "disabled" : "")">
+                            <a class="page-link" asp-action="Index" asp-route-query="@ViewBag.Query" asp-route-page="@totalPages" asp-route-pageSize="@pageSize"><i class="bi bi-chevron-bar-right"></i></a>
+                        </li>
+                    </ul>
+                </nav>
+            }
+        }
     }
-}
+</div>
+<template id="image-error-template">
+    <div class="placeholder-content">
+        <i class="bi bi-exclamation-diamond-fill text-danger"></i>
+    </div>
+</template>
 
 @section Scripts {
     <script>
-        $(document).ready(function() {
-            // Search box functionality
-            const searchInput = $('#searchInput');
-            const searchClear = $('#searchClear');
-
-            // Show/hide clear button based on input
-            if (searchInput.val().trim() !== '') {
-                searchClear.show();
-            }
-
-            searchInput.on('input', function() {
-                searchClear.toggle(this.value.trim() !== '');
-            });
-
-            // Clear search
-            searchClear.on('click', function() {
-                searchInput.val('');
-                $(this).hide();
-                $('#searchButton').click();
-            });
-
-            // Auto focus search input
-            searchInput.focus();
-        });
+        // No client-side search highlighting needed in card view
+        // The form submission handles the filtering
     </script>
 }

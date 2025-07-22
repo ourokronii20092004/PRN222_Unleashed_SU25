@@ -5,61 +5,92 @@
 }
 
 <style>
-    .image-placeholder {
+    /* A container to style the item being deleted */
+    .delete-identity-block {
         display: flex;
+        flex-direction: column;
         align-items: center;
-        justify-content: center;
-        height: 80px;
-        width: 100%;
+        padding: 2rem;
         background-color: #f8f9fa;
-        border: 1px dashed #ced4da;
-        border-radius: .25rem;
-        color: #6c757d;
-        font-size: 0.9rem;
+        border-radius: 0.5rem;
+        border: 1px solid #dee2e6;
     }
+
+    .delete-identity-image {
+        width: 500px;
+        height: 500px;
+        object-fit: contain;
+        margin-bottom: 1rem;
+    }
+
+    .delete-identity-name {
+        font-size: 1.5rem;
+        font-weight: 600;
+    }
+
+    /* A custom, cleaner alert style */
+    .warning-block {
+        display: flex;
+        align-items: flex-start;
+        padding: 1rem;
+        border-radius: 0.5rem;
+        background-color: var(--bs-danger-bg-subtle);
+        border: 1px solid var(--bs-danger-border-subtle);
+    }
+
+        .warning-block i {
+            font-size: 1.75rem;
+            color: var(--bs-danger);
+            margin-right: 1rem;
+            line-height: 1.2;
+        }
 </style>
 
-<div class="container mt-4">
+<div class="container-fluid mt-4">
     <div class="row justify-content-center">
         <div class="col-md-8 col-lg-7">
-            <div class="card shadow-sm border-danger">
-                <div class="card-header bg-danger text-white">
-                    <h4 class="mb-0"><i class="bi bi-exclamation-triangle-fill"></i> Confirm Deletion</h4>
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-white border-0 py-3 px-4">
+                    <h4 class="mb-0 fw-bold text-danger"><i class="bi bi-exclamation-triangle-fill me-2"></i>Confirm Deletion</h4>
                 </div>
-                <div class="card-body">
-                    <div class="alert alert-warning" role="alert">
-                        <strong>Warning!</strong> Are you sure you want to permanently delete this brand? This action cannot be undone.
-                    </div>
+                <div class="card-body p-4 p-md-5">
 
-                    <div class="row align-items-center mb-4">
-                        <div class="col-12 col-md-4 text-center">
-                            @if (!string.IsNullOrEmpty(Model.BrandImageUrl))
-                            {
-                                <img src="@Model.BrandImageUrl" alt="Brand Image" class="img-fluid rounded shadow-sm" style="max-height: 80px;"
-                                     onerror="this.style.display='none'; document.getElementById('placeholder-div').style.display='flex';" />
-                                <div id="placeholder-div" style="display: none;"><div class="image-placeholder">No Image</div></div>
-                            }
-                            else
-                            {
-                                <div class="image-placeholder">No Image</div>
-                            }
-                        </div>
-                        <div class="col-12 col-md-8">
-                            <h3 class="mb-0">@Html.DisplayFor(model => model.BrandName)</h3>
+                    <div class="warning-block mb-4">
+                        <i class="bi bi-exclamation-triangle-fill"></i>
+                        <div>
+                            <h5 class="fw-bold">Are you sure?</h5>
+                            <p class="mb-0">This action will permanently delete the brand. Once deleted, it cannot be recovered.</p>
                         </div>
                     </div>
 
-                    <dl class="row">
-                        <dt class="col-sm-4 fw-bold">Description</dt>
-                        <dd class="col-sm-8">@Html.DisplayFor(model => model.BrandDescription)</dd>
-                    </dl>
+                    <p class="text-muted text-center fw-semibold">You are about to delete the following brand:</p>
+
+                    <!-- Block to clearly identify the item being deleted -->
+                    <div class="delete-identity-block mb-4">
+                        @if (!string.IsNullOrEmpty(Model.BrandImageUrl))
+                        {
+                            <img src="@Model.BrandImageUrl" alt="Brand Image" class="delete-identity-image"
+                                 onerror="this.src='/images/placeholder-image.png';" />
+                        }
+                        else
+                        {
+                            <div class="delete-identity-image d-flex align-items-center justify-content-center bg-light">
+                                <i class="bi bi-image text-muted fs-1"></i>
+                            </div>
+                        }
+                        <div class="delete-identity-name">@Model.BrandName</div>
+                        <small class="text-muted">@Model.BrandDescription</small>
+                    </div>
 
                     <hr />
+
                     <form asp-action="Delete" asp-route-id="@Model.BrandId">
                         <div class="d-flex justify-content-end">
-                            <a asp-action="Index" class="btn btn-outline-secondary me-2">Cancel</a>
-                            <button type="submit" class="btn btn-danger">
-                                <i class="bi bi-trash3-fill"></i> Delete Permanently
+                            <a asp-action="Index" class="btn btn-secondary me-3">
+                                <i class="bi bi-x-circle me-2"></i>Cancel
+                            </a>
+                            <button type="submit" class="btn btn-danger fw-bold">
+                                <i class="bi bi-trash3-fill me-2"></i>Delete Permanently
                             </button>
                         </div>
                     </form>

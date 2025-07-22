@@ -1,33 +1,107 @@
 ﻿@model DAL.DTOs.UserDTOs.UserLoginDTO
 @{
     ViewData["Title"] = "Log in";
+    Layout = null; // Use a null layout for a focused, full-page login screen
 }
 
-<div class="row justify-content-center">
-    <div class="col-md-4">
-        <section class="card p-4 shadow-sm">
-            <h4 class="card-title text-center mb-4">Login</h4>
-            <hr />
-            <form id="account" method="post">
-                <div asp-validation-summary="All" class="text-danger mb-3"></div>
-                <div class="form-group mb-3">
-                    <label asp-for="UserUsername"></label>
-                    <input asp-for="UserUsername" class="form-control" />
-                    <span asp-validation-for="UserUsername" class="text-danger"></span>
-                </div>
-                <div class="form-group mb-4">
-                    <label asp-for="UserPassword"></label>
-                    <input asp-for="UserPassword" class="form-control" />
-                    <span asp-validation-for="UserPassword" class="text-danger"></span>
-                </div>
-                <div class="d-grid">
-                    <button type="submit" class="btn btn-primary btn-lg">Log in</button> 
-                </div>
-            </form>
-        </section>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - Admin Dashboard</title>
+
+    <!-- CSS Dependencies -->
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        html, body {
+            height: 100%;
+        }
+
+        body {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #e9ecef;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .login-card {
+            width: 100%;
+            max-width: 630px;
+            padding: 2.5rem;
+            border: none;
+            border-radius: 0.75rem;
+            box-shadow: 0 0.5rem 1.5rem rgba(0,0,0,0.1);
+        }
+
+        .login-card-title {
+            font-weight: 700;
+            color: #212529;
+        }
+
+        /* Using form-floating for a modern input style */
+        .form-floating > .form-control {
+            height: calc(3.5rem + 2px);
+            line-height: 1.25;
+        }
+
+        .form-floating > label {
+            padding: 1rem 0.75rem;
+        }
+
+        .form-control:focus {
+            border-color: #0d6efd;
+            box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+        }
+
+        .btn-primary {
+            font-weight: 600;
+        }
+
+        .validation-summary-errors {
+            text-align: left;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="login-card">
+        <div class="text-center mb-4">
+            <h1 class="login-card-title">Unleashed Dashboard</h1>
+            <p class="text-muted">Please sign in to continue</p>
+        </div>
+
+        <form id="account" method="post">
+            <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+            <div class="form-floating mb-3">
+                <input asp-for="UserUsername" class="form-control" placeholder="Username" />
+                <label asp-for="UserUsername"><i class="bi bi-person me-2"></i>Username</label>
+                <span asp-validation-for="UserUsername" class="text-danger small mt-1 d-block"></span>
+            </div>
+
+            <div class="form-floating mb-4">
+                <input asp-for="UserPassword" class="form-control" placeholder="Password" />
+                <label asp-for="UserPassword"><i class="bi bi-lock me-2"></i>Password</label>
+                <span asp-validation-for="UserPassword" class="text-danger small mt-1 d-block"></span>
+            </div>
+
+            <div class="d-grid">
+                <button type="submit" class="btn btn-primary btn-lg">Log in</button>
+            </div>
+        </form>
     </div>
-</div>
 
-@section Scripts {
+    <!-- Scripts -->
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <partial name="_ValidationScriptsPartial" />
-}
+
+</body>
+</html>

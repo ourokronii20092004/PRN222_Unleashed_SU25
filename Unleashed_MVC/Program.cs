@@ -115,6 +115,8 @@ namespace Unleashed_MVC
                 name: "default",
                 pattern: "{controller=Authentication}/{action=Login}");
 
+            app.UseStatusCodePagesWithReExecute("/Error/NotFound");
+
             app.Run();
         }
     }
