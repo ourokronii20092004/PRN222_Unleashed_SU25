@@ -4,62 +4,221 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewData["Title"] - Unleashed</title>
+
+    <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+
+    <!-- Google Fonts (Poppins) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+    <!-- Custom Site CSS -->
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/Unleashed_RP.styles.css" asp-append-version="true" />
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet" />
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+    <style>
+        :root {
+            --primary-color: #6a11cb;
+            --secondary-color: #2575fc;
+            --dark-color: #212529;
+            --light-color: #f8f9fa;
+            --body-bg: #f1f2f6;
+            --font-family: 'Poppins', sans-serif;
+        }
+
+        html {
+            height: 100%;
+        }
+
+        body {
+            font-family: var(--font-family);
+            background-color: var(--body-bg);
+            /* --- Sticky Footer Fix --- */
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        /* --- Header & Navbar --- */
+        .navbar-custom {
+            background-color: var(--dark-color);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            padding: 0.75rem 0;
+        }
+
+        .navbar-brand-custom {
+            font-weight: 700;
+            font-size: 1.75rem;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            color: transparent;
+        }
+
+        .nav-link {
+            color: var(--light-color) !important;
+            font-weight: 500;
+            transition: color 0.3s ease;
+            position: relative;
+            padding: 0.5rem 1rem !important;
+        }
+
+            .nav-link:hover, .nav-link.active {
+                color: var(--secondary-color) !important;
+            }
+
+        .navbar-toggler {
+            border-color: rgba(255, 255, 255, 0.2);
+        }
+
+        .navbar-toggler-icon {
+            background-image: url("data:image/svg+xml;charset=utf8,%3Csvg viewBox='0 0 30 30' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath stroke='rgba(255, 255, 255, 0.7)' stroke-width='2' stroke-linecap='round' stroke-miterlimit='10' d='M4 7h22M4 15h22M4 23h22'/%3E%3C/svg%3E");
+        }
+
+        /* --- User Dropdown --- */
+        .dropdown-menu {
+            border-radius: 0.5rem;
+            border: none;
+            box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+            padding: 0.5rem 0;
+        }
+
+        .dropdown-item {
+            font-weight: 500;
+            padding: 0.5rem 1.5rem;
+            transition: background-color 0.2s ease, color 0.2s ease;
+        }
+
+            .dropdown-item:hover {
+                background-color: var(--secondary-color);
+                color: white;
+            }
+
+            .dropdown-item i {
+                margin-right: 0.75rem;
+                width: 16px;
+                text-align: center;
+            }
+
+        .dropdown-divider {
+            margin: 0.5rem 0;
+        }
+
+        .user-avatar {
+            height: 35px;
+            width: 35px;
+            object-fit: cover;
+            border: 2px solid var(--secondary-color);
+        }
+
+        /* --- Shopping Cart --- */
+        .cart-icon {
+            font-size: 1.5rem;
+            position: relative;
+        }
+
+        /* --- Main Content --- */
+        .main-container {
+            /* --- Sticky Footer Fix --- */
+            flex: 1 0 auto;
+        }
+
+        /* --- Footer --- */
+        .footer-custom {
+            background-color: var(--dark-color);
+            color: var(--light-color);
+            padding: 3rem 0;
+            /* --- Sticky Footer Fix --- */
+            flex-shrink: 0;
+        }
+
+            .footer-custom h5 {
+                color: var(--secondary-color);
+                font-weight: 600;
+                margin-bottom: 1.5rem;
+            }
+
+            .footer-custom p, .footer-custom a {
+                color: rgba(255, 255, 255, 0.7);
+                text-decoration: none;
+                transition: color 0.3s ease;
+            }
+
+                .footer-custom a:hover {
+                    color: white;
+                }
+
+        .footer-links li {
+            margin-bottom: 0.75rem;
+        }
+
+        .social-icons a {
+            font-size: 1.5rem;
+            margin-right: 1.5rem;
+        }
+
+        .footer-bottom {
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            padding-top: 1.5rem;
+            margin-top: 2rem;
+            text-align: center;
+            font-size: 0.9rem;
+        }
+
+    </style>
 </head>
 <body>
     <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
+        <nav class="navbar navbar-expand-lg navbar-custom sticky-top">
             <div class="container">
-                <a class="navbar-brand" asp-area="" asp-page="/Index">Unleashed</a>
+                <a class="navbar-brand-custom" asp-area="" asp-page="/Index">Unleashed</a>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
                         aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
                 </button>
-                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
+                <div class="navbar-collapse collapse d-lg-inline-flex justify-content-between">
                     <ul class="navbar-nav flex-grow-1">
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-page="/Privacy">Privacy</a>
+                            <a class="nav-link" asp-area="" asp-page="/Products/Index">Products</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-page="/Products/Index">Products</a>
+                            <a class="nav-link" asp-area="" asp-page="/Privacy">Privacy</a>
                         </li>
-                      
-                        
                     </ul>
-                    <ul class="navbar-nav ms-auto">
+                    <ul class="navbar-nav align-items-center">
                         @if (Context.Session.GetString("username") == null)
                         {
                             <li class="nav-item">
-                                <a class="nav-link text-dark" asp-area="" asp-page="/Authentication/Login">Login</a>
+                                <a class="nav-link" asp-area="" asp-page="/Authentication/Login">Login</a>
                             </li>
                         }
                         else
                         {
-                            <li class="nav-item">
-                                <a class="nav-link text-dark fa fa-shopping-cart" asp-area="" asp-page="/Carts/Index"></a>
+                            <li class="nav-item me-3">
+                                <a class="nav-link cart-icon" asp-area="" asp-page="/Carts/Index">
+                                    <i class="fas fa-shopping-cart"></i>
+                                </a>
                             </li>
                             <li class="nav-item dropdown">
-                                @* Added 'dropdown' class here *@
-                                <span class="nav-link text-dark dropdown-toggle" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                       <img src="@Context.Session.GetString("userImage")" alt="User Avatar" class="rounded-circle me-1" style="height: 25px; width: 25px; object-fit: cover;" />
-                                    Hello, @Context.Session.GetString("fullName")!
-                                </span>
-
+                                <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <img src="@Context.Session.GetString("userImage")" alt="User Avatar" class="rounded-circle me-2 user-avatar" />
+                                    <span>Hello, @Context.Session.GetString("fullName")!</span>
+                                </a>
                                 <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
-                                    @* Added 'dropdown-menu-end' for right alignment *@
-                                    <li><a class="dropdown-item" asp-area="" asp-page="/Authentication/ChangePassword">Change Password</a></li>
-                                    <li><a class="dropdown-item" asp-area="" asp-page="/User/UserProfile">Profile</a></li>
-                                    <li><a class="dropdown-item" asp-area="" asp-page="/Notifications/Index">Notifications</a></li>
-                                    <li><a class="dropdown-item" asp-area="" asp-page="/Orders/Index">Order</a></li>
-                                    <li><a class="dropdown-item" asp-area="" asp-page="/ReviewHistory/Index">ReviewHistory</a></li>
-                                    <li><hr class="dropdown-divider"></li> @* Optional: Add a divider before logout *@
+                                    <li><a class="dropdown-item" asp-area="" asp-page="/User/UserProfile"><i class="fas fa-user-circle"></i>Profile</a></li>
+                                    <li><a class="dropdown-item" asp-area="" asp-page="/Orders/Index"><i class="fas fa-box"></i>My Orders</a></li>
+                                    <li><a class="dropdown-item" asp-area="" asp-page="/Notifications/Index"><i class="fas fa-bell"></i>Notifications</a></li>
+                                    <li><a class="dropdown-item" asp-area="" asp-page="/ReviewHistory/Index"><i class="fas fa-star"></i>Review History</a></li>
+                                    <li><a class="dropdown-item" asp-area="" asp-page="/Authentication/ChangePassword"><i class="fas fa-key"></i>Change Password</a></li>
+                                    <li><hr class="dropdown-divider"></li>
                                     <li>
-                                        <form class="dropdown-item" asp-area="" asp-page="/Authentication/Logout" asp-route-returnUrl="/" method="post">
-                                            <button type="submit" class="btn btn-link text-dark p-0 border-0 bg-transparent">Logout</button> @* Adjusted button styling for dropdown-item *@
+                                        <form asp-area="" asp-page="/Authentication/Logout" asp-route-returnUrl="/" method="post">
+                                            <button type="submit" class="dropdown-item"><i class="fas fa-sign-out-alt"></i>Logout</button>
                                         </form>
                                     </li>
                                 </ul>
@@ -70,15 +229,58 @@
             </div>
         </nav>
     </header>
-    <div class="container">
+
+    <div class="container mt-4 main-container">
         <main role="main" class="pb-3">
             @RenderBody()
         </main>
     </div>
 
-    <footer class="border-top footer text-muted">
+    <footer class="footer-custom">
         <div class="container">
-            &copy; 2025 - Unleashed_RP - <a asp-area="" asp-page="/Privacy">Privacy</a>
+            <div class="row">
+                <div class="col-lg-4 col-md-6 mb-4 mb-lg-0">
+                    <h5 class="text-uppercase">Unleashed</h5>
+                    <p>
+                        Your one-stop shop for the latest and greatest products. Unleash your potential with our curated collection.
+                    </p>
+                    <div class="social-icons mt-4">
+                        <a href="#" class="text-white"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#" class="text-white"><i class="fab fa-twitter"></i></a>
+                        <a href="#" class="text-white"><i class="fab fa-instagram"></i></a>
+                        <a href="#" class="text-white"><i class="fab fa-linkedin-in"></i></a>
+                    </div>
+                </div>
+                <div class="col-lg-2 col-md-6 mb-4 mb-lg-0">
+                    <h5 class="text-uppercase">Shop</h5>
+                    <ul class="list-unstyled mb-0 footer-links">
+                        <li><a asp-page="/Products/Index">All Products</a></li>
+                        <li><a href="#">New Arrivals</a></li>
+                        <li><a href="#">Best Sellers</a></li>
+                        <li><a href="#">Sales</a></li>
+                    </ul>
+                </div>
+                <div class="col-lg-2 col-md-6 mb-4 mb-lg-0">
+                    <h5 class="text-uppercase">Support</h5>
+                    <ul class="list-unstyled mb-0 footer-links">
+                        <li><a href="#">Contact Us</a></li>
+                        <li><a href="#">FAQ</a></li>
+                        <li><a href="#">Shipping</a></li>
+                        <li><a asp-page="/Privacy">Privacy Policy</a></li>
+                    </ul>
+                </div>
+                <div class="col-lg-4 col-md-6 mb-4 mb-lg-0">
+                    <h5 class="text-uppercase">Newsletter</h5>
+                    <p>Stay up to date with the latest news and offers.</p>
+                    <div class="input-group mb-3">
+                        <input type="text" class="form-control" placeholder="Enter your email" aria-label="Recipient's username" aria-describedby="button-addon2">
+                        <button class="btn btn-primary" type="button" id="button-addon2" style="background-color: var(--secondary-color); border-color: var(--secondary-color);">Subscribe</button>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                © @DateTime.Now.Year - Unleashed - All Rights Reserved.
+            </div>
         </div>
     </footer>
 

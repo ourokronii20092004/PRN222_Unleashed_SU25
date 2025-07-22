@@ -28,6 +28,8 @@ namespace BLL.Services.Interfaces
         Task<bool> SoftDeleteProductAsync(Guid productId);
         Task<DAL.Models.PagedResult<ProductListDTO>> GetProductsWithPagingAsync(int page, int pageSize, string query);
         Task<DAL.Models.PagedResult<ProductListDTO>> GetProductsWithPagingHomePageAsync(int page, int pageSize, string query);
+
+
     }
 }
 

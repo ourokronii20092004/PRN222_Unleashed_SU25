@@ -30,15 +30,15 @@ namespace DAL.DTOs.UserDTOs
 
         [Required(ErrorMessage = "Phone number cannot be empty.")]
         [RegularExpression(@"^0\d{9}$", ErrorMessage = "Phonenumber must be 10 digits and start with '0'.")]
-        [Display(Name ="Phonenumber")]
+        [Display(Name ="Phone Number")]
         public string? UserPhone { get; set; }
-        [Display(Name ="Birthday")]
+        [Display(Name ="Birthdate")]
         public DateOnly? UserBirthdate { get; set; }
         [Display(Name ="Address")]
         public string? UserAddress { get; set; }
         [Display(Name = "Image")]
         public string? UserImage { get; set; }
-        [Display(Name = "Current Paymennt Method")]
+        [Display(Name = "Current Payment Method")]
         public string? UserCurrentPaymentMethod { get; set; }
        
     }
