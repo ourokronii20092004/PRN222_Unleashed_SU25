@@ -7,75 +7,132 @@
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/Unleashed_MVC.styles.css" asp-append-version="true" />
-    @* Bootstrap icon CDN - Hau *@
+
+    <!-- Bootstrap Icons -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
 
+    <!-- Google Fonts (Inter) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
     @await RenderSectionAsync("Styles", required: false)
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8f9fa;
+        }
+
+        /* --- Header & Navbar Improvements --- */
+        .admin-header .navbar {
+            background-color: #212529 !important; /* Dark background for the navbar */
+        }
+
+        .admin-header .navbar-brand {
+            font-weight: 600;
+            font-size: 1.25rem;
+        }
+
+        .admin-header .nav-link {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem; /* Space between icon and text */
+            color: rgba(255, 255, 255, 0.75) !important;
+            font-weight: 500;
+            padding: 0.65rem 1rem;
+            border-radius: 0.375rem; /* Rounded corners for links */
+            transition: all 0.2s ease-in-out;
+        }
+
+            .admin-header .nav-link:hover, .admin-header .nav-link.active {
+                background-color: rgba(255, 255, 255, 0.1);
+                color: white !important;
+            }
+
+            .admin-header .nav-link .bi {
+                font-size: 1.1rem;
+                line-height: 1; /* Aligns icon nicely */
+            }
+
+        /* --- User Dropdown Improvements --- */
+        .admin-header .dropdown-toggle::after {
+            margin-left: 0.5rem; /* More space for the dropdown arrow */
+        }
+
+        .admin-header .dropdown-menu {
+            border: none;
+            box-shadow: 0 0.5rem 1rem rgba(0,0,0,0.15);
+            font-size: 0.95rem;
+        }
+
+        .admin-header .dropdown-item {
+            padding: 0.5rem 1.25rem;
+        }
+
+        .admin-header .user-avatar {
+            height: 32px;
+            width: 32px;
+            object-fit: cover;
+        }
+
+        /* --- Main Content & Footer Improvements --- */
+        .main-container {
+            padding-top: 1.5rem;
+            padding-bottom: 1.5rem;
+        }
+
+        .footer {
+            background-color: #ffffff;
+            font-size: 0.9rem;
+        }
+
+            .footer .container {
+                text-align: center;
+            }
+
+    </style>
 </head>
 <body>
-    <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
+    <header class="admin-header">
+        <nav class="navbar navbar-expand-lg navbar-dark bg-white border-bottom box-shadow sticky-top">
             <div class="container-fluid">
                 <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">Dashboard</a>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
                         aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
                 </button>
-                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
+                <div class="navbar-collapse collapse d-lg-inline-flex justify-content-between">
                     <ul class="navbar-nav flex-grow-1">
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Brands" asp-action="Index">Brands</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Users" asp-action="Index">Users</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Categories" asp-action="Index">Category</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Discounts" asp-action="Index">Discounts</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Orders" asp-action="Index">Order</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Notifications" asp-action="Index">Notifications</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Products" asp-action="Index">Products</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Reviews" asp-action="Index">Reviews</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Providers" asp-action="Index">Providers</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Stocks" asp-action="Index">Stocks</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Transactions" asp-action="Index">Transactions</a>
-                        </li>
+                        <li class="nav-item"><a class="nav-link" asp-controller="Brands" asp-action="Index"><i class="bi bi-tag"></i> Brands</a></li>
+                        <li class="nav-item"><a class="nav-link" asp-controller="Users" asp-action="Index"><i class="bi bi-people"></i> Users</a></li>
+                        <li class="nav-item"><a class="nav-link" asp-controller="Categories" asp-action="Index"><i class="bi bi-grid-1x2"></i> Category</a></li>
+                        <li class="nav-item"><a class="nav-link" asp-controller="Discounts" asp-action="Index"><i class="bi bi-percent"></i> Discounts</a></li>
+                        <li class="nav-item"><a class="nav-link" asp-controller="Orders" asp-action="Index"><i class="bi bi-box-seam"></i> Order</a></li>
+                        <li class="nav-item"><a class="nav-link" asp-controller="Notifications" asp-action="Index"><i class="bi bi-bell"></i> Notifications</a></li>
+                        <li class="nav-item"><a class="nav-link" asp-controller="Products" asp-action="Index"><i class="bi bi-archive"></i> Products</a></li>
+                        <li class="nav-item"><a class="nav-link" asp-controller="Reviews" asp-action="Index"><i class="bi bi-star-half"></i> Reviews</a></li>
+                        <li class="nav-item"><a class="nav-link" asp-controller="Providers" asp-action="Index"><i class="bi bi-truck"></i> Providers</a></li>
+                        <li class="nav-item"><a class="nav-link" asp-controller="Stocks" asp-action="Index"><i class="bi bi-boxes"></i> Stocks</a></li>
+                        <li class="nav-item"><a class="nav-link" asp-controller="Transactions" asp-action="Index"><i class="bi bi-credit-card"></i> Transactions</a></li>
                     </ul>
                     <ul class="navbar-nav ms-auto">
                         @if (Context.Session.GetString("username") == null)
                         {
                             <li class="nav-item">
-                                <a class="nav-link text-dark" asp-area="" asp-controller="Authentication" asp-action="Login">Login</a>
+                                <a class="nav-link" asp-area="" asp-controller="Authentication" asp-action="Login"><i class="bi bi-shield-lock"></i> Login</a>
                             </li>
                         }
                         else
                         {
                             <li class="nav-item dropdown">
-                                @* Added 'dropdown' class here *@
-                                <span class="nav-link text-dark dropdown-toggle" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                    <img src="@Context.Session.GetString("userImage")" alt="User Avatar" class="rounded-circle me-1" style="height: 25px; width: 25px; object-fit: cover;" />
+                                <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <img src="@Context.Session.GetString("userImage")" alt="User Avatar" class="rounded-circle me-2 user-avatar" />
                                     Hello, @Context.Session.GetString("fullName")!
-                                </span>
+                                </a>
                                 <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
-                                    <li class="nav-item">
-                                        <a class="nav-link text-dark" asp-area="" asp-controller="Authentication" asp-action="Logout">Logout</a>
-                                    </li>
+                                        <a class="dropdown-item text-danger" asp-controller="Authentication" asp-action="Logout">
+                                            <i class="bi bi-box-arrow-right me-2"></i> Logout
+                                        </a>
                                 </ul>
                             </li>
                         }
@@ -84,15 +141,15 @@
             </div>
         </nav>
     </header>
-    <div class="container">
+    <div class="container-fluid main-container">
         <main role="main" class="pb-3">
             @RenderBody()
         </main>
     </div>
 
-    <footer class="border-top footer text-muted">
-        <div class="container">
-            © @DateTime.Now.Year - Unleashed_MVC - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+    <footer class="border-top footer text-muted py-3">
+        <div class="container-fluid">
+            © @DateTime.Now.Year - Unleashed Admin Dashboard - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
         </div>
     </footer>
     <script src="~/lib/jquery/dist/jquery.min.js"></script>

@@ -29,7 +29,7 @@ namespace Unleashed_MVC.Controllers
             _logger = logger;
         }
 
-        public async Task<IActionResult> Index(string? query, int page = 1, int pageSize = 10)
+        public async Task<IActionResult> Index(string? query, int page = 1, int pageSize = 12)
         {
             try
             {

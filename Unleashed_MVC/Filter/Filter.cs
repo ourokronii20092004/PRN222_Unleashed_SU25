@@ -13,19 +13,22 @@ namespace Unleashed_MVC.Filter
         {
             try
             {
-                if (context.HttpContext.Session == null)
+                string? username = context.HttpContext.Session.GetString("username");
+                if (string.IsNullOrEmpty(username))
                 {
                     context.Result = new RedirectToActionResult("Login", "Authentication", null);
                     return;
                 }
-                string? username = context.HttpContext.Session.GetString("username");
-                ArgumentException.ThrowIfNullOrEmpty(username, nameof(username));
-                string? currentrole = context.HttpContext.Session.GetString("role");
-                ArgumentException.ThrowIfNullOrEmpty(currentrole, nameof(currentrole));
-                if(!RequiredRoles.IsNullOrEmpty() && !RequiredRoles.Contains(currentrole))
+
+                if (!RequiredRoles.IsNullOrEmpty())
                 {
-                    context.Result = new RedirectToActionResult("Index", "Home", null);
-                    return;
+                    string? currentRole = context.HttpContext.Session.GetString("role");
+
+                    if (string.IsNullOrEmpty(currentRole) || !RequiredRoles.Contains(currentRole))
+                    {
+                        context.Result = new RedirectToActionResult("Forbidden", "Error", null);
+                        return;
+                    }
                 }
             }
             catch (Exception)
@@ -33,7 +36,6 @@ namespace Unleashed_MVC.Filter
                 context.Result = new RedirectToActionResult("Login", "Authentication", null);
                 return;
             }
-           
         }
     }
 }

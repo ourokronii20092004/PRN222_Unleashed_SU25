@@ -1,8 +1,227 @@
 ﻿@{
-    ViewData["Title"] = "Home Page";
+    ViewData["Title"] = "Dashboard";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+<style>
+    .stat-card {
+        position: relative;
+        overflow: hidden;
+        border-radius: 0.75rem;
+        transition: all 0.2s ease-in-out;
+    }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 0.5rem 1rem rgba(0,0,0,0.15) !important;
+        }
+
+        .stat-card .card-body {
+            position: relative;
+            z-index: 2;
+        }
+
+    .stat-card-title {
+        font-weight: 500;
+        color: #6c757d;
+    }
+
+    .stat-card-value {
+        font-size: 2.25rem;
+        font-weight: 700;
+    }
+
+    .stat-card-icon {
+        position: absolute;
+        right: 1.25rem;
+        bottom: 0rem;
+        font-size: 4.5rem;
+        line-height: 1;
+        opacity: 0.15;
+        color: #000;
+        transform: translateY(10px);
+        transition: all 0.3s ease-in-out;
+    }
+
+    .stat-card:hover .stat-card-icon {
+        opacity: 0.2;
+        transform: translateY(0) scale(1.05);
+    }
+
+    .chart-card, .activity-card {
+        border-radius: 0.75rem;
+    }
+</style>
+
+<!-- Page Header -->
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="h3 fw-bold mb-0">Dashboard</h1>
+            <p class="text-muted mb-0">Welcome back! Here's a summary of your store's activity.</p>
+        </div>
+        <div>
+            <a href="#" class="btn btn-primary"><i class="bi bi-plus-circle me-2"></i>Add New Product</a>
+        </div>
+    </div>
+
+    <!-- Stat Cards Row -->
+    <div class="row g-4 mb-4">
+        <div class="col-md-6 col-xl-3">
+            <div class="card stat-card shadow-sm border-0">
+                <div class="card-body">
+                    <h5 class="card-title stat-card-title">Total Sales</h5>
+                    <p class="card-text stat-card-value">$54,321</p>
+                    <i class="bi bi-cash-coin stat-card-icon"></i>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6 col-xl-3">
+            <div class="card stat-card shadow-sm border-0">
+                <div class="card-body">
+                    <h5 class="card-title stat-card-title">New Orders</h5>
+                    <p class="card-text stat-card-value">128</p>
+                    <i class="bi bi-box-seam stat-card-icon"></i>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6 col-xl-3">
+            <div class="card stat-card shadow-sm border-0">
+                <div class="card-body">
+                    <h5 class="card-title stat-card-title">New Users</h5>
+                    <p class="card-text stat-card-value">45</p>
+                    <i class="bi bi-people stat-card-icon"></i>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6 col-xl-3">
+            <div class="card stat-card shadow-sm border-0">
+                <div class="card-body">
+                    <h5 class="card-title stat-card-title">Products in Stock</h5>
+                    <p class="card-text stat-card-value">1,234</p>
+                    <i class="bi bi-archive stat-card-icon"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content Row (Chart and Recent Activity) -->
+    <div class="row g-4">
+        <!-- Sales Chart -->
+        <div class="col-xl-8">
+            <div class="card chart-card shadow-sm border-0 h-100">
+                <div class="card-header bg-white border-0 py-3">
+                    <h5 class="card-title mb-0 fw-bold">Sales Overview</h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="salesChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Orders -->
+        <div class="col-xl-4">
+            <div class="card activity-card shadow-sm border-0 h-100">
+                <div class="card-header bg-white border-0 py-3">
+                    <h5 class="card-title mb-0 fw-bold">Recent Orders</h5>
+                </div>
+                <div class="card-body p-0">
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <div>
+                                <h6 class="mb-0">Order #12345</h6>
+                                <small class="text-muted">John Doe - 2 items</small>
+                            </div>
+                            <span class="badge bg-success-subtle text-success-emphasis rounded-pill">$99.50</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <div>
+                                <h6 class="mb-0">Order #12344</h6>
+                                <small class="text-muted">Jane Smith - 1 item</small>
+                            </div>
+                            <span class="badge bg-success-subtle text-success-emphasis rounded-pill">$24.00</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <div>
+                                <h6 class="mb-0">Order #12342</h6>
+                                <small class="text-muted">Peter Jones - 5 items</small>
+                            </div>
+                            <span class="badge bg-warning-subtle text-warning-emphasis rounded-pill">Pending</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <div>
+                                <h6 class="mb-0">Order #12341</h6>
+                                <small class="text-muted">Mary Johnson - 3 items</small>
+                            </div>
+                            <span class="badge bg-success-subtle text-success-emphasis rounded-pill">$150.00</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <div>
+                                <h6 class="mb-0">Order #12340</h6>
+                                <small class="text-muted">Chris Lee - 1 item</small>
+                            </div>
+                            <span class="badge bg-danger-subtle text-danger-emphasis rounded-pill">Cancelled</span>
+                        </li>
+                    </ul>
+                </div>
+                <div class="card-footer bg-white border-0 text-center py-3">
+                    <a href="#" class="text-primary fw-bold text-decoration-none">View All Orders <i class="bi bi-arrow-right-short"></i></a>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
+
+@section Scripts {
+    <!-- Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            // In a real application, you would fetch this data from your server via an API endpoint.
+            const chartData = {
+                labels: ["January", "February", "March", "April", "May", "June"],
+                datasets: [{
+                    label: 'Sales',
+                    data: [12500, 19600, 14800, 24300, 18900, 27500],
+                    fill: true,
+                    backgroundColor: 'rgba(13, 110, 253, 0.1)',
+                    borderColor: 'rgb(13, 110, 253)',
+                    tension: 0.3,
+                    pointBackgroundColor: 'rgb(13, 110, 253)',
+                    pointRadius: 4
+                }]
+            };
+
+            const chartConfig = {
+                type: 'line',
+                data: chartData,
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            grid: {
+                                color: '#e9ecef' // Lighter grid lines
+                            }
+                        },
+                        x: {
+                            grid: {
+                                display: false // Hide vertical grid lines
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            display: false // Hide the legend as there's only one dataset
+                        }
+                    }
+                }
+            };
+
+            const salesChart = new Chart(
+                document.getElementById('salesChart'),
+                chartConfig
+            );
+        });
+    </script>
+}
