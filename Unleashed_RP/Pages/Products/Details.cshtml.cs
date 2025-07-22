@@ -170,6 +170,8 @@ namespace Unleashed_RP.Pages.Products
 
             return RedirectToPage(new { id = productId });
         }
+
+        [Filter.Filter(RequiredRoles = new[] { "CUSTOMER" })]
         public async Task<IActionResult> OnPostAddToCartAsync(Guid id)
         {
             try
@@ -178,7 +180,7 @@ namespace Unleashed_RP.Pages.Products
                 if (string.IsNullOrEmpty(username))
                 {
                     TempData["ErrorMessage"] = "Please log in to add items to your cart.";
-                    return RedirectToPage("/Account/Login", new { returnUrl = Url.Page("/Products/Details", new { id }) });
+                    return RedirectToPage("/Authentication/Login", new { returnUrl = Url.Page("/Products/Details", new { id }) });
                 }
 
                 if (SelectedVariationId <= 0 || Quantity <= 0)
