@@ -18,7 +18,7 @@ namespace Unleashed_RP.Pages.Products
         public int? pageIndex { get; set; }
 
         [BindProperty(SupportsGet = true)]
-        public int pageSize { get; set; } = 10;
+        public int pageSize { get; set; } = 12;
 
         public IList<ProductListDTO> Product { get; set; } = new List<ProductListDTO>();
         public int TotalCount { get; set; }

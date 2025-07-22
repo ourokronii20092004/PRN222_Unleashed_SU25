@@ -429,6 +429,7 @@ namespace DAL.Repositories
                 products = products.Where(p =>
                     p.ProductName.Contains(query) ||
                     p.ProductDescription.Contains(query) ||
+                    p.Brand.BrandName.Contains(query) ||
                     p.Categories.Any(c => c.CategoryName.Contains(query)));
             }
 
@@ -452,6 +453,7 @@ namespace DAL.Repositories
                 products = products.Where(p =>
                     p.ProductName.Contains(query) ||
                     p.ProductDescription.Contains(query) ||
+                    p.Brand.BrandName.Contains(query) ||
                     p.Categories.Any(c => c.CategoryName.Contains(query)));
             }
 
