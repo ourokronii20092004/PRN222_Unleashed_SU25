@@ -2,6 +2,8 @@
 using BLL.Services.Interfaces;
 using DAL.DTOs.ReviewDTOs;
 using DAL.Models;
+using DAL.Repositories;
+using DAL.Repositories.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Extensions.Logging;
@@ -15,12 +17,14 @@ namespace Unleashed_RP.Pages.Products
         IProductService productService,
         IReviewService reviewService,
         ICartService cartService,
-        ILogger<DetailsModel> logger) : PageModel
+        ILogger<DetailsModel> logger,
+        IVariationService variationService) : PageModel
     {
         private readonly IProductService _productService = productService;
         private readonly IReviewService _reviewService = reviewService;
         private readonly ILogger<DetailsModel> _logger = logger;
         private readonly ICartService _cartService = cartService;
+        private readonly IVariationService _variationService = variationService;
         public Product Product { get; set; }
 
         [BindProperty]
@@ -49,6 +53,15 @@ namespace Unleashed_RP.Pages.Products
                 {
                     TempData["ErrorMessage"] = $"Product with ID {id} not found.";
                     return NotFound();
+                }
+
+                if (Product.Variations != null && Product.Variations.Any())
+                {
+                    foreach (var variation in Product.Variations)
+                    {
+                        var stockVariations = await _variationService.GetStockVariationsByVariationIdAsync(variation.VariationId);
+                        variation.StockVariations = stockVariations;
+                    }
                 }
 
                 Reviews = (List<ReviewDetailDTO>)await _reviewService.GetReviewsByProductIdAsync(id.Value);

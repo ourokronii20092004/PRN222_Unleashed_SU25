@@ -93,6 +93,7 @@ public class Program
         builder.Services.AddScoped<IReviewService,ReviewService>();
         builder.Services.AddScoped<ICommentService, CommentService>();
         builder.Services.AddScoped<IDiscountService, DiscountService>();
+        builder.Services.AddScoped<IVariationService, VariationService>();
 
         // --- AutoMapper ---
         builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());

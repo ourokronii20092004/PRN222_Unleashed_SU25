@@ -1,4 +1,5 @@
 ﻿using DAL.DTOs.VariationDTOs;
+using DAL.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,6 +12,8 @@ namespace BLL.Services.Interfaces
     {
 
         Task<List<VariationDetailDTO>> GetVariationDetailsForProductsAsync(List<Guid> productIds);
+
+        Task<List<StockVariation>> GetStockVariationsByVariationIdAsync(int variationId);
 
     }
 }

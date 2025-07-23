@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using BLL.Services.Interfaces;
 using DAL.DTOs.VariationDTOs;
+using DAL.Models;
 using DAL.Repositories.Interfaces;
 using Microsoft.Extensions.Logging;
 using System;
@@ -36,6 +37,11 @@ namespace BLL.Services
                 _logger.LogError(ex, "Error fetching variation details for products.");
                 throw;
             }
+        }
+
+        Task<List<StockVariation>> IVariationService.GetStockVariationsByVariationIdAsync(int variationId)
+        {
+            return _variationRepository.GetStockVariationsByVariationIdAsync(variationId);
         }
     }
 }

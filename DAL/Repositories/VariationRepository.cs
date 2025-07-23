@@ -197,7 +197,12 @@ namespace DAL.Repositories
                 .Where(v => productIds.Contains(v.ProductId))
                 .ToListAsync();
         }
-
+        public async Task<List<StockVariation>> GetStockVariationsByVariationIdAsync(int variationId)
+        {
+            return await _context.StockVariations
+                .Where(sv => sv.VariationId == variationId)
+                .ToListAsync();
+        }
 
         public async Task<List<Variation>> GetVariationsForProductsAsync(List<Guid> productIds)
         {
