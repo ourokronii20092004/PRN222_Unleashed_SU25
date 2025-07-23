@@ -15,7 +15,7 @@ namespace Unleashed_RP.Pages.Notifications
         [BindProperty(SupportsGet = true)]
         public int? pageIndex { get; set; }
 
-        public int pageSize = 10;
+        public int pageSize = 5;
         public IndexModel(INotificationUserService notificationUserService)
         {
             _notificationUserService = notificationUserService;
@@ -34,11 +34,20 @@ namespace Unleashed_RP.Pages.Notifications
                 ViewData["Pages"] = (totalAmount + pageSize - 1) / pageSize;
                 ViewData["CurrentPage"] = currentPage;
                 ViewData["SearchString"] = SearchString;
-                NotificationUsers = [.. NotificationUsersList];
+                NotificationUsers = (IList<NotificationUserDetailDTO>)NotificationUsersList;
 
             } catch (ArgumentNullException ex) {
                 RedirectToPage("../Index");
             }
+        }
+
+        public async Task<IActionResult> OnPostAsync(int NotificationId)
+        {
+            string? username = HttpContext.Session.GetString("username");
+            ArgumentNullException.ThrowIfNullOrEmpty(username);
+
+            await _notificationUserService.DeleteUserNotification(username, NotificationId);
+            return RedirectToPage("./Index");
         }
     }
 }
