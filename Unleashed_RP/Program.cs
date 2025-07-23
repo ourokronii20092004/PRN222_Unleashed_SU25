@@ -120,6 +120,7 @@ public class Program
         app.UseAuthentication();
         
         app.UseAuthorization();
+        app.UseStatusCodePagesWithReExecute("/Error/NotFound");
 
         app.MapRazorPages(); 
         // This maps routes for Razor Pages
