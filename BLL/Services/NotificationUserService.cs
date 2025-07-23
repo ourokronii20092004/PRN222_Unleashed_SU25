@@ -86,7 +86,7 @@ namespace BLL.Services
                         .Map<IEnumerable<NotificationUserDetailDTO>>(notificationUsers
                         .OrderBy(nu => nu.IsNotificationViewed)
                         .ThenByDescending(nu => nu.Notification.NotificationCreatedAt)
-                        .Skip(currentPage)
+                        .Skip((currentPage - 1) * pageSize)
                         .Take(pageSize)), totalAmount);
             } catch {
                 return (new List<NotificationUserDetailDTO>(), 0);

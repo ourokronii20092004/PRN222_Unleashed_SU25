@@ -28,7 +28,14 @@ namespace Unleashed_RP.Pages.Authentication
 
         public  IActionResult OnGet()
         {
-            return Page();
+            try
+            {
+                if (HttpContext.Session.GetString("username") != null) return RedirectToPage("../Index"); ;
+                return Page();
+            }
+            catch (Exception ex) {
+                return RedirectToPage("../Index"); ;
+            }
         }
 
         public async Task<IActionResult> OnPostAsync() {
