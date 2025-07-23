@@ -101,10 +101,12 @@
                 {
                     foreach (var variation in Model.Product.Variations)
                     {
+                        var totalStock = variation.StockVariations.Sum(sv => sv.StockQuantity ?? 0);
+
                         <img src="@(variation.VariationImage ?? "https://via.placeholder.com/100x100?text=Thumb")"
                              class="img-thumbnail cursor-pointer variation-thumbnail @(variation == firstVariation ? "active" : "")"
                              style="width: 80px;"
-                             onclick="changeVariation(this, '@variation.VariationImage', '@variation.Color?.ColorName', '@variation.Size?.SizeName', '@(variation.VariationPrice?.ToString("C") ?? "N/A")')"
+                             onclick="changeVariation(this, '@variation.VariationImage', '@variation.Color?.ColorName', '@variation.Size?.SizeName', '@(variation.VariationPrice?.ToString("C") ?? "N/A")', '@variation.VariationId', @totalStock)"
                              alt="@variation.VariationImage">
                     }
                 }
@@ -171,6 +173,22 @@
                             <tr>
                                 <th>Price</th>
                                 <td id="variationPrice">@(firstVariation?.VariationPrice?.ToString("C") ?? "N/A")</td>
+                            </tr>
+                            <tr>
+                                <th>Availability:</th>
+                                <td id="variationStock" class="fw-semibold">
+                                    @{
+                                        var firstVariationStock = firstVariation?.StockVariations.Sum(sv => sv.StockQuantity ?? 0) ?? 0;
+                                    }
+                                    @if (firstVariationStock > 0)
+                                    {
+                                        <span class="text-success">In Stock (@firstVariationStock available)</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-danger">Out of Stock</span>
+                                    }
+                                </td>
                             </tr>
                         </tbody>
                     </table>
@@ -350,73 +368,138 @@
 
 @section Scripts {
     <script>
-        // Change variation when thumbnail is clicked
-        function changeVariation(element, imageUrl, color, size, price) {
-            // Update main image
-            document.getElementById('mainProductImage').src = imageUrl;
+        // --- DATA SETUP ---
+        const variationStockLevels = {
+        @foreach (var v in Model.Product.Variations)
+        {
+            var stockSum = v.StockVariations.Sum(sv => sv.StockQuantity ?? 0);
+            <text>"@v.VariationId": @stockSum, </text>
+        }
+        };
 
-            // Update variation details
+        // --- GLOBAL VARIABLES ---
+        let currentMaxQuantity = variationStockLevels[@(firstVariation?.VariationId ?? 0)] || 0;
+        const quantityInput = document.getElementById('quantityInput');
+        const hiddenQuantityInput = document.getElementById('selectedQuantity');
+        const incrementBtn = document.getElementById('incrementBtn');
+        const decrementBtn = document.getElementById('decrementBtn');
+        const addToCartBtn = document.getElementById('addToCartBtn');
+
+        // --- FUNCTIONS ---
+        function changeVariation(element, imageUrl, color, size, price, variationId, stock) {
+            document.getElementById('mainProductImage').src = imageUrl || '/images/placeholder-image.png';
             document.getElementById('variationColor').textContent = color || 'N/A';
             document.getElementById('variationSize').textContent = size || 'N/A';
             document.getElementById('variationPrice').textContent = price || 'N/A';
 
-            // Update active thumbnail
+            const stockElement = document.getElementById('variationStock');
+            if (stock > 0) {
+                stockElement.innerHTML = `<span class="text-success">In Stock (${stock} available)</span>`;
+            } else {
+                stockElement.innerHTML = `<span class="text-danger">Out of Stock</span>`;
+            }
+
+            document.getElementById('selectedVariationId').value = variationId;
+            currentMaxQuantity = stock;
+            resetQuantity();
+            updateButtonStates();
+
             document.querySelectorAll('.variation-thumbnail').forEach(thumb => {
                 thumb.classList.remove('active');
             });
             element.classList.add('active');
         }
 
-        // Quantity controls
         function incrementQuantity() {
-            const input = document.getElementById('quantity');
-            input.value = parseInt(input.value) + 1;
+            let currentValue = parseInt(quantityInput.value);
+            if (currentValue < currentMaxQuantity) {
+                quantityInput.value = ++currentValue;
+                syncHiddenQuantity();
+            }
+            updateButtonStates();
         }
 
         function decrementQuantity() {
-            const input = document.getElementById('quantity');
-            if (parseInt(input.value) > 1) {
-                input.value = parseInt(input.value) - 1;
+            let currentValue = parseInt(quantityInput.value);
+            if (currentValue > 1) {
+                quantityInput.value = --currentValue;
+                syncHiddenQuantity();
+            }
+            updateButtonStates();
+        }
+
+        function resetQuantity() {
+            quantityInput.value = (currentMaxQuantity > 0) ? 1 : 0;
+            syncHiddenQuantity();
+        }
+
+        function syncHiddenQuantity() {
+            hiddenQuantityInput.value = quantityInput.value;
+        }
+
+        function updateButtonStates() {
+            const currentValue = parseInt(quantityInput.value);
+            decrementBtn.disabled = currentValue <= 1;
+            incrementBtn.disabled = currentValue >= currentMaxQuantity;
+
+            addToCartBtn.disabled = currentMaxQuantity <= 0;
+            if (currentMaxQuantity <= 0) {
+                 addToCartBtn.textContent = 'Out of Stock';
+                 quantityInput.value = 0; // Set quantity to 0 if out of stock
+                 syncHiddenQuantity();
+            } else {
+                 addToCartBtn.innerHTML = '<i class="fas fa-shopping-cart me-2"></i> Add to Cart';
             }
         }
 
-        // Add to cart function
-        function addToCart() {
-            const quantity = document.getElementById('quantity').value;
-            const selectedColor = document.getElementById('variationColor').textContent;
-            const selectedSize = document.getElementById('variationSize').textContent;
+        // --- INITIALIZATION ---
+        document.addEventListener('DOMContentLoaded', function () {
+            updateButtonStates();
 
-            alert(`Added ${quantity} item(s) to cart\nColor: ${selectedColor}\nSize: ${selectedSize}`);
-        }
+            incrementBtn.addEventListener('click', incrementQuantity);
+            decrementBtn.addEventListener('click', decrementQuantity);
 
-
-                document.querySelectorAll('.star-select').forEach(star => {
-            star.addEventListener('mouseover', function () {
-                const value = parseInt(this.getAttribute('data-value'));
-                highlightStars(value);
-            });
-
-            star.addEventListener('mouseout', function () {
-                const current = parseInt(document.getElementById('ratingValue').value) || 0;
-                highlightStars(current);
-            });
-
-            star.addEventListener('click', function () {
-                const selected = parseInt(this.getAttribute('data-value'));
-                document.getElementById('ratingValue').value = selected;
-                highlightStars(selected);
-            });
-        });
-
-        function highlightStars(value) {
-            document.querySelectorAll('.star-select').forEach(star => {
-                const starValue = parseInt(star.getAttribute('data-value'));
-                if (starValue <= value) {
-                    star.classList.add('selected');
-                } else {
-                    star.classList.remove('selected');
+            quantityInput.addEventListener('change', function() {
+                let value = parseInt(this.value);
+                if (currentMaxQuantity === 0) {
+                    value = 0;
+                } else if (isNaN(value) || value < 1) {
+                    value = 1;
+                } else if (value > currentMaxQuantity) {
+                    value = currentMaxQuantity;
                 }
+                this.value = value;
+                syncHiddenQuantity();
+                updateButtonStates();
             });
-        }
+
+            // --- Review Stars Logic ---
+            document.querySelectorAll('.star-select').forEach(star => {
+                 star.addEventListener('mouseover', function () {
+                    const value = parseInt(this.getAttribute('data-value'));
+                    highlightStars(value);
+                });
+                star.addEventListener('mouseout', function () {
+                    const current = parseInt(document.getElementById('ratingValue').value) || 0;
+                    highlightStars(current);
+                });
+                star.addEventListener('click', function () {
+                    const selected = parseInt(this.getAttribute('data-value'));
+                    document.getElementById('ratingValue').value = selected;
+                    highlightStars(selected);
+                });
+            });
+
+            function highlightStars(value) {
+                document.querySelectorAll('.star-select').forEach(star => {
+                    const starValue = parseInt(star.getAttribute('data-value'));
+                    if (starValue <= value) {
+                        star.classList.add('selected');
+                    } else {
+                        star.classList.remove('selected');
+                    }
+                });
+            }
+        });
     </script>
 }

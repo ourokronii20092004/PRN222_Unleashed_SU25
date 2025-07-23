@@ -38,6 +38,8 @@ namespace DAL.Repositories.Interfaces
 
         Task DeleteVariationWithDependenciesAsync(int variationId);
 
+        Task<List<StockVariation>> GetStockVariationsByVariationIdAsync(int variationId);
+
 
 
     }
