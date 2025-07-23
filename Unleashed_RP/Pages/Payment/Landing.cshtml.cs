@@ -11,6 +11,7 @@ namespace Unleashed_RP.Pages.Payment
     {
         private readonly IVnpayService _vnpayService;
         private readonly IOrderService _orderService;
+        
 
         public string Message { get; set; }
         public bool IsSuccess { get; set; }
@@ -47,6 +48,8 @@ namespace Unleashed_RP.Pages.Payment
                 await _orderService.ApproveOrderAsync(orderId);
                 Message = $"Thank you! Your payment for order #{order.OrderId} was successful.";
                 IsSuccess = true;
+
+
             }
             else
             {

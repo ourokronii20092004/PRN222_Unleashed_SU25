@@ -11,6 +11,7 @@ namespace DAL.Repositories.Interfaces
     {
         // For composite keys, getting by ID usually means passing the key components.
         Task<StockVariation?> GetByIdAsync(int variationId, int stockId);
+        //Task<StockVariation?> GetByIdAsync(int variationId);
         Task<List<StockVariation>> FindByVariationIdAsync(int variationId);
         Task<int?> GetTotalStockQuantityForVariationAsync(int variationId); // Corresponds to findStockProductByProductVariationId
         Task<int?> GetTotalStockQuantityForProductAsync(System.Guid productId); // Corresponds to getTotalStockQuantityForProduct (productId is Guid)

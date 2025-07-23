@@ -23,6 +23,7 @@ namespace DAL.Repositories
         {
             ArgumentNullException.ThrowIfNull(entity);
             await _context.VariationSingles.AddAsync(entity);
+            await _context.SaveChangesAsync();
             return entity;
         }
 
@@ -65,5 +66,6 @@ namespace DAL.Repositories
         {
             return await _context.SaveChangesAsync();
         }
+
     }
 }

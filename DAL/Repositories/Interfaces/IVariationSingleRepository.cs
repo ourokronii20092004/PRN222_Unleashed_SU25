@@ -18,6 +18,8 @@ namespace DAL.Repositories.Interfaces
         // Corresponds to findByVariationSingleIds(@Param("variationSingleIds") List<Integer> variationSingleIds)
         Task<List<VariationSingle>> FindByVariationSingleIdsAsync(List<int> variationSingleIds);
 
+
+
         Task<int> SaveChangesAsync();
     }
 }
